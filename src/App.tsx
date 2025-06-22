@@ -203,80 +203,83 @@ function App() {
         {/* Header Card */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 mb-6 shadow-2xl">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
-                <Pause className="w-6 h-6 text-yellow-800" />
+            <div className="flex items-center justify-between w-full">
+              {/* Left side - Logo and Title */}
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Pause className="w-6 h-6 text-yellow-800" />
+                </div>
+                <h1 className="text-3xl font-bold text-white">Minixmal</h1>
               </div>
-              <h1 className="text-3xl font-bold text-white">Minixmal</h1>
-            </div>
 
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-              <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                <Bell className="w-5 h-5" />
-              </button>
-              
-              <div className="relative">
+              {/* Center - View Toggle */}
+              <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                 <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                  className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  onClick={() => {
+                    setActiveView('tasks');
+                    setActiveTab('All');
+                    setSearchQuery('');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'tasks'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
                 >
-                  <User className="w-5 h-5" />
+                  Tasks
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView('recommendations');
+                    setActiveTab('All');
+                    setSearchQuery('');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'recommendations'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  Learn
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView('store');
+                    setActiveTab('All');
+                    setSearchQuery('');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'store'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  Store
+                </button>
+              </div>
+
+              {/* Right side - User Menu */}
+              <div className="flex items-center space-x-4">
+                <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+                  <Bell className="w-5 h-5" />
                 </button>
                 
-                {showUserProfile && (
-                  <div className="absolute top-12 right-0 z-50">
-                    <UserProfile />
-                  </div>
-                )}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserProfile(!showUserProfile)}
+                    className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                  </button>
+                  
+                  {showUserProfile && (
+                    <div className="absolute top-12 right-0 z-50">
+                      <UserProfile />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* View Toggle */}
-          <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1 mb-6">
-            <button
-              onClick={() => {
-                setActiveView('tasks');
-                setActiveTab('All');
-                setSearchQuery('');
-              }}
-              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                activeView === 'tasks'
-                  ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Tasks
-            </button>
-            <button
-              onClick={() => {
-                setActiveView('recommendations');
-                setActiveTab('All');
-                setSearchQuery('');
-              }}
-              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                activeView === 'recommendations'
-                  ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Learn
-            </button>
-            <button
-              onClick={() => {
-                setActiveView('store');
-                setActiveTab('All');
-                setSearchQuery('');
-              }}
-              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                activeView === 'store'
-                  ? 'bg-white text-indigo-600 shadow-lg'
-                  : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Store
-            </button>
           </div>
 
           {/* Category Navigation */}
@@ -342,8 +345,8 @@ function App() {
               </div>
             </div>
 
-            {/* Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto">
+            {/* Task Grid - Uniform 4-column layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {getFilteredTasks().map((task, index) => (
                 <TaskCard
                   key={task.id}

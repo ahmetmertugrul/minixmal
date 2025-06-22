@@ -111,8 +111,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
   return (
     <div
       className={`
-        ${task.size === 'large' ? 'md:col-span-2 lg:col-span-2' : 'col-span-1'}
-        ${task.size === 'medium' ? 'h-80' : task.size === 'large' ? 'h-96' : 'h-72'}
+        col-span-1 h-80
         bg-gradient-to-br ${getCardBackground(index)}
         rounded-3xl p-6 text-white relative overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
