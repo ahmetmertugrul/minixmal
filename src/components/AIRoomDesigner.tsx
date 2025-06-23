@@ -10,14 +10,19 @@ import {
   ArrowRight,
   RefreshCw,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface AnalysisResult {
   beforeImage: string;
   afterImage: string;
   checklist: ChecklistItem[];
   analysisComplete: boolean;
+  roomDescription?: string;
+  imagePrompt?: string;
 }
 
 interface ChecklistItem {
@@ -27,13 +32,26 @@ interface ChecklistItem {
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
   estimatedTime: string;
+  reason?: string;
+}
+
+interface ProcessingStage {
+  stage: 'analyzing' | 'planning' | 'transforming' | 'complete';
+  message: string;
+  progress: number;
 }
 
 const AIRoomDesigner: React.FC = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [processingStage, setProcessingStage] = useState<ProcessingStage>({
+    stage: 'analyzing',
+    message: 'Preparing analysis...',
+    progress: 0
+  });
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +61,7 @@ const AIRoomDesigner: React.FC = () => {
       reader.onload = (e) => {
         setUploadedImage(e.target?.result as string);
         setAnalysisResult(null);
+        setError(null);
       };
       reader.readAsDataURL(file);
     }
@@ -60,94 +79,122 @@ const AIRoomDesigner: React.FC = () => {
       reader.onload = (e) => {
         setUploadedImage(e.target?.result as string);
         setAnalysisResult(null);
+        setError(null);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const simulateAIAnalysis = async () => {
-    setIsAnalyzing(true);
+  const uploadImageToSupabase = async (imageDataUrl: string): Promise<string> => {
+    // Convert data URL to blob
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
     
-    // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Generate unique filename
+    const fileName = `room-${Date.now()}.jpg`;
     
-    // Mock analysis result
-    const mockChecklist: ChecklistItem[] = [
-      {
-        id: '1',
-        task: 'Remove pile of clothes from the chair',
-        category: 'Decluttering',
-        priority: 'high',
-        completed: false,
-        estimatedTime: '10 min'
-      },
-      {
-        id: '2',
-        task: 'Organize books on the shelf by category',
-        category: 'Organization',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: '20 min'
-      },
-      {
-        id: '3',
-        task: 'Clear nightstand surface, keep only essentials',
-        category: 'Decluttering',
-        priority: 'high',
-        completed: false,
-        estimatedTime: '15 min'
-      },
-      {
-        id: '4',
-        task: 'Store electronics cables in drawer organizer',
-        category: 'Organization',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: '5 min'
-      },
-      {
-        id: '5',
-        task: 'Replace multiple decorative items with one statement piece',
-        category: 'Styling',
-        priority: 'low',
-        completed: false,
-        estimatedTime: '30 min'
-      },
-      {
-        id: '6',
-        task: 'Make bed with minimal, neutral bedding',
-        category: 'Styling',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: '5 min'
-      },
-      {
-        id: '7',
-        task: 'Remove excess throw pillows, keep 1-2 maximum',
-        category: 'Decluttering',
-        priority: 'low',
-        completed: false,
-        estimatedTime: '2 min'
-      },
-      {
-        id: '8',
-        task: 'Create designated space for daily items (keys, wallet)',
-        category: 'Organization',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: '10 min'
-      }
-    ];
+    // Upload to Supabase storage
+    const { data, error } = await supabase.storage
+      .from('room-images')
+      .upload(fileName, blob, {
+        contentType: 'image/jpeg',
+        upsert: false
+      });
 
-    setAnalysisResult({
-      beforeImage: uploadedImage!,
-      afterImage: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', // Mock minimalist room
-      checklist: mockChecklist,
-      analysisComplete: true
-    });
+    if (error) {
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('room-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  const runAIAnalysis = async () => {
+    if (!uploadedImage) return;
+
+    setIsAnalyzing(true);
+    setError(null);
     
-    setChecklist(mockChecklist);
-    setIsAnalyzing(false);
+    try {
+      // Stage 1: Upload image
+      setProcessingStage({
+        stage: 'analyzing',
+        message: 'Uploading image...',
+        progress: 10
+      });
+
+      const imageUrl = await uploadImageToSupabase(uploadedImage);
+
+      // Stage 2: AI Analysis
+      setProcessingStage({
+        stage: 'analyzing',
+        message: 'AI is analyzing your room...',
+        progress: 25
+      });
+
+      // Stage 3: Planning
+      setProcessingStage({
+        stage: 'planning',
+        message: 'Creating personalized action plan...',
+        progress: 50
+      });
+
+      // Stage 4: Transforming
+      setProcessingStage({
+        stage: 'transforming',
+        message: 'Generating minimalist transformation...',
+        progress: 75
+      });
+
+      // Call the Supabase Edge Function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-room-transform`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrl }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze room');
+      }
+
+      const result = await response.json();
+
+      // Stage 5: Complete
+      setProcessingStage({
+        stage: 'complete',
+        message: 'Transformation complete!',
+        progress: 100
+      });
+
+      // Set results
+      setAnalysisResult({
+        beforeImage: uploadedImage,
+        afterImage: result.transformedImageUrl,
+        checklist: result.checklist,
+        analysisComplete: true,
+        roomDescription: result.roomDescription,
+        imagePrompt: result.imagePrompt
+      });
+      
+      setChecklist(result.checklist);
+
+    } catch (err) {
+      console.error('AI Analysis Error:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const toggleChecklistItem = (id: string) => {
@@ -173,6 +220,16 @@ const AIRoomDesigner: React.FC = () => {
       case 'Organization': return <CheckCircle className="w-4 h-4" />;
       case 'Styling': return <Sparkles className="w-4 h-4" />;
       default: return <CheckCircle className="w-4 h-4" />;
+    }
+  };
+
+  const getStageIcon = (stage: string) => {
+    switch (stage) {
+      case 'analyzing': return <Camera className="w-6 h-6" />;
+      case 'planning': return <CheckCircle className="w-6 h-6" />;
+      case 'transforming': return <Wand2 className="w-6 h-6" />;
+      case 'complete': return <Sparkles className="w-6 h-6" />;
+      default: return <Loader2 className="w-6 h-6" />;
     }
   };
 
@@ -225,8 +282,27 @@ const AIRoomDesigner: React.FC = () => {
         </div>
       )}
 
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="w-6 h-6 text-red-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-red-900">Analysis Failed</h3>
+              <p className="text-red-700">{error}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
       {/* Uploaded Image Preview */}
-      {uploadedImage && !analysisResult && (
+      {uploadedImage && !analysisResult && !isAnalyzing && (
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-bold text-gray-900">Your Room Photo</h3>
@@ -235,6 +311,7 @@ const AIRoomDesigner: React.FC = () => {
                 setUploadedImage(null);
                 setAnalysisResult(null);
                 setChecklist([]);
+                setError(null);
               }}
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
@@ -252,21 +329,11 @@ const AIRoomDesigner: React.FC = () => {
 
           <div className="flex justify-center">
             <button
-              onClick={simulateAIAnalysis}
-              disabled={isAnalyzing}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-3 disabled:opacity-50"
+              onClick={runAIAnalysis}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-3"
             >
-              {isAnalyzing ? (
-                <>
-                  <RefreshCw className="w-6 h-6 animate-spin" />
-                  <span>Analyzing Room...</span>
-                </>
-              ) : (
-                <>
-                  <Wand2 className="w-6 h-6" />
-                  <span>Transform with AI</span>
-                </>
-              )}
+              <Wand2 className="w-6 h-6" />
+              <span>Transform with AI</span>
             </button>
           </div>
         </div>
@@ -276,15 +343,21 @@ const AIRoomDesigner: React.FC = () => {
       {isAnalyzing && (
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20 text-center">
           <div className="w-20 h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Sparkles className="w-10 h-10 text-white animate-pulse" />
+            {getStageIcon(processingStage.stage)}
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">AI is Working Its Magic</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">AI Pipeline Processing</h3>
           <p className="text-gray-600 mb-6">
-            Analyzing your room and creating a personalized minimalist transformation plan...
+            {processingStage.message}
           </p>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 h-3 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+            <div 
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 h-4 rounded-full transition-all duration-1000"
+              style={{ width: `${processingStage.progress}%` }}
+            ></div>
           </div>
+          <p className="text-sm text-gray-500">
+            {processingStage.progress}% complete
+          </p>
         </div>
       )}
 
@@ -293,7 +366,7 @@ const AIRoomDesigner: React.FC = () => {
         <div className="space-y-8">
           {/* Before and After */}
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Before & After Transformation</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">AI Transformation Results</h3>
             
             <div className="grid md:grid-cols-2 gap-8">
               {/* Before */}
@@ -331,10 +404,14 @@ const AIRoomDesigner: React.FC = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 mx-auto">
+              <a
+                href={analysisResult.afterImage}
+                download="minimalist-room-transformation.jpg"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all inline-flex items-center space-x-2"
+              >
                 <Download className="w-5 h-5" />
                 <span>Download Transformation</span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -361,7 +438,7 @@ const AIRoomDesigner: React.FC = () => {
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
             <div className="flex items-center space-x-3 mb-6">
               <CheckCircle className="w-6 h-6 text-indigo-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Your Action Plan</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Your Personalized Action Plan</h3>
             </div>
             
             <div className="space-y-4">
@@ -391,6 +468,9 @@ const AIRoomDesigner: React.FC = () => {
                         }`}>
                           {item.task}
                         </p>
+                        {item.reason && (
+                          <p className="text-sm text-gray-600 mt-1">{item.reason}</p>
+                        )}
                         <div className="flex items-center space-x-3 mt-2">
                           <div className="flex items-center space-x-1">
                             {getCategoryIcon(item.category)}
@@ -421,6 +501,7 @@ const AIRoomDesigner: React.FC = () => {
                   setUploadedImage(null);
                   setAnalysisResult(null);
                   setChecklist([]);
+                  setError(null);
                 }}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 mx-auto"
               >
