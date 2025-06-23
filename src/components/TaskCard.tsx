@@ -111,7 +111,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
   return (
     <div
       className={`
-        col-span-1 h-80
+        h-80
         bg-gradient-to-br ${getCardBackground(index)}
         rounded-3xl p-6 text-white relative overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
@@ -138,13 +138,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       </div>
 
       {/* Illustration */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-4">
         {getIllustration(task.illustration)}
       </div>
 
       {/* Content */}
-      <div className="space-y-3">
-        <h3 className="text-xl font-bold leading-tight">
+      <div className="space-y-3 flex-1">
+        <h3 className="text-lg font-bold leading-tight line-clamp-2">
           {task.title}
         </h3>
         <p className="text-white/90 text-sm leading-relaxed line-clamp-2">
@@ -153,7 +153,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
 
         {/* Progress Bar */}
         {task.progress && (
-          <div className="mt-4">
+          <div className="mt-3">
             <div className="bg-white/20 rounded-full h-2">
               <div 
                 className="bg-white rounded-full h-2 transition-all duration-300"
@@ -163,24 +163,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
             <span className="text-xs text-white/80 mt-1 block">{task.progress}% complete</span>
           </div>
         )}
+      </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-              <Star className="w-4 h-4 text-yellow-700" />
-            </div>
-            <span className="text-sm font-medium capitalize">
-              {task.type.replace('-', ' ')}
-            </span>
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/20">
+        <div className="flex items-center space-x-2">
+          <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+            <Star className="w-3 h-3 text-yellow-700" />
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1 text-xs text-white/80">
-              <Clock className="w-3 h-3" />
-              <span>{task.timeEstimate}</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-white/60" />
+          <span className="text-xs font-medium capitalize">
+            {task.type.replace('-', ' ')}
+          </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 text-xs text-white/80">
+            <Clock className="w-3 h-3" />
+            <span className="truncate max-w-16">{task.timeEstimate}</span>
           </div>
+          <ChevronRight className="w-4 h-4 text-white/60" />
         </div>
       </div>
 

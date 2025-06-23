@@ -139,7 +139,7 @@ function App() {
   const getTabsForView = () => {
     switch (activeView) {
       case 'tasks':
-        return ['All', ...taskCategories.slice(0, 8)];
+        return ['All', ...taskCategories];
       case 'recommendations':
         return [
           'All',
