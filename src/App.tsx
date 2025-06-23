@@ -14,6 +14,7 @@ import {
   Play,
   Menu,
   X,
+  Camera,
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
@@ -27,8 +28,9 @@ import AuthForm from './components/AuthForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import UserProfile from './components/UserProfile';
 import OnboardingQuiz from './components/OnboardingQuiz';
+import AIRoomDesigner from './components/AIRoomDesigner';
 
-type ViewType = 'tasks' | 'recommendations' | 'store';
+type ViewType = 'tasks' | 'recommendations' | 'store' | 'ai-designer';
 
 function App() {
   const { user, loading: authLoading, signUp, signIn } = useAuth();
@@ -153,6 +155,8 @@ function App() {
         ];
       case 'store':
         return ['All', ...productCategories];
+      case 'ai-designer':
+        return [];
       default:
         return ['All'];
     }
@@ -256,6 +260,20 @@ function App() {
                 >
                   Store
                 </button>
+                <button
+                  onClick={() => {
+                    setActiveView('ai-designer');
+                    setActiveTab('All');
+                    setSearchQuery('');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'ai-designer'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  AI Designer
+                </button>
               </div>
 
               {/* Right side - User Menu */}
@@ -283,36 +301,40 @@ function App() {
           </div>
 
           {/* Category Navigation */}
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
-            {getTabsForView().map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
-                  activeTab === tab
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+          {getTabsForView().length > 0 && (
+            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+              {getTabsForView().map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
+                    activeTab === tab
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg"
-            />
+        {activeView !== 'ai-designer' && (
+          <div className="mb-6">
+            <div className="relative max-w-md">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content */}
         {activeView === 'tasks' && (
@@ -401,6 +423,8 @@ function App() {
             </div>
           </>
         )}
+
+        {activeView === 'ai-designer' && <AIRoomDesigner />}
 
         {/* Empty State */}
         {((activeView === 'tasks' && getFilteredTasks().length === 0) ||
