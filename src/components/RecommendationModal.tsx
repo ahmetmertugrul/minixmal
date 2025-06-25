@@ -35,6 +35,99 @@ const RecommendationModal: React.FC<RecommendationModalProps> = ({
     }
   };
 
+  const parseMarkdownContent = (content: string) => {
+    // Convert markdown to HTML-like structure for React
+    let parsed = content;
+    
+    // Handle bold text (**text**)
+    parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Handle headers (##, ###, etc.)
+    parsed = parsed.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    parsed = parsed.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    parsed = parsed.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    
+    // Handle bullet points (- item)
+    parsed = parsed.replace(/^- (.*$)/gm, '<li>$1</li>');
+    
+    // Wrap consecutive <li> items in <ul>
+    parsed = parsed.replace(/(<li>.*<\/li>)/gs, (match) => {
+      const items = match.split('\n').filter(line => line.trim());
+      return '<ul>' + items.join('') + '</ul>';
+    });
+    
+    // Handle line breaks
+    parsed = parsed.replace(/\n\n/g, '</p><p>');
+    parsed = '<p>' + parsed + '</p>';
+    
+    // Clean up empty paragraphs
+    parsed = parsed.replace(/<p><\/p>/g, '');
+    parsed = parsed.replace(/<p><h/g, '<h');
+    parsed = parsed.replace(/<\/h([1-6])><\/p>/g, '</h$1>');
+    parsed = parsed.replace(/<p><ul>/g, '<ul>');
+    parsed = parsed.replace(/<\/ul><\/p>/g, '</ul>');
+    
+    return parsed;
+  };
+
+  const renderFormattedContent = (content: string) => {
+    const sections = content.split('\n\n').filter(section => section.trim());
+    
+    return sections.map((section, index) => {
+      const trimmed = section.trim();
+      
+      // Handle headers
+      if (trimmed.startsWith('**') && trimmed.endsWith('**') && !trimmed.includes('\n')) {
+        const headerText = trimmed.replace(/\*\*/g, '');
+        return (
+          <h3 key={index} className="text-xl font-bold text-gray-900 mt-6 mb-3">
+            {headerText}
+          </h3>
+        );
+      }
+      
+      // Handle bullet point lists
+      if (trimmed.includes('\n- ')) {
+        const lines = trimmed.split('\n');
+        const listItems = lines.filter(line => line.trim().startsWith('- '));
+        const beforeList = lines.slice(0, lines.findIndex(line => line.trim().startsWith('- ')));
+        
+        return (
+          <div key={index} className="mb-4">
+            {beforeList.length > 0 && (
+              <p className="text-gray-800 leading-relaxed mb-3">
+                {beforeList.join(' ').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').split('<strong>').map((part, i) => {
+                  if (i === 0) return part;
+                  const [bold, rest] = part.split('</strong>');
+                  return <span key={i}><strong>{bold}</strong>{rest}</span>;
+                })}
+              </p>
+            )}
+            <ul className="list-disc list-inside space-y-2 text-gray-800 ml-4">
+              {listItems.map((item, itemIndex) => (
+                <li key={itemIndex} className="leading-relaxed">
+                  {item.replace('- ', '').replace(/\*\*(.*?)\*\*/g, (match, p1) => p1)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+      
+      // Handle regular paragraphs
+      return (
+        <p key={index} className="text-gray-800 leading-relaxed mb-4">
+          {trimmed.replace(/\*\*(.*?)\*\*/g, (match, p1) => p1).split('**').map((part, i) => {
+            if (i % 2 === 1) {
+              return <strong key={i}>{part}</strong>;
+            }
+            return part;
+          })}
+        </p>
+      );
+    });
+  };
+
   const getExpandedContent = (recommendation: Recommendation) => {
     // Extended content based on the type and topic
     const expandedContent = {
@@ -42,10 +135,10 @@ const RecommendationModal: React.FC<RecommendationModalProps> = ({
 
 **How to Apply the 90/90 Rule:**
 
-1. **Start with one category** - Begin with clothes, books, or kitchen items
-2. **Ask the key questions** - When did I last use this? Will I use it in the next 90 days?
-3. **Be honest with yourself** - Don't create hypothetical scenarios where you might need the item
-4. **Make quick decisions** - The longer you deliberate, the more likely you are to keep it
+1. Start with one category - Begin with clothes, books, or kitchen items
+2. Ask the key questions - When did I last use this? Will I use it in the next 90 days?
+3. Be honest with yourself - Don't create hypothetical scenarios where you might need the item
+4. Make quick decisions - The longer you deliberate, the more likely you are to keep it
 
 **Common Applications:**
 - **Clothing**: That dress you haven't worn in months but keep "just in case"
@@ -230,8 +323,8 @@ Remember, minimalism isn't about deprivation - it's about creating space for wha
 
           {/* Main Content */}
           <div className="prose prose-lg max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-line">
-              {getExpandedContent(recommendation)}
+            <div className="text-gray-800 leading-relaxed">
+              {renderFormattedContent(getExpandedContent(recommendation))}
             </div>
           </div>
 
