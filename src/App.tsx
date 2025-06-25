@@ -334,12 +334,12 @@ function App() {
 
           {/* Category Navigation */}
           {getTabsForView().length > 0 && (
-            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex flex-wrap gap-2 justify-center">
               {getTabsForView().map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                     activeTab === tab
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
