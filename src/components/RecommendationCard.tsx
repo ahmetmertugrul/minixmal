@@ -1,17 +1,19 @@
 import React from 'react';
-import { Clock, BookOpen, Lightbulb, Quote, Target, ChevronRight } from 'lucide-react';
+import { Clock, BookOpen, Lightbulb, Quote, Target, ChevronRight, Check } from 'lucide-react';
 import { Recommendation } from '../data/recommendations';
 
 interface RecommendationCardProps {
-  recommendation: Recommendation;
+  recommendation: Recommendation & { completed?: boolean; points?: number };
   index: number;
   onClick: () => void;
+  onToggle: (id: string) => void;
 }
 
 const RecommendationCard: React.FC<RecommendationCardProps> = ({ 
   recommendation, 
   index, 
-  onClick 
+  onClick,
+  onToggle
 }) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -76,9 +78,14 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     return backgrounds[index % backgrounds.length];
   };
 
+  const handleTickClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggle(recommendation.id);
+  };
+
   return (
     <div 
-      className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer`}
+      className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative`}
       onClick={onClick}
     >
       {/* Header */}
@@ -118,12 +125,37 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-gray-200/50">
+      <div className="mt-6 pt-4 border-t border-gray-200/50 flex items-center justify-between">
         <button className="flex items-center space-x-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors group">
           <span>Read full article</span>
           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
+        
+        {/* Tick Mark Button */}
+        <button
+          onClick={handleTickClick}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl ${
+            recommendation.completed
+              ? 'bg-green-500 text-white'
+              : 'bg-white/80 text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          <Check className="w-5 h-5" />
+        </button>
       </div>
+
+      {/* Completion Overlay */}
+      {recommendation.completed && (
+        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-3xl">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10 text-green-600" />
+            </div>
+            <p className="text-2xl font-bold mb-2 text-white">Completed!</p>
+            <p className="text-lg text-green-100">+{recommendation.points || 25} points</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -46,6 +46,9 @@ function App() {
   const [activeView, setActiveView] = useState<ViewType>('tasks');
   const [activeTab, setActiveTab] = useState('All');
   const [taskList, setTaskList] = useState(tasks);
+  const [recommendationList, setRecommendationList] = useState(
+    recommendations.map(rec => ({ ...rec, completed: false, points: Math.floor(Math.random() * 50) + 25 }))
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal state for recommendations
@@ -88,6 +91,14 @@ function App() {
     );
   };
 
+  const toggleRecommendation = (recommendationId: string) => {
+    setRecommendationList((prev) =>
+      prev.map((rec) =>
+        rec.id === recommendationId ? { ...rec, completed: !rec.completed } : rec
+      )
+    );
+  };
+
   const handleRecommendationClick = (recommendation: Recommendation) => {
     setSelectedRecommendation(recommendation);
     setIsModalOpen(true);
@@ -119,8 +130,8 @@ function App() {
   const getFilteredRecommendations = () => {
     let filtered =
       activeTab === 'All'
-        ? recommendations
-        : recommendations.filter((rec) => rec.category === activeTab);
+        ? recommendationList
+        : recommendationList.filter((rec) => rec.category === activeTab);
 
     if (searchQuery) {
       filtered = filtered.filter(
@@ -179,9 +190,14 @@ function App() {
   };
 
   const completedTasks = taskList.filter((t) => t.completed).length;
-  const totalPoints = taskList
+  const totalTaskPoints = taskList
     .filter((t) => t.completed)
     .reduce((sum, task) => sum + task.points, 0);
+
+  const completedRecommendations = recommendationList.filter((r) => r.completed).length;
+  const totalRecommendationPoints = recommendationList
+    .filter((r) => r.completed)
+    .reduce((sum, rec) => sum + (rec.points || 0), 0);
 
   // Show loading spinner while checking auth state or onboarding status
   if (authLoading || onboardingLoading) {
@@ -371,7 +387,7 @@ function App() {
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
                 <div className="text-2xl font-bold text-blue-600">
-                  {totalPoints}
+                  {totalTaskPoints}
                 </div>
                 <div className="text-sm text-gray-600">Points</div>
               </div>
@@ -399,14 +415,32 @@ function App() {
 
         {activeView === 'recommendations' && (
           <>
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">
-                Minimalism Insights
-              </h2>
-              <p className="text-white/80 text-lg">
-                Discover principles, tips, and wisdom to guide your minimalist
-                journey
-              </p>
+            {/* Stats Cards for Learn Section */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-gray-800">
+                  {completedRecommendations}
+                </div>
+                <div className="text-sm text-gray-600">Completed</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {recommendationList.length - completedRecommendations}
+                </div>
+                <div className="text-sm text-gray-600">Remaining</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-blue-600">
+                  {totalRecommendationPoints}
+                </div>
+                <div className="text-sm text-gray-600">Points</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {Math.round((completedRecommendations / recommendationList.length) * 100)}%
+                </div>
+                <div className="text-sm text-gray-600">Progress</div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -416,6 +450,7 @@ function App() {
                   recommendation={recommendation}
                   index={index}
                   onClick={() => handleRecommendationClick(recommendation)}
+                  onToggle={toggleRecommendation}
                 />
               ))}
             </div>
