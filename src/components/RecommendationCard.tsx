@@ -5,9 +5,14 @@ import { Recommendation } from '../data/recommendations';
 interface RecommendationCardProps {
   recommendation: Recommendation;
   index: number;
+  onClick: () => void;
 }
 
-const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation, index }) => {
+const RecommendationCard: React.FC<RecommendationCardProps> = ({ 
+  recommendation, 
+  index, 
+  onClick 
+}) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'article': return <BookOpen className="w-5 h-5" />;
@@ -72,7 +77,10 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation,
   };
 
   return (
-    <div className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer`}>
+    <div 
+      className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer`}
+      onClick={onClick}
+    >
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center space-x-4">
@@ -112,7 +120,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation,
       {/* Footer */}
       <div className="mt-6 pt-4 border-t border-gray-200/50">
         <button className="flex items-center space-x-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors group">
-          <span>Read more</span>
+          <span>Read full article</span>
           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>

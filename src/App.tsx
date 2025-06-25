@@ -23,12 +23,14 @@ import { recommendations } from './data/recommendations';
 import { products, categories as productCategories } from './data/products';
 import TaskCard from './components/TaskCard';
 import RecommendationCard from './components/RecommendationCard';
+import RecommendationModal from './components/RecommendationModal';
 import ProductCard from './components/ProductCard';
 import AuthForm from './components/AuthForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import UserProfile from './components/UserProfile';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import AIRoomDesigner from './components/AIRoomDesigner';
+import { Recommendation } from './data/recommendations';
 
 type ViewType = 'tasks' | 'recommendations' | 'store' | 'ai-designer';
 
@@ -45,6 +47,10 @@ function App() {
   const [activeTab, setActiveTab] = useState('All');
   const [taskList, setTaskList] = useState(tasks);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Modal state for recommendations
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAuth = async (email: string, password: string) => {
     setAuthError(null);
@@ -80,6 +86,16 @@ function App() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
+  };
+
+  const handleRecommendationClick = (recommendation: Recommendation) => {
+    setSelectedRecommendation(recommendation);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecommendation(null);
   };
 
   const getFilteredTasks = () => {
@@ -399,6 +415,7 @@ function App() {
                   key={recommendation.id}
                   recommendation={recommendation}
                   index={index}
+                  onClick={() => handleRecommendationClick(recommendation)}
                 />
               ))}
             </div>
@@ -444,6 +461,15 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Recommendation Modal */}
+      {selectedRecommendation && (
+        <RecommendationModal
+          recommendation={selectedRecommendation}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+        />
+      )}
 
       {/* Click outside to close user profile */}
       {showUserProfile && (
