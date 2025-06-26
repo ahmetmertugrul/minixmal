@@ -257,17 +257,80 @@ function App() {
   // Show auth form if activeView is 'auth'
   if (activeView === 'auth') {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6 flex items-center justify-center">
-        <AuthForm
-          mode={authMode}
-          onSubmit={handleAuth}
-          onToggleMode={() => {
-            setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
-            setAuthError(null);
-          }}
-          loading={false}
-          error={authError}
-        />
+      <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6">
+        {/* Header Card */}
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 mb-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between w-full">
+                {/* Left side - Logo and Title */}
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Pause className="w-6 h-6 text-yellow-800" />
+                  </div>
+                  <h1 className="text-3xl font-bold text-white">Minixmal</h1>
+                </div>
+
+                {/* Center - View Toggle */}
+                <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
+                  <button
+                    onClick={() => setActiveView('home')}
+                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                  >
+                    Home
+                  </button>
+                  <button
+                    onClick={() => setActiveView('ai-designer')}
+                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                  >
+                    AI Designer
+                  </button>
+                  <button
+                    onClick={() => setActiveView('learn')}
+                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                  >
+                    Learn
+                  </button>
+                  <button
+                    onClick={() => setActiveView('tasks')}
+                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                  >
+                    Tasks
+                  </button>
+                  <button
+                    onClick={() => setActiveView('store')}
+                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                  >
+                    Store
+                  </button>
+                </div>
+
+                {/* Right side - Sign In Button */}
+                <div className="flex items-center space-x-4">
+                  <button
+                    className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white hover:bg-white/30 transition-colors font-medium"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Auth Form */}
+        <div className="flex items-center justify-center">
+          <AuthForm
+            mode={authMode}
+            onSubmit={handleAuth}
+            onToggleMode={() => {
+              setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
+              setAuthError(null);
+            }}
+            loading={false}
+            error={authError}
+          />
+        </div>
         
         {/* Bolt Logo */}
         <a
