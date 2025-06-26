@@ -289,31 +289,51 @@ function App() {
                 <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                   <button
                     onClick={() => handleHeaderNavigation('home')}
-                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                    className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
+                      activeView === 'home'
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
                   >
                     Home
                   </button>
                   <button
                     onClick={() => handleHeaderNavigation('ai-designer')}
-                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                    className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
+                      activeView === 'ai-designer'
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
                   >
                     AI Designer
                   </button>
                   <button
                     onClick={() => handleHeaderNavigation('learn')}
-                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                    className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
+                      activeView === 'learn' || activeView === 'auth'
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
                   >
                     Learn
                   </button>
                   <button
                     onClick={() => handleHeaderNavigation('tasks')}
-                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                    className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
+                      activeView === 'tasks' || activeView === 'auth'
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
                   >
                     Tasks
                   </button>
                   <button
                     onClick={() => handleHeaderNavigation('store')}
-                    className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
+                    className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
+                      activeView === 'store'
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
                   >
                     Store
                   </button>
@@ -322,7 +342,7 @@ function App() {
                 {/* Right side - Sign In Button */}
                 <div className="flex items-center space-x-4">
                   <button
-                    className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white hover:bg-white/30 transition-colors font-medium"
+                    className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-white hover:bg-white/30 transition-colors font-semibold text-base"
                   >
                     Sign In
                   </button>
@@ -409,50 +429,50 @@ function App() {
               <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                 <button
                   onClick={() => handleNavigation('home')}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeView === 'home'
                       ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   Home
                 </button>
                 <button
                   onClick={() => handleNavigation('ai-designer')}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeView === 'ai-designer'
                       ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   AI Designer
                 </button>
                 <button
                   onClick={() => handleNavigation('learn')}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeView === 'learn'
                       ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   Learn
                 </button>
                 <button
                   onClick={() => handleNavigation('tasks')}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeView === 'tasks'
                       ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   Tasks
                 </button>
                 <button
                   onClick={() => handleNavigation('store')}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeView === 'store'
                       ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   Store
@@ -479,7 +499,7 @@ function App() {
                 ) : (
                   <button
                     onClick={handleSignInClick}
-                    className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white hover:bg-white/30 transition-colors font-medium"
+                    className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-white hover:bg-white/30 transition-colors font-semibold text-base"
                   >
                     Sign In
                   </button>
@@ -495,7 +515,7 @@ function App() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                  className={`px-5 py-3 rounded-xl font-semibold text-base transition-all ${
                     activeTab === tab
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -518,7 +538,7 @@ function App() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg"
+                className="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg text-base"
               />
             </div>
           </div>
