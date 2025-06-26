@@ -201,13 +201,30 @@ function App() {
 
   // Show loading spinner while checking auth state or onboarding status
   if (authLoading || onboardingLoading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="relative">
+        <LoadingSpinner />
+        {/* Bolt Logo */}
+        <a
+          href="https://bolt.new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
+        >
+          <img
+            src="/black_circle_360x360.png"
+            alt="Powered by Bolt"
+            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
+          />
+        </a>
+      </div>
+    );
   }
 
   // Show auth form if user is not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6 flex items-center justify-center">
+      <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6 flex items-center justify-center">
         <AuthForm
           mode={authMode}
           onSubmit={handleAuth}
@@ -218,6 +235,20 @@ function App() {
           loading={false}
           error={authError}
         />
+        
+        {/* Bolt Logo */}
+        <a
+          href="https://bolt.new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
+        >
+          <img
+            src="/black_circle_360x360.png"
+            alt="Powered by Bolt"
+            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
+          />
+        </a>
       </div>
     );
   }
@@ -225,15 +256,31 @@ function App() {
   // Show onboarding quiz if user needs to complete it
   if (needsOnboarding) {
     return (
-      <OnboardingQuiz
-        onComplete={handleOnboardingComplete}
-        loading={onboardingSubmitting}
-      />
+      <div className="relative">
+        <OnboardingQuiz
+          onComplete={handleOnboardingComplete}
+          loading={onboardingSubmitting}
+        />
+        
+        {/* Bolt Logo */}
+        <a
+          href="https://bolt.new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
+        >
+          <img
+            src="/black_circle_360x360.png"
+            alt="Powered by Bolt"
+            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
+          />
+        </a>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6">
+    <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6">
       {/* Main Container */}
       <div className="max-w-7xl mx-auto">
         {/* Header Card */}
@@ -513,6 +560,20 @@ function App() {
           onClick={() => setShowUserProfile(false)}
         />
       )}
+
+      {/* Bolt Logo - Fixed Position */}
+      <a
+        href="https://bolt.new"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
+      >
+        <img
+          src="/black_circle_360x360.png"
+          alt="Powered by Bolt"
+          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
+        />
+      </a>
     </div>
   );
 }
