@@ -135,6 +135,20 @@ function App() {
     setSearchQuery('');
   };
 
+  // Handle navigation from header (including when on auth page)
+  const handleHeaderNavigation = (view: ViewType) => {
+    // If user is not authenticated and trying to access Learn or Tasks, stay on auth page
+    if (!user && (view === 'learn' || view === 'tasks')) {
+      setActiveView('auth');
+      return;
+    }
+    
+    // For other views, navigate normally
+    setActiveView(view);
+    setActiveTab('All');
+    setSearchQuery('');
+  };
+
   // Handle sign in button click
   const handleSignInClick = () => {
     setActiveView('auth');
@@ -274,31 +288,31 @@ function App() {
                 {/* Center - View Toggle */}
                 <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                   <button
-                    onClick={() => setActiveView('home')}
+                    onClick={() => handleHeaderNavigation('home')}
                     className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
                   >
                     Home
                   </button>
                   <button
-                    onClick={() => setActiveView('ai-designer')}
+                    onClick={() => handleHeaderNavigation('ai-designer')}
                     className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
                   >
                     AI Designer
                   </button>
                   <button
-                    onClick={() => setActiveView('learn')}
+                    onClick={() => handleHeaderNavigation('learn')}
                     className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
                   >
                     Learn
                   </button>
                   <button
-                    onClick={() => setActiveView('tasks')}
+                    onClick={() => handleHeaderNavigation('tasks')}
                     className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
                   >
                     Tasks
                   </button>
                   <button
-                    onClick={() => setActiveView('store')}
+                    onClick={() => handleHeaderNavigation('store')}
                     className="px-4 py-2 rounded-xl font-medium text-sm transition-all text-white/80 hover:text-white"
                   >
                     Store
