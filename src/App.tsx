@@ -54,6 +54,7 @@ function App() {
   const [onboardingSubmitting, setOnboardingSubmitting] = useState(false);
   
   const [activeView, setActiveView] = useState<ViewType>('home');
+  const [pendingView, setPendingView] = useState<ViewType | null>(null); // Track which view user wanted to access
   const [activeTab, setActiveTab] = useState('All');
   const [taskList, setTaskList] = useState(tasks);
   const [recommendationList, setRecommendationList] = useState(
@@ -76,8 +77,9 @@ function App() {
       if (error) {
         setAuthError(error.message);
       } else {
-        // Successfully authenticated, go back to home
-        setActiveView('home');
+        // Successfully authenticated, go to pending view or home
+        setActiveView(pendingView || 'home');
+        setPendingView(null);
       }
     } catch (err) {
       setAuthError('An unexpected error occurred');
@@ -127,10 +129,12 @@ function App() {
     // If user is not authenticated and trying to access Learn or Tasks, show auth form
     if (!user && (view === 'learn' || view === 'tasks')) {
       setActiveView('auth');
+      setPendingView(view); // Remember which view they wanted
       return;
     }
     
     setActiveView(view);
+    setPendingView(null);
     setActiveTab('All');
     setSearchQuery('');
   };
@@ -140,11 +144,13 @@ function App() {
     // If user is not authenticated and trying to access Learn or Tasks, stay on auth page
     if (!user && (view === 'learn' || view === 'tasks')) {
       setActiveView('auth');
+      setPendingView(view); // Remember which view they wanted
       return;
     }
     
     // For other views, navigate normally
     setActiveView(view);
+    setPendingView(null);
     setActiveTab('All');
     setSearchQuery('');
   };
@@ -152,6 +158,7 @@ function App() {
   // Handle sign in button click
   const handleSignInClick = () => {
     setActiveView('auth');
+    setPendingView(null);
   };
 
   const getFilteredTasks = () => {
@@ -310,7 +317,7 @@ function App() {
                   <button
                     onClick={() => handleHeaderNavigation('learn')}
                     className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
-                      activeView === 'learn' || activeView === 'auth'
+                      pendingView === 'learn'
                         ? 'bg-white text-indigo-600 shadow-lg'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
@@ -320,7 +327,7 @@ function App() {
                   <button
                     onClick={() => handleHeaderNavigation('tasks')}
                     className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
-                      activeView === 'tasks' || activeView === 'auth'
+                      pendingView === 'tasks'
                         ? 'bg-white text-indigo-600 shadow-lg'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
