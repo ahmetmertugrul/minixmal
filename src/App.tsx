@@ -120,6 +120,19 @@ function App() {
     setSelectedRecommendation(null);
   };
 
+  // Handle navigation with authentication check
+  const handleNavigation = (view: ViewType) => {
+    // If user is not authenticated and trying to access Learn or Tasks, show auth form
+    if (!user && (view === 'learn' || view === 'tasks')) {
+      // Don't change the view, this will trigger the auth form display
+      return;
+    }
+    
+    setActiveView(view);
+    setActiveTab('All');
+    setSearchQuery('');
+  };
+
   const getFilteredTasks = () => {
     let filtered =
       activeTab === 'All'
@@ -233,8 +246,8 @@ function App() {
     );
   }
 
-  // Show auth form if user is not authenticated
-  if (!user) {
+  // Show auth form if user is not authenticated and trying to access protected pages
+  if (!user && (activeView === 'learn' || activeView === 'tasks')) {
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6 flex items-center justify-center">
         <AuthForm
@@ -266,7 +279,7 @@ function App() {
   }
 
   // Show onboarding quiz if user needs to complete it
-  if (needsOnboarding) {
+  if (user && needsOnboarding) {
     return (
       <div className="relative">
         <OnboardingQuiz
@@ -307,28 +320,10 @@ function App() {
                 <h1 className="text-3xl font-bold text-white">Minixmal</h1>
               </div>
 
-              {/* Center - View Toggle (Alphabetically sorted) */}
+              {/* Center - View Toggle (Custom sorted order) */}
               <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                 <button
-                  onClick={() => {
-                    setActiveView('ai-designer');
-                    setActiveTab('All');
-                    setSearchQuery('');
-                  }}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    activeView === 'ai-designer'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
-                  }`}
-                >
-                  AI Designer
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveView('home');
-                    setActiveTab('All');
-                    setSearchQuery('');
-                  }}
+                  onClick={() => handleNavigation('home')}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                     activeView === 'home'
                       ? 'bg-white text-indigo-600 shadow-lg'
@@ -338,11 +333,17 @@ function App() {
                   Home
                 </button>
                 <button
-                  onClick={() => {
-                    setActiveView('learn');
-                    setActiveTab('All');
-                    setSearchQuery('');
-                  }}
+                  onClick={() => handleNavigation('ai-designer')}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'ai-designer'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  AI Designer
+                </button>
+                <button
+                  onClick={() => handleNavigation('learn')}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                     activeView === 'learn'
                       ? 'bg-white text-indigo-600 shadow-lg'
@@ -352,25 +353,7 @@ function App() {
                   Learn
                 </button>
                 <button
-                  onClick={() => {
-                    setActiveView('store');
-                    setActiveTab('All');
-                    setSearchQuery('');
-                  }}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    activeView === 'store'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white'
-                  }`}
-                >
-                  Store
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveView('tasks');
-                    setActiveTab('All');
-                    setSearchQuery('');
-                  }}
+                  onClick={() => handleNavigation('tasks')}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                     activeView === 'tasks'
                       ? 'bg-white text-indigo-600 shadow-lg'
@@ -378,6 +361,16 @@ function App() {
                   }`}
                 >
                   Tasks
+                </button>
+                <button
+                  onClick={() => handleNavigation('store')}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'store'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  Store
                 </button>
               </div>
 
@@ -387,20 +380,29 @@ function App() {
                   <Bell className="w-5 h-5" />
                 </button>
                 
-                <div className="relative">
+                {user ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowUserProfile(!showUserProfile)}
+                      className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                    </button>
+                    
+                    {showUserProfile && (
+                      <div className="absolute top-12 right-0 z-50">
+                        <UserProfile />
+                      </div>
+                    )}
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setShowUserProfile(!showUserProfile)}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    onClick={() => handleNavigation('learn')}
+                    className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white hover:bg-white/30 transition-colors font-medium"
                   >
-                    <User className="w-5 h-5" />
+                    Sign In
                   </button>
-                  
-                  {showUserProfile && (
-                    <div className="absolute top-12 right-0 z-50">
-                      <UserProfile />
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -493,108 +495,110 @@ function App() {
               </div>
             </div>
 
-            {/* Progress Overview */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Tasks Progress */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
+            {/* Progress Overview - Only show if user is logged in */}
+            {user && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Tasks Progress */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center">
+                      <Target className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Your Tasks</h3>
+                      <p className="text-gray-600">Decluttering challenges and habits</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">Your Tasks</h3>
-                    <p className="text-gray-600">Decluttering challenges and habits</p>
+
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center p-4 bg-blue-50 rounded-2xl">
+                      <div className="text-2xl font-bold text-blue-600">{completedTasks}</div>
+                      <div className="text-sm text-gray-600">Completed</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-2xl">
+                      <div className="text-2xl font-bold text-orange-600">{taskList.length - completedTasks}</div>
+                      <div className="text-sm text-gray-600">Remaining</div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <span>Progress</span>
+                      <span>{Math.round((completedTasks / taskList.length) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${(completedTasks / taskList.length) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Award className="w-5 h-5 text-yellow-500" />
+                      <span className="text-lg font-bold text-gray-900">{totalTaskPoints} points</span>
+                    </div>
+                    <button
+                      onClick={() => setActiveView('tasks')}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors"
+                    >
+                      View Tasks
+                    </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-2xl">
-                    <div className="text-2xl font-bold text-blue-600">{completedTasks}</div>
-                    <div className="text-sm text-gray-600">Completed</div>
+                {/* Learning Progress */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Your Learning</h3>
+                      <p className="text-gray-600">Insights and principles</p>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-orange-50 rounded-2xl">
-                    <div className="text-2xl font-bold text-orange-600">{taskList.length - completedTasks}</div>
-                    <div className="text-sm text-gray-600">Remaining</div>
-                  </div>
-                </div>
 
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Progress</span>
-                    <span>{Math.round((completedTasks / taskList.length) * 100)}%</span>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center p-4 bg-green-50 rounded-2xl">
+                      <div className="text-2xl font-bold text-green-600">{completedRecommendations}</div>
+                      <div className="text-sm text-gray-600">Completed</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-2xl">
+                      <div className="text-2xl font-bold text-orange-600">{recommendationList.length - completedRecommendations}</div>
+                      <div className="text-sm text-gray-600">Remaining</div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${(completedTasks / taskList.length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Award className="w-5 h-5 text-yellow-500" />
-                    <span className="text-lg font-bold text-gray-900">{totalTaskPoints} points</span>
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <span>Progress</span>
+                      <span>{Math.round((completedRecommendations / recommendationList.length) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${(completedRecommendations / recommendationList.length) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setActiveView('tasks')}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors"
-                  >
-                    View Tasks
-                  </button>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Award className="w-5 h-5 text-yellow-500" />
+                      <span className="text-lg font-bold text-gray-900">{totalRecommendationPoints} points</span>
+                    </div>
+                    <button
+                      onClick={() => setActiveView('learn')}
+                      className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition-colors"
+                    >
+                      Start Learning
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              {/* Learning Progress */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">Your Learning</h3>
-                    <p className="text-gray-600">Insights and principles</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center p-4 bg-green-50 rounded-2xl">
-                    <div className="text-2xl font-bold text-green-600">{completedRecommendations}</div>
-                    <div className="text-sm text-gray-600">Completed</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-50 rounded-2xl">
-                    <div className="text-2xl font-bold text-orange-600">{recommendationList.length - completedRecommendations}</div>
-                    <div className="text-sm text-gray-600">Remaining</div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Progress</span>
-                    <span>{Math.round((completedRecommendations / recommendationList.length) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${(completedRecommendations / recommendationList.length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Award className="w-5 h-5 text-yellow-500" />
-                    <span className="text-lg font-bold text-gray-900">{totalRecommendationPoints} points</span>
-                  </div>
-                  <button
-                    onClick={() => setActiveView('learn')}
-                    className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition-colors"
-                  >
-                    Start Learning
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Quick Actions */}
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
@@ -610,7 +614,7 @@ function App() {
                 </button>
 
                 <button
-                  onClick={() => setActiveView('tasks')}
+                  onClick={() => handleNavigation('tasks')}
                   className="p-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
                 >
                   <CheckCircle className="w-8 h-8 mb-3 mx-auto" />
@@ -619,7 +623,7 @@ function App() {
                 </button>
 
                 <button
-                  onClick={() => setActiveView('learn')}
+                  onClick={() => handleNavigation('learn')}
                   className="p-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
                 >
                   <Lightbulb className="w-8 h-8 mb-3 mx-auto" />
@@ -661,7 +665,7 @@ function App() {
           </div>
         )}
 
-        {activeView === 'tasks' && (
+        {activeView === 'tasks' && user && (
           <>
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -705,7 +709,7 @@ function App() {
           </>
         )}
 
-        {activeView === 'learn' && (
+        {activeView === 'learn' && user && (
           <>
             {/* Stats Cards for Learn Section */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -771,8 +775,8 @@ function App() {
         {activeView === 'ai-designer' && <AIRoomDesigner />}
 
         {/* Empty State */}
-        {((activeView === 'tasks' && getFilteredTasks().length === 0) ||
-          (activeView === 'learn' &&
+        {((activeView === 'tasks' && user && getFilteredTasks().length === 0) ||
+          (activeView === 'learn' && user &&
             getFilteredRecommendations().length === 0) ||
           (activeView === 'store' && getFilteredProducts().length === 0)) && (
           <div className="text-center py-16">
