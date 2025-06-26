@@ -25,6 +25,9 @@ import {
   Shield,
   Globe,
   Sparkles,
+  Trophy,
+  Medal,
+  Crown,
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
@@ -42,7 +45,7 @@ import OnboardingQuiz from './components/OnboardingQuiz';
 import AIRoomDesigner from './components/AIRoomDesigner';
 import { Recommendation } from './data/recommendations';
 
-type ViewType = 'home' | 'ai-designer' | 'learn' | 'store' | 'tasks' | 'auth';
+type ViewType = 'home' | 'ai-designer' | 'learn' | 'score' | 'tasks' | 'auth';
 
 function App() {
   const { user, loading: authLoading, signUp, signIn } = useAuth();
@@ -232,8 +235,8 @@ function App() {
           'Lifestyle',
           'Organization',
         ];
-      case 'store':
-        return ['All', ...productCategories];
+      case 'score':
+        return ['All Users', 'Friends', 'This Week', 'This Month', 'All Time'];
       case 'ai-designer':
       case 'home':
       case 'auth':
@@ -252,6 +255,20 @@ function App() {
   const totalRecommendationPoints = recommendationList
     .filter((r) => r.completed)
     .reduce((sum, rec) => sum + (rec.points || 0), 0);
+
+  const totalPoints = totalTaskPoints + totalRecommendationPoints;
+
+  // Mock leaderboard data
+  const leaderboardData = [
+    { id: 1, name: 'Sarah Chen', email: 'sarah@example.com', points: 2450, tasksCompleted: 45, rank: 1, avatar: '👩‍💼', streak: 12 },
+    { id: 2, name: 'Alex Johnson', email: 'alex@example.com', points: 2380, tasksCompleted: 42, rank: 2, avatar: '👨‍💻', streak: 8 },
+    { id: 3, name: 'Maria Garcia', email: 'maria@example.com', points: 2290, tasksCompleted: 38, rank: 3, avatar: '👩‍🎨', streak: 15 },
+    { id: 4, name: 'David Kim', email: 'david@example.com', points: 2150, tasksCompleted: 35, rank: 4, avatar: '👨‍🔬', streak: 6 },
+    { id: 5, name: 'Emma Wilson', email: 'emma@example.com', points: 2080, tasksCompleted: 33, rank: 5, avatar: '👩‍🏫', streak: 9 },
+    { id: 6, name: 'You', email: user?.email || 'you@example.com', points: totalPoints, tasksCompleted: completedTasks + completedRecommendations, rank: 6, avatar: '👤', streak: 4 },
+    { id: 7, name: 'James Brown', email: 'james@example.com', points: 1950, tasksCompleted: 29, rank: 7, avatar: '👨‍🎯', streak: 3 },
+    { id: 8, name: 'Lisa Wang', email: 'lisa@example.com', points: 1890, tasksCompleted: 27, rank: 8, avatar: '👩‍💼', streak: 7 },
+  ].sort((a, b) => b.points - a.points).map((user, index) => ({ ...user, rank: index + 1 }));
 
   // Show loading spinner while checking auth state or onboarding status
   if (authLoading || onboardingLoading) {
@@ -335,14 +352,14 @@ function App() {
                     Tasks
                   </button>
                   <button
-                    onClick={() => handleHeaderNavigation('store')}
+                    onClick={() => handleHeaderNavigation('score')}
                     className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
-                      activeView === 'store'
+                      activeView === 'score'
                         ? 'bg-white text-indigo-600 shadow-lg'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    Store
+                    Score
                   </button>
                 </div>
 
@@ -475,14 +492,14 @@ function App() {
                   Tasks
                 </button>
                 <button
-                  onClick={() => handleNavigation('store')}
+                  onClick={() => handleNavigation('score')}
                   className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ${
-                    activeView === 'store'
+                    activeView === 'score'
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  Store
+                  Score
                 </button>
               </div>
 
@@ -536,7 +553,7 @@ function App() {
         </div>
 
         {/* Search Bar */}
-        {activeView !== 'ai-designer' && activeView !== 'home' && (
+        {activeView !== 'ai-designer' && activeView !== 'home' && activeView !== 'score' && (
           <div className="mb-6">
             <div className="relative max-w-md">
               <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -595,10 +612,10 @@ function App() {
 
                 <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl">
                   <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <ShoppingBag className="w-8 h-8 text-white" />
+                    <Trophy className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Curated Store</h3>
-                  <p className="text-gray-600 text-sm">Quality products that support your minimalist lifestyle</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Score & Compete</h3>
+                  <p className="text-gray-600 text-sm">Track your progress and compete with other minimalists</p>
                 </div>
               </div>
             </div>
@@ -861,23 +878,179 @@ function App() {
           </>
         )}
 
-        {activeView === 'store' && (
-          <>
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">
-                Minimalist Store
-              </h2>
-              <p className="text-white/80 text-lg">
-                Curated products to support your minimalist lifestyle
+        {activeView === 'score' && (
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="text-center">
+              <h2 className="text-4xl font-bold text-white mb-4">Leaderboard & Statistics</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                See how you rank among fellow minimalists and track your progress over time.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {getFilteredProducts().map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            {/* Your Stats */}
+            {user && (
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Trophy className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">Your Progress</h3>
+                  <p className="text-gray-600">Keep up the great work on your minimalism journey!</p>
+                </div>
+
+                <div className="grid md:grid-cols-4 gap-6">
+                  <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl">
+                    <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Award className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold text-blue-600 mb-2">{totalPoints}</div>
+                    <div className="text-sm text-gray-600">Total Points</div>
+                  </div>
+
+                  <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl">
+                    <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">{completedTasks + completedRecommendations}</div>
+                    <div className="text-sm text-gray-600">Tasks Completed</div>
+                  </div>
+
+                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl">
+                    <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <TrendingUp className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold text-purple-600 mb-2">#{leaderboardData.find(u => u.name === 'You')?.rank || 6}</div>
+                    <div className="text-sm text-gray-600">Global Rank</div>
+                  </div>
+
+                  <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl">
+                    <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Zap className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold text-orange-600 mb-2">4</div>
+                    <div className="text-sm text-gray-600">Day Streak</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Leaderboard */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
+              <div className="flex items-center space-x-3 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Global Leaderboard</h3>
+                  <p className="text-gray-600">Top minimalists from around the world</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {leaderboardData.map((user, index) => (
+                  <div 
+                    key={user.id}
+                    className={`flex items-center justify-between p-4 rounded-2xl transition-all ${
+                      user.name === 'You' 
+                        ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200' 
+                        : 'bg-gray-50 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      {/* Rank */}
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                        user.rank === 1 ? 'bg-yellow-400 text-yellow-900' :
+                        user.rank === 2 ? 'bg-gray-300 text-gray-700' :
+                        user.rank === 3 ? 'bg-orange-400 text-orange-900' :
+                        'bg-gray-200 text-gray-600'
+                      }`}>
+                        {user.rank === 1 ? <Crown className="w-6 h-6" /> :
+                         user.rank === 2 ? <Medal className="w-6 h-6" /> :
+                         user.rank === 3 ? <Award className="w-6 h-6" /> :
+                         user.rank}
+                      </div>
+
+                      {/* Avatar */}
+                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-2xl">
+                        {user.avatar}
+                      </div>
+
+                      {/* User Info */}
+                      <div>
+                        <div className="font-semibold text-gray-900 flex items-center space-x-2">
+                          <span>{user.name}</span>
+                          {user.name === 'You' && (
+                            <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
+                              You
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">{user.tasksCompleted} tasks completed</div>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">{user.points.toLocaleString()}</div>
+                      <div className="text-sm text-gray-600 flex items-center space-x-1">
+                        <Zap className="w-4 h-4 text-orange-500" />
+                        <span>{user.streak} day streak</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </>
+
+            {/* Statistics */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <BarChart3 className="w-6 h-6 mr-2 text-indigo-600" />
+                  Weekly Progress
+                </h3>
+                <div className="space-y-3">
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+                    <div key={day} className="flex items-center justify-between">
+                      <span className="text-gray-600">{day}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
+                            style={{ width: `${Math.random() * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-gray-500 w-8">{Math.floor(Math.random() * 10)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Target className="w-6 h-6 mr-2 text-green-600" />
+                  Category Breakdown
+                </h3>
+                <div className="space-y-3">
+                  {['Wardrobe', 'Digital', 'Home', 'Finance', 'Health'].map((category, index) => (
+                    <div key={category} className="flex items-center justify-between">
+                      <span className="text-gray-600">{category}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
+                            style={{ width: `${Math.random() * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-gray-500 w-8">{Math.floor(Math.random() * 20)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {activeView === 'ai-designer' && <AIRoomDesigner />}
@@ -886,7 +1059,7 @@ function App() {
         {((activeView === 'tasks' && user && getFilteredTasks().length === 0) ||
           (activeView === 'learn' && user &&
             getFilteredRecommendations().length === 0) ||
-          (activeView === 'store' && getFilteredProducts().length === 0)) && (
+          (activeView === 'score' && getFilteredProducts().length === 0)) && (
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-6">
               <Search className="w-10 h-10 text-white/60" />
