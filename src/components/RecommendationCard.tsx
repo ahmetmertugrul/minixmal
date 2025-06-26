@@ -78,15 +78,35 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     return backgrounds[index % backgrounds.length];
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the card is completed, clicking anywhere should toggle it back
+    if (recommendation.completed) {
+      e.stopPropagation();
+      onToggle(recommendation.id);
+      return;
+    }
+    
+    // If not completed, clicking the card opens the modal
+    onClick();
+  };
+
   const handleTickClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggle(recommendation.id);
   };
 
+  const handleReadMoreClick = (e: React.MouseEvent) => {
+    // Only allow reading more if not completed
+    if (!recommendation.completed) {
+      e.stopPropagation();
+      onClick();
+    }
+  };
+
   return (
     <div 
       className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative`}
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
@@ -126,9 +146,19 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
       {/* Footer */}
       <div className="mt-6 pt-4 border-t border-gray-200/50 flex items-center justify-between">
-        <button className="flex items-center space-x-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors group">
+        <button 
+          onClick={handleReadMoreClick}
+          className={`flex items-center space-x-2 text-sm font-semibold transition-colors group ${
+            recommendation.completed 
+              ? 'text-gray-400 cursor-not-allowed' 
+              : 'text-indigo-600 hover:text-indigo-700'
+          }`}
+          disabled={recommendation.completed}
+        >
           <span>Read full article</span>
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {!recommendation.completed && (
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          )}
         </button>
         
         {/* Tick Mark Button */}
@@ -136,7 +166,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
           onClick={handleTickClick}
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl ${
             recommendation.completed
-              ? 'bg-green-500 text-white'
+              ? 'bg-green-500 text-white hover:bg-green-600'
               : 'bg-white/80 text-gray-600 hover:bg-gray-100'
           }`}
         >
@@ -146,13 +176,14 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
       {/* Completion Overlay */}
       {recommendation.completed && (
-        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-3xl">
+        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-3xl cursor-pointer hover:bg-green-600/90 transition-colors">
           <div className="text-center">
             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10 text-green-600" />
             </div>
             <p className="text-2xl font-bold mb-2 text-white">Completed!</p>
             <p className="text-lg text-green-100">+{recommendation.points || 25} points</p>
+            <p className="text-sm text-green-200 mt-2 opacity-80">Click to undo</p>
           </div>
         </div>
       )}
