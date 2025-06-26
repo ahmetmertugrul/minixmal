@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Search,
-  Bell,
   User,
   Star,
   BarChart3,
@@ -43,7 +42,7 @@ import OnboardingQuiz from './components/OnboardingQuiz';
 import AIRoomDesigner from './components/AIRoomDesigner';
 import { Recommendation } from './data/recommendations';
 
-type ViewType = 'home' | 'ai-designer' | 'learn' | 'store' | 'tasks';
+type ViewType = 'home' | 'ai-designer' | 'learn' | 'store' | 'tasks' | 'auth';
 
 function App() {
   const { user, loading: authLoading, signUp, signIn } = useAuth();
@@ -76,6 +75,9 @@ function App() {
 
       if (error) {
         setAuthError(error.message);
+      } else {
+        // Successfully authenticated, go back to home
+        setActiveView('home');
       }
     } catch (err) {
       setAuthError('An unexpected error occurred');
@@ -124,13 +126,18 @@ function App() {
   const handleNavigation = (view: ViewType) => {
     // If user is not authenticated and trying to access Learn or Tasks, show auth form
     if (!user && (view === 'learn' || view === 'tasks')) {
-      // Don't change the view, this will trigger the auth form display
+      setActiveView('auth');
       return;
     }
     
     setActiveView(view);
     setActiveTab('All');
     setSearchQuery('');
+  };
+
+  // Handle sign in button click
+  const handleSignInClick = () => {
+    setActiveView('auth');
   };
 
   const getFilteredTasks = () => {
@@ -208,6 +215,7 @@ function App() {
         return ['All', ...productCategories];
       case 'ai-designer':
       case 'home':
+      case 'auth':
         return [];
       default:
         return ['All'];
@@ -246,8 +254,8 @@ function App() {
     );
   }
 
-  // Show auth form if user is not authenticated and trying to access protected pages
-  if (!user && (activeView === 'learn' || activeView === 'tasks')) {
+  // Show auth form if activeView is 'auth'
+  if (activeView === 'auth') {
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-6 flex items-center justify-center">
         <AuthForm
@@ -376,10 +384,6 @@ function App() {
 
               {/* Right side - User Menu */}
               <div className="flex items-center space-x-4">
-                <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                  <Bell className="w-5 h-5" />
-                </button>
-                
                 {user ? (
                   <div className="relative">
                     <button
@@ -397,7 +401,7 @@ function App() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleNavigation('learn')}
+                    onClick={handleSignInClick}
                     className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white hover:bg-white/30 transition-colors font-medium"
                   >
                     Sign In
