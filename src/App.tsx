@@ -15,6 +15,17 @@ import {
   Menu,
   X,
   Camera,
+  TrendingUp,
+  Users,
+  Award,
+  Calendar,
+  CheckCircle,
+  Lightbulb,
+  Zap,
+  Heart,
+  Shield,
+  Globe,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
@@ -32,7 +43,7 @@ import OnboardingQuiz from './components/OnboardingQuiz';
 import AIRoomDesigner from './components/AIRoomDesigner';
 import { Recommendation } from './data/recommendations';
 
-type ViewType = 'tasks' | 'recommendations' | 'store' | 'ai-designer';
+type ViewType = 'home' | 'ai-designer' | 'learn' | 'store' | 'tasks';
 
 function App() {
   const { user, loading: authLoading, signUp, signIn } = useAuth();
@@ -43,7 +54,7 @@ function App() {
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [onboardingSubmitting, setOnboardingSubmitting] = useState(false);
   
-  const [activeView, setActiveView] = useState<ViewType>('tasks');
+  const [activeView, setActiveView] = useState<ViewType>('home');
   const [activeTab, setActiveTab] = useState('All');
   const [taskList, setTaskList] = useState(tasks);
   const [recommendationList, setRecommendationList] = useState(
@@ -169,7 +180,7 @@ function App() {
     switch (activeView) {
       case 'tasks':
         return ['All', ...taskCategories];
-      case 'recommendations':
+      case 'learn':
         return [
           'All',
           'Decluttering',
@@ -183,6 +194,7 @@ function App() {
       case 'store':
         return ['All', ...productCategories];
       case 'ai-designer':
+      case 'home':
         return [];
       default:
         return ['All'];
@@ -295,30 +307,44 @@ function App() {
                 <h1 className="text-3xl font-bold text-white">Minixmal</h1>
               </div>
 
-              {/* Center - View Toggle */}
+              {/* Center - View Toggle (Alphabetically sorted) */}
               <div className="flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
                 <button
                   onClick={() => {
-                    setActiveView('tasks');
+                    setActiveView('ai-designer');
                     setActiveTab('All');
                     setSearchQuery('');
                   }}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    activeView === 'tasks'
+                    activeView === 'ai-designer'
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white'
                   }`}
                 >
-                  Tasks
+                  AI Designer
                 </button>
                 <button
                   onClick={() => {
-                    setActiveView('recommendations');
+                    setActiveView('home');
                     setActiveTab('All');
                     setSearchQuery('');
                   }}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    activeView === 'recommendations'
+                    activeView === 'home'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView('learn');
+                    setActiveTab('All');
+                    setSearchQuery('');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
+                    activeView === 'learn'
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white'
                   }`}
@@ -341,17 +367,17 @@ function App() {
                 </button>
                 <button
                   onClick={() => {
-                    setActiveView('ai-designer');
+                    setActiveView('tasks');
                     setActiveTab('All');
                     setSearchQuery('');
                   }}
                   className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    activeView === 'ai-designer'
+                    activeView === 'tasks'
                       ? 'bg-white text-indigo-600 shadow-lg'
                       : 'text-white/80 hover:text-white'
                   }`}
                 >
-                  AI Designer
+                  Tasks
                 </button>
               </div>
 
@@ -400,7 +426,7 @@ function App() {
         </div>
 
         {/* Search Bar */}
-        {activeView !== 'ai-designer' && (
+        {activeView !== 'ai-designer' && activeView !== 'home' && (
           <div className="mb-6">
             <div className="relative max-w-md">
               <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -416,6 +442,225 @@ function App() {
         )}
 
         {/* Content */}
+        {activeView === 'home' && (
+          <div className="space-y-8">
+            {/* Welcome Section */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Home className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Minixmal</h2>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  Your comprehensive platform for embracing minimalism and creating a more intentional, peaceful life. 
+                  Discover the power of less and unlock the freedom that comes with simplicity.
+                </p>
+              </div>
+
+              {/* Feature Overview */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl">
+                  <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Guided Tasks</h3>
+                  <p className="text-gray-600 text-sm">Step-by-step challenges to declutter every area of your life</p>
+                </div>
+
+                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl">
+                  <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Lightbulb className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Expert Insights</h3>
+                  <p className="text-gray-600 text-sm">Learn from minimalism principles and proven strategies</p>
+                </div>
+
+                <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl">
+                  <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">AI Designer</h3>
+                  <p className="text-gray-600 text-sm">Transform your spaces with AI-powered minimalist design</p>
+                </div>
+
+                <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl">
+                  <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <ShoppingBag className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Curated Store</h3>
+                  <p className="text-gray-600 text-sm">Quality products that support your minimalist lifestyle</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Progress Overview */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Tasks Progress */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Your Tasks</h3>
+                    <p className="text-gray-600">Decluttering challenges and habits</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 bg-blue-50 rounded-2xl">
+                    <div className="text-2xl font-bold text-blue-600">{completedTasks}</div>
+                    <div className="text-sm text-gray-600">Completed</div>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-2xl">
+                    <div className="text-2xl font-bold text-orange-600">{taskList.length - completedTasks}</div>
+                    <div className="text-sm text-gray-600">Remaining</div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progress</span>
+                    <span>{Math.round((completedTasks / taskList.length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${(completedTasks / taskList.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-yellow-500" />
+                    <span className="text-lg font-bold text-gray-900">{totalTaskPoints} points</span>
+                  </div>
+                  <button
+                    onClick={() => setActiveView('tasks')}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors"
+                  >
+                    View Tasks
+                  </button>
+                </div>
+              </div>
+
+              {/* Learning Progress */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Your Learning</h3>
+                    <p className="text-gray-600">Insights and principles</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 bg-green-50 rounded-2xl">
+                    <div className="text-2xl font-bold text-green-600">{completedRecommendations}</div>
+                    <div className="text-sm text-gray-600">Completed</div>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-2xl">
+                    <div className="text-2xl font-bold text-orange-600">{recommendationList.length - completedRecommendations}</div>
+                    <div className="text-sm text-gray-600">Remaining</div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progress</span>
+                    <span>{Math.round((completedRecommendations / recommendationList.length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${(completedRecommendations / recommendationList.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-yellow-500" />
+                    <span className="text-lg font-bold text-gray-900">{totalRecommendationPoints} points</span>
+                  </div>
+                  <button
+                    onClick={() => setActiveView('learn')}
+                    className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition-colors"
+                  >
+                    Start Learning
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Quick Actions</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <button
+                  onClick={() => setActiveView('ai-designer')}
+                  className="p-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
+                >
+                  <Camera className="w-8 h-8 mb-3 mx-auto" />
+                  <h4 className="font-bold mb-2">Transform Your Room</h4>
+                  <p className="text-sm opacity-90">Upload a photo and get AI-powered minimalist design suggestions</p>
+                </button>
+
+                <button
+                  onClick={() => setActiveView('tasks')}
+                  className="p-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
+                >
+                  <CheckCircle className="w-8 h-8 mb-3 mx-auto" />
+                  <h4 className="font-bold mb-2">Start Decluttering</h4>
+                  <p className="text-sm opacity-90">Begin with simple tasks to build momentum in your minimalism journey</p>
+                </button>
+
+                <button
+                  onClick={() => setActiveView('learn')}
+                  className="p-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
+                >
+                  <Lightbulb className="w-8 h-8 mb-3 mx-auto" />
+                  <h4 className="font-bold mb-2">Learn Principles</h4>
+                  <p className="text-sm opacity-90">Discover the philosophy and practical wisdom behind minimalist living</p>
+                </button>
+              </div>
+            </div>
+
+            {/* Benefits Section */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 shadow-xl text-white">
+              <h3 className="text-3xl font-bold mb-6 text-center">Why Choose Minimalism?</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Heart className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-3">Reduced Stress</h4>
+                  <p className="text-white/90">Less clutter means less mental burden and more peace of mind in your daily life.</p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-3">Financial Freedom</h4>
+                  <p className="text-white/90">Mindful consumption leads to significant savings and better financial health.</p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Zap className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-3">Increased Focus</h4>
+                  <p className="text-white/90">Simplified environments enhance productivity and help you focus on what truly matters.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeView === 'tasks' && (
           <>
             {/* Stats Cards */}
@@ -460,7 +705,7 @@ function App() {
           </>
         )}
 
-        {activeView === 'recommendations' && (
+        {activeView === 'learn' && (
           <>
             {/* Stats Cards for Learn Section */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -527,7 +772,7 @@ function App() {
 
         {/* Empty State */}
         {((activeView === 'tasks' && getFilteredTasks().length === 0) ||
-          (activeView === 'recommendations' &&
+          (activeView === 'learn' &&
             getFilteredRecommendations().length === 0) ||
           (activeView === 'store' && getFilteredProducts().length === 0)) && (
           <div className="text-center py-16">
