@@ -61,9 +61,16 @@ export const useAuth = (): AuthState & {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-    } catch (error) {
-      // Gracefully handle cases where the session might already be invalid
-      // The onAuthStateChange listener will ensure the local user state is updated
+    } catch (error: any) {
+      // Check if this is the specific "session not found" error from Supabase
+      if (error?.message?.includes('Session from session_id claim in JWT does not exist') || 
+          error?.code === 'session_not_found') {
+        // User is already effectively logged out, just log as warning
+        console.warn('Sign out attempted but session was already invalid - user is already logged out');
+        return;
+      }
+      
+      // For other errors, log as warning but don't throw
       console.warn('Sign out error (session may already be invalid):', error);
     }
   };
