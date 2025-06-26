@@ -303,9 +303,11 @@ function App() {
               <div className="flex items-center justify-between w-full">
                 {/* Left side - Logo and Title */}
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Pause className="w-6 h-6 text-yellow-800" />
-                  </div>
+                  <img 
+                    src="/logo.png" 
+                    alt="Minixmal Logo" 
+                    className="w-12 h-12 rounded-2xl shadow-lg"
+                  />
                   <h1 className="text-3xl font-bold text-white">Minixmal</h1>
                 </div>
 
@@ -443,9 +445,11 @@ function App() {
             <div className="flex items-center justify-between w-full">
               {/* Left side - Logo and Title */}
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Pause className="w-6 h-6 text-yellow-800" />
-                </div>
+                <img 
+                  src="/logo.png" 
+                  alt="Minixmal Logo" 
+                  className="w-12 h-12 rounded-2xl shadow-lg"
+                />
                 <h1 className="text-3xl font-bold text-white">Minixmal</h1>
               </div>
 
