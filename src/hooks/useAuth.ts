@@ -59,7 +59,13 @@ export const useAuth = (): AuthState & {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      // Gracefully handle cases where the session might already be invalid
+      // The onAuthStateChange listener will ensure the local user state is updated
+      console.warn('Sign out error (session may already be invalid):', error);
+    }
   };
 
   return {
