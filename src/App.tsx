@@ -534,20 +534,22 @@ function App() {
 
           {/* Category Navigation */}
           {getTabsForView().length > 0 && (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {getTabsForView().map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-3 rounded-xl font-semibold text-base transition-all ${
-                    activeTab === tab
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className="overflow-x-auto">
+              <div className="flex gap-2 justify-center min-w-max px-4">
+                {getTabsForView().map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
+                      activeTab === tab
+                        ? 'bg-white text-indigo-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
