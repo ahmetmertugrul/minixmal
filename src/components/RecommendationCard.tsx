@@ -17,11 +17,11 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 }) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'article': return <BookOpen className="w-5 h-5" />;
-      case 'tip': return <Lightbulb className="w-5 h-5" />;
-      case 'quote': return <Quote className="w-5 h-5" />;
-      case 'principle': return <Target className="w-5 h-5" />;
-      default: return <BookOpen className="w-5 h-5" />;
+      case 'article': return <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />;
+      case 'tip': return <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />;
+      case 'quote': return <Quote className="w-4 h-4 sm:w-5 sm:h-5" />;
+      case 'principle': return <Target className="w-4 h-4 sm:w-5 sm:h-5" />;
+      default: return <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />;
     }
   };
 
@@ -38,25 +38,25 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const getIllustration = (type: string) => {
     const illustrations = {
       calendar: (
-        <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-          <div className="text-white text-lg font-bold">90</div>
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="text-white text-base sm:text-lg font-bold">90</div>
         </div>
       ),
       quality: (
-        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <div className="w-5 h-5 bg-green-500 rounded-full"></div>
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full"></div>
           </div>
         </div>
       ),
       percentage: (
-        <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-          <span className="text-white text-lg font-bold">80%</span>
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+          <span className="text-white text-base sm:text-lg font-bold">80%</span>
         </div>
       ),
       default: (
-        <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-          <Lightbulb className="w-8 h-8 text-white" />
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+          <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
         </div>
       )
     };
@@ -105,50 +105,50 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
   return (
     <div 
-      className={`${getCardBackground(index)} backdrop-blur-sm rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative`}
+      className={`${getCardBackground(index)} backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative`}
       onClick={handleCardClick}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-start justify-between mb-4 sm:mb-6">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           {getIllustration(recommendation.illustration)}
           <div>
-            <div className={`inline-flex items-center space-x-2 px-3 py-2 rounded-full text-sm font-medium ${getTypeColor(recommendation.type)}`}>
+            <div className={`inline-flex items-center space-x-2 px-2 sm:px-3 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium ${getTypeColor(recommendation.type)}`}>
               {getTypeIcon(recommendation.type)}
               <span className="capitalize">{recommendation.type}</span>
             </div>
-            <div className="text-sm text-gray-600 mt-2 font-medium">{recommendation.category}</div>
+            <div className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">{recommendation.category}</div>
           </div>
         </div>
-        <div className="flex items-center space-x-1 text-sm text-gray-500 bg-white/50 px-3 py-1 rounded-full">
-          <Clock className="w-4 h-4" />
+        <div className="flex items-center space-x-1 text-xs sm:text-sm text-gray-500 bg-white/50 px-2 sm:px-3 py-1 rounded-full">
+          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>{recommendation.readTime}</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-900 leading-tight">
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">
           {recommendation.title}
         </h3>
-        <p className="text-gray-700 text-sm leading-relaxed">
+        <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
           {recommendation.description}
         </p>
-        <p className="text-gray-800 text-sm leading-relaxed">
+        <p className="text-gray-800 text-xs sm:text-sm leading-relaxed">
           {recommendation.content}
         </p>
         {recommendation.author && (
-          <p className="text-sm text-gray-600 italic font-medium">
+          <p className="text-xs sm:text-sm text-gray-600 italic font-medium">
             — {recommendation.author}
           </p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-gray-200/50 flex items-center justify-between">
+      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200/50 flex items-center justify-between">
         <button 
           onClick={handleReadMoreClick}
-          className={`flex items-center space-x-2 text-sm font-semibold transition-colors group ${
+          className={`flex items-center space-x-2 text-xs sm:text-sm font-semibold transition-colors group ${
             recommendation.completed 
               ? 'text-gray-400 cursor-not-allowed' 
               : 'text-indigo-600 hover:text-indigo-700'
@@ -157,33 +157,33 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
         >
           <span>Read full article</span>
           {!recommendation.completed && (
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
           )}
         </button>
         
         {/* Tick Mark Button */}
         <button
           onClick={handleTickClick}
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl ${
+          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl ${
             recommendation.completed
               ? 'bg-green-500 text-white hover:bg-green-600'
               : 'bg-white/80 text-gray-600 hover:bg-gray-100'
           }`}
         >
-          <Check className="w-5 h-5" />
+          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
 
       {/* Completion Overlay */}
       {recommendation.completed && (
-        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-3xl cursor-pointer hover:bg-green-600/90 transition-colors">
+        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer hover:bg-green-600/90 transition-colors">
           <div className="text-center">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-10 h-10 text-green-600" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <Check className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
-            <p className="text-2xl font-bold mb-2 text-white">Completed!</p>
-            <p className="text-lg text-green-100">+{recommendation.points || 25} points</p>
-            <p className="text-sm text-green-200 mt-2 opacity-80">Click to undo</p>
+            <p className="text-xl sm:text-2xl font-bold mb-2 text-white">Completed!</p>
+            <p className="text-base sm:text-lg text-green-100">+{recommendation.points || 25} points</p>
+            <p className="text-xs sm:text-sm text-green-200 mt-2 opacity-80">Click to undo</p>
           </div>
         </div>
       )}
