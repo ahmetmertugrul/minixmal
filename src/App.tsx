@@ -8,16 +8,13 @@ import {
   Menu,
   X,
   User,
-  ChevronDown,
-  Home,
-  LogIn
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import AuthForm from './components/AuthForm';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import LoadingSpinner from './components/LoadingSpinner';
-import HomePage from './components/HomePage';
 import TaskCard from './components/TaskCard';
 import RecommendationCard from './components/RecommendationCard';
 import RecommendationModal from './components/RecommendationModal';
@@ -31,15 +28,14 @@ import { Task } from './data/tasks';
 import { Recommendation } from './data/recommendations';
 import { OnboardingAnswer } from './types/onboarding';
 
-type TabType = 'home' | 'tasks' | 'learn' | 'score' | 'ai-designer';
+type TabType = 'tasks' | 'learn' | 'score' | 'ai-designer';
 
 const App: React.FC = () => {
   const { user, loading: authLoading, signUp, signIn, signOut, resetPassword } = useAuth();
   const { profile, loading: onboardingLoading, needsOnboarding, completeOnboarding } = useOnboarding();
   
-  // UI State - Default to 'home' tab
-  const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  // UI State
+  const [activeTab, setActiveTab] = useState<TabType>('tasks');
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSubmitLoading, setAuthSubmitLoading] = useState(false);
@@ -64,21 +60,6 @@ const App: React.FC = () => {
   const totalPoints = taskList.filter(task => task.completed).reduce((sum, task) => sum + task.points, 0);
   const completedRecommendationsCount = completedRecommendations.size;
 
-  // Check if user needs authentication for current action
-  const requiresAuth = (tab: TabType) => {
-    return tab === 'tasks' || tab === 'ai-designer';
-  };
-
-  // Handle tab navigation with auth check
-  const handleTabNavigation = (tab: TabType) => {
-    if (requiresAuth(tab) && !user) {
-      setShowAuthModal(true);
-      return;
-    }
-    setActiveTab(tab);
-    setMobileMenuOpen(false);
-  };
-
   // Auth handlers
   const handleAuth = async (email: string, password: string) => {
     setAuthSubmitLoading(true);
@@ -91,8 +72,6 @@ const App: React.FC = () => {
       
       if (error) {
         setAuthError(error.message);
-      } else {
-        setShowAuthModal(false);
       }
     } catch (error) {
       setAuthError('An unexpected error occurred');
@@ -127,10 +106,6 @@ const App: React.FC = () => {
 
   // Task handlers
   const toggleTask = (taskId: string) => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
     setTaskList(prev => 
       prev.map(task => 
         task.id === taskId ? { ...task, completed: !task.completed } : task
@@ -170,18 +145,29 @@ const App: React.FC = () => {
     ? products
     : products.filter(product => product.category === selectedScoreCategory);
 
-  // Navigation handler for home page
-  const handleNavigateFromHome = (tab: 'tasks' | 'learn' | 'score' | 'ai-designer') => {
-    handleTabNavigation(tab);
-  };
-
-  // Loading states (only show for onboarding, not auth)
-  if (onboardingLoading) {
+  // Loading states
+  if (authLoading || onboardingLoading) {
     return <LoadingSpinner />;
   }
 
-  // Show onboarding if user is logged in and needs onboarding
-  if (user && needsOnboarding) {
+  // Auth flow
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-4 sm:p-6 flex items-center justify-center">
+        <AuthForm
+          mode={authMode}
+          onSubmit={handleAuth}
+          onToggleMode={toggleAuthMode}
+          onForgotPassword={handleForgotPassword}
+          loading={authSubmitLoading}
+          error={authError}
+        />
+      </div>
+    );
+  }
+
+  // Onboarding flow
+  if (needsOnboarding) {
     return (
       <OnboardingQuiz
         onComplete={handleOnboardingComplete}
@@ -192,7 +178,6 @@ const App: React.FC = () => {
 
   const getTabIcon = (tab: TabType) => {
     switch (tab) {
-      case 'home': return <Home className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'tasks': return <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'learn': return <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'score': return <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />;
@@ -202,7 +187,6 @@ const App: React.FC = () => {
 
   const getTabLabel = (tab: TabType) => {
     switch (tab) {
-      case 'home': return 'Home';
       case 'tasks': return 'Tasks';
       case 'learn': return 'Learn';
       case 'score': return 'Score';
@@ -210,7 +194,7 @@ const App: React.FC = () => {
     }
   };
 
-  const tabs: TabType[] = ['home', 'tasks', 'learn', 'score', 'ai-designer'];
+  const tabs: TabType[] = ['tasks', 'learn', 'score', 'ai-designer'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
@@ -235,7 +219,7 @@ const App: React.FC = () => {
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => handleTabNavigation(tab)}
+                  onClick={() => setActiveTab(tab)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-2xl font-semibold transition-all ${
                     activeTab === tab
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
@@ -244,55 +228,40 @@ const App: React.FC = () => {
                 >
                   {getTabIcon(tab)}
                   <span>{getTabLabel(tab)}</span>
-                  {requiresAuth(tab) && !user && (
-                    <LogIn className="w-4 h-4 opacity-60" />
-                  )}
                 </button>
               ))}
             </nav>
 
             {/* User Profile & Mobile Menu */}
             <div className="flex items-center space-x-3">
-              {/* User Stats (Desktop) - Only show if logged in */}
-              {user && (
-                <div className="hidden sm:flex items-center space-x-4 text-sm font-medium text-gray-700">
-                  <div className="flex items-center space-x-1">
-                    <Trophy className="w-4 h-4 text-yellow-500" />
-                    <span>{totalPoints}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <CheckSquare className="w-4 h-4 text-green-500" />
-                    <span>{completedTasks}</span>
-                  </div>
+              {/* User Stats (Desktop) */}
+              <div className="hidden sm:flex items-center space-x-4 text-sm font-medium text-gray-700">
+                <div className="flex items-center space-x-1">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span>{totalPoints}</span>
                 </div>
-              )}
+                <div className="flex items-center space-x-1">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <span>{completedTasks}</span>
+                </div>
+              </div>
 
-              {/* User Profile Button or Sign In Button */}
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowUserProfile(!showUserProfile)}
-                    className="flex items-center space-x-2 p-2 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors"
-                  >
-                    <User className="w-5 h-5 text-gray-600" />
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
-                  </button>
-                  
-                  {showUserProfile && (
-                    <div className="absolute right-0 top-full mt-2 z-50">
-                      <UserProfile />
-                    </div>
-                  )}
-                </div>
-              ) : (
+              {/* User Profile Button */}
+              <div className="relative">
                 <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className="flex items-center space-x-2 p-2 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  <User className="w-5 h-5 text-gray-600" />
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
                 </button>
-              )}
+                
+                {showUserProfile && (
+                  <div className="absolute right-0 top-full mt-2 z-50">
+                    <UserProfile />
+                  </div>
+                )}
+              </div>
 
               {/* Mobile Menu Button */}
               <button
@@ -315,7 +284,10 @@ const App: React.FC = () => {
                 {tabs.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => handleTabNavigation(tab)}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setMobileMenuOpen(false);
+                    }}
                     className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all ${
                       activeTab === tab
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
@@ -324,26 +296,21 @@ const App: React.FC = () => {
                   >
                     {getTabIcon(tab)}
                     <span className="text-sm">{getTabLabel(tab)}</span>
-                    {requiresAuth(tab) && !user && (
-                      <LogIn className="w-3 h-3 opacity-60" />
-                    )}
                   </button>
                 ))}
               </div>
               
-              {/* Mobile User Stats - Only show if logged in */}
-              {user && (
-                <div className="flex items-center justify-center space-x-6 mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                    <Trophy className="w-4 h-4 text-yellow-500" />
-                    <span>{totalPoints} points</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                    <CheckSquare className="w-4 h-4 text-green-500" />
-                    <span>{completedTasks} completed</span>
-                  </div>
+              {/* Mobile User Stats */}
+              <div className="flex items-center justify-center space-x-6 mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span>{totalPoints} points</span>
                 </div>
-              )}
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <span>{completedTasks} completed</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -351,17 +318,6 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Home Tab */}
-        {activeTab === 'home' && (
-          <HomePage
-            totalPoints={totalPoints}
-            completedTasks={completedTasks}
-            completedRecommendations={completedRecommendationsCount}
-            onNavigate={handleNavigateFromHome}
-            isLoggedIn={!!user}
-          />
-        )}
-
         {/* Tasks Tab */}
         {activeTab === 'tasks' && (
           <div className="space-y-6 sm:space-y-8">
@@ -471,26 +427,24 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            {/* Stats Overview - Only show if logged in */}
-            {user && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
-                  <Trophy className="w-8 h-8 sm:w-12 sm:h-12 text-yellow-500 mx-auto mb-2 sm:mb-3" />
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">{totalPoints}</div>
-                  <div className="text-gray-600 text-sm sm:text-base">Total Points</div>
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
-                  <CheckSquare className="w-8 h-8 sm:w-12 sm:h-12 text-green-500 mx-auto mb-2 sm:mb-3" />
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedTasks}</div>
-                  <div className="text-gray-600 text-sm sm:text-base">Tasks Completed</div>
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
-                  <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-blue-500 mx-auto mb-2 sm:mb-3" />
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedRecommendationsCount}</div>
-                  <div className="text-gray-600 text-sm sm:text-base">Articles Read</div>
-                </div>
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <Trophy className="w-8 h-8 sm:w-12 sm:h-12 text-yellow-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{totalPoints}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Total Points</div>
               </div>
-            )}
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <CheckSquare className="w-8 h-8 sm:w-12 sm:h-12 text-green-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedTasks}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Tasks Completed</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-blue-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedRecommendationsCount}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Articles Read</div>
+              </div>
+            </div>
 
             {/* Category Filter */}
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
@@ -523,28 +477,6 @@ const App: React.FC = () => {
         {/* AI Designer Tab */}
         {activeTab === 'ai-designer' && <AIRoomDesigner />}
       </main>
-
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="relative">
-            <button
-              onClick={() => setShowAuthModal(false)}
-              className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-10"
-            >
-              <X className="w-4 h-4 text-gray-600" />
-            </button>
-            <AuthForm
-              mode={authMode}
-              onSubmit={handleAuth}
-              onToggleMode={toggleAuthMode}
-              onForgotPassword={handleForgotPassword}
-              loading={authSubmitLoading}
-              error={authError}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Click outside to close user profile */}
       {showUserProfile && (
