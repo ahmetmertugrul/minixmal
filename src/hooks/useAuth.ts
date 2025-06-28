@@ -6,7 +6,6 @@ export const useAuth = (): AuthState & {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
 } => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,19 +75,11 @@ export const useAuth = (): AuthState & {
     }
   };
 
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
-    });
-    return { error };
-  };
-
   return {
     user,
     loading,
     signUp,
     signIn,
-    signOut,
-    resetPassword
+    signOut
   };
 };

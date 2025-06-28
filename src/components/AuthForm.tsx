@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 interface AuthFormProps {
   mode: 'signin' | 'signup';
   onSubmit: (email: string, password: string) => Promise<void>;
   onToggleMode: () => void;
-  onForgotPassword: (email: string) => Promise<void>;
   loading: boolean;
   error: string | null;
 }
@@ -14,17 +13,12 @@ const AuthForm: React.FC<AuthFormProps> = ({
   mode, 
   onSubmit, 
   onToggleMode, 
-  onForgotPassword,
   loading, 
   error 
 }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
-  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
-  const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,148 +27,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      setForgotPasswordError('Please enter your email address');
-      return;
-    }
-
-    setForgotPasswordLoading(true);
-    setForgotPasswordError(null);
-    
-    try {
-      await onForgotPassword(email);
-      setForgotPasswordSuccess(true);
-    } catch (err) {
-      setForgotPasswordError(err instanceof Error ? err.message : 'Failed to send reset email');
-    } finally {
-      setForgotPasswordLoading(false);
-    }
-  };
-
-  const resetForgotPasswordState = () => {
-    setShowForgotPassword(false);
-    setForgotPasswordSuccess(false);
-    setForgotPasswordError(null);
-    setForgotPasswordLoading(false);
-  };
-
   const isSignUp = mode === 'signup';
 
-  // Forgot Password View
-  if (showForgotPassword) {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20">
-          {/* Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-              <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-              Reset Password
-            </h2>
-            <p className="text-gray-600 text-sm sm:text-base">
-              Enter your email and we'll send you a reset link
-            </p>
-          </div>
-
-          {/* Success Message */}
-          {forgotPasswordSuccess && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-3 h-3 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-green-900 font-semibold text-sm sm:text-base">Email Sent!</h3>
-                  <p className="text-green-700 text-xs sm:text-sm">
-                    Check your inbox for password reset instructions.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {forgotPasswordError && (
-            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-2xl">
-              <p className="text-red-600 text-xs sm:text-sm font-medium">{forgotPasswordError}</p>
-            </div>
-          )}
-
-          {/* Form */}
-          {!forgotPasswordSuccess && (
-            <form onSubmit={handleForgotPassword} className="space-y-4 sm:space-y-6">
-              {/* Email Field */}
-              <div>
-                <label htmlFor="reset-email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    id="reset-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm sm:text-base"
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={forgotPasswordLoading || !email}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 sm:py-4 px-6 rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              >
-                {forgotPasswordLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                    <span>Sending Reset Email...</span>
-                  </>
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>Send Reset Email</span>
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* Back to Sign In */}
-          <div className="mt-6 sm:mt-8 text-center">
-            <button
-              onClick={resetForgotPasswordState}
-              className="flex items-center space-x-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mx-auto text-sm sm:text-base"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Sign In</span>
-            </button>
-          </div>
-
-          {/* Try Again Button (shown after success) */}
-          {forgotPasswordSuccess && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => setForgotPasswordSuccess(false)}
-                className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
-              >
-                Didn't receive the email? Try again
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Regular Auth Form
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20">
@@ -253,19 +107,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
               </p>
             )}
           </div>
-
-          {/* Forgot Password Link (only show on sign in) */}
-          {!isSignUp && (
-            <div className="text-right">
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
-              >
-                Forgot your password?
-              </button>
-            </div>
-          )}
 
           {/* Submit Button */}
           <button
