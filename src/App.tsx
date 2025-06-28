@@ -1,994 +1,356 @@
-import React, { useState } from 'react';
-import {
-  Search,
-  User,
-  Star,
-  BarChart3,
-  ShoppingBag,
-  BookOpen,
-  Home,
-  Target,
-  Filter,
-  Pause,
-  Play,
+import React, { useState, useEffect } from 'react';
+import { 
+  CheckSquare, 
+  BookOpen, 
+  ShoppingBag, 
+  Camera, 
+  Trophy,
   Menu,
   X,
-  Camera,
-  TrendingUp,
-  Users,
-  Award,
-  Calendar,
-  CheckCircle,
-  Lightbulb,
-  Zap,
-  Heart,
-  Shield,
-  Globe,
-  Sparkles,
-  Trophy,
-  Medal,
-  Crown,
+  User,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
-import { tasks, categories as taskCategories } from './data/tasks';
-import { recommendations } from './data/recommendations';
-import { products, categories as productCategories } from './data/products';
+import AuthForm from './components/AuthForm';
+import OnboardingQuiz from './components/OnboardingQuiz';
+import LoadingSpinner from './components/LoadingSpinner';
 import TaskCard from './components/TaskCard';
 import RecommendationCard from './components/RecommendationCard';
 import RecommendationModal from './components/RecommendationModal';
 import ProductCard from './components/ProductCard';
-import AuthForm from './components/AuthForm';
-import LoadingSpinner from './components/LoadingSpinner';
-import UserProfile from './components/UserProfile';
-import OnboardingQuiz from './components/OnboardingQuiz';
 import AIRoomDesigner from './components/AIRoomDesigner';
+import UserProfile from './components/UserProfile';
+import { tasks, categories as taskCategories } from './data/tasks';
+import { recommendations } from './data/recommendations';
+import { products, categories as productCategories } from './data/products';
+import { Task } from './data/tasks';
 import { Recommendation } from './data/recommendations';
+import { OnboardingAnswer } from './types/onboarding';
 
-type ViewType = 'home' | 'ai-designer' | 'learn' | 'score' | 'tasks' | 'auth';
+type TabType = 'tasks' | 'learn' | 'score' | 'ai-designer';
 
-function App() {
-  const { user, loading: authLoading, signUp, signIn } = useAuth();
+const App: React.FC = () => {
+  const { user, loading: authLoading, signUp, signIn, signOut, resetPassword } = useAuth();
   const { profile, loading: onboardingLoading, needsOnboarding, completeOnboarding } = useOnboarding();
   
+  // UI State
+  const [activeTab, setActiveTab] = useState<TabType>('tasks');
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
-  const [showUserProfile, setShowUserProfile] = useState(false);
-  const [onboardingSubmitting, setOnboardingSubmitting] = useState(false);
+  const [authSubmitLoading, setAuthSubmitLoading] = useState(false);
+  const [onboardingSubmitLoading, setOnboardingSubmitLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  const [activeView, setActiveView] = useState<ViewType>('home');
-  const [pendingView, setPendingView] = useState<ViewType | null>(null); // Track which view user wanted to access
-  const [activeTab, setActiveTab] = useState('All');
-  const [taskList, setTaskList] = useState(tasks);
-  const [recommendationList, setRecommendationList] = useState(
-    recommendations.map(rec => ({ ...rec, completed: false, points: Math.floor(Math.random() * 50) + 25 }))
-  );
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
-  // Modal state for recommendations
+  // Tasks State
+  const [taskList, setTaskList] = useState<Task[]>(tasks);
+  const [selectedTaskCategory, setSelectedTaskCategory] = useState<string>('All');
+
+  // Learn State
+  const [selectedLearnCategory, setSelectedLearnCategory] = useState<string>('All');
+  const [completedRecommendations, setCompletedRecommendations] = useState<Set<string>>(new Set());
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Score State
+  const [selectedScoreCategory, setSelectedScoreCategory] = useState<string>('All');
+
+  // Calculate user stats
+  const completedTasks = taskList.filter(task => task.completed).length;
+  const totalPoints = taskList.filter(task => task.completed).reduce((sum, task) => sum + task.points, 0);
+  const completedRecommendationsCount = completedRecommendations.size;
+
+  // Auth handlers
   const handleAuth = async (email: string, password: string) => {
+    setAuthSubmitLoading(true);
     setAuthError(null);
-
+    
     try {
-      const { error } = authMode === 'signup' 
-        ? await signUp(email, password)
-        : await signIn(email, password);
-
+      const { error } = authMode === 'signin' 
+        ? await signIn(email, password)
+        : await signUp(email, password);
+      
       if (error) {
         setAuthError(error.message);
-      } else {
-        // Successfully authenticated, go to pending view or home
-        setActiveView(pendingView || 'home');
-        setPendingView(null);
       }
-    } catch (err) {
+    } catch (error) {
       setAuthError('An unexpected error occurred');
+    } finally {
+      setAuthSubmitLoading(false);
     }
   };
 
-  const handleOnboardingComplete = async (answers: any[]) => {
-    setOnboardingSubmitting(true);
+  const handleForgotPassword = async (email: string) => {
+    const { error } = await resetPassword(email);
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const toggleAuthMode = () => {
+    setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin');
+    setAuthError(null);
+  };
+
+  // Onboarding handler
+  const handleOnboardingComplete = async (answers: OnboardingAnswer[]) => {
+    setOnboardingSubmitLoading(true);
     try {
       await completeOnboarding(answers);
     } catch (error) {
-      console.error('Error completing onboarding:', error);
-      // You might want to show an error message to the user here
+      console.error('Onboarding error:', error);
     } finally {
-      setOnboardingSubmitting(false);
+      setOnboardingSubmitLoading(false);
     }
   };
 
+  // Task handlers
   const toggleTask = (taskId: string) => {
-    setTaskList((prev) =>
-      prev.map((task) =>
+    setTaskList(prev => 
+      prev.map(task => 
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
   };
 
-  const toggleRecommendation = (recommendationId: string) => {
-    setRecommendationList((prev) =>
-      prev.map((rec) =>
-        rec.id === recommendationId ? { ...rec, completed: !rec.completed } : rec
-      )
-    );
+  const filteredTasks = selectedTaskCategory === 'All' 
+    ? taskList 
+    : taskList.filter(task => task.category === selectedTaskCategory);
+
+  // Learn handlers
+  const toggleRecommendation = (id: string) => {
+    setCompletedRecommendations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
-  const handleRecommendationClick = (recommendation: Recommendation) => {
-    setSelectedRecommendation(recommendation);
-    setIsModalOpen(true);
-  };
+  const filteredRecommendations = selectedLearnCategory === 'All'
+    ? recommendations
+    : recommendations.filter(rec => rec.category === selectedLearnCategory);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRecommendation(null);
-  };
+  const recommendationsWithCompletion = filteredRecommendations.map(rec => ({
+    ...rec,
+    completed: completedRecommendations.has(rec.id),
+    points: 25
+  }));
 
-  // Handle navigation with authentication check
-  const handleNavigation = (view: ViewType) => {
-    // If user is not authenticated and trying to access Learn or Tasks, show auth form
-    if (!user && (view === 'learn' || view === 'tasks')) {
-      setActiveView('auth');
-      setPendingView(view); // Remember which view they wanted
-      return;
-    }
-    
-    setActiveView(view);
-    setPendingView(null);
-    setActiveTab('All');
-    setSearchQuery('');
-    setMobileMenuOpen(false); // Close mobile menu on navigation
-  };
+  // Score handlers
+  const filteredProducts = selectedScoreCategory === 'All'
+    ? products
+    : products.filter(product => product.category === selectedScoreCategory);
 
-  // Handle navigation from header (including when on auth page)
-  const handleHeaderNavigation = (view: ViewType) => {
-    // If user is not authenticated and trying to access Learn or Tasks, stay on auth page
-    if (!user && (view === 'learn' || view === 'tasks')) {
-      setActiveView('auth');
-      setPendingView(view); // Remember which view they wanted
-      return;
-    }
-    
-    // For other views, navigate normally
-    setActiveView(view);
-    setPendingView(null);
-    setActiveTab('All');
-    setSearchQuery('');
-    setMobileMenuOpen(false); // Close mobile menu on navigation
-  };
-
-  // Handle sign in button click
-  const handleSignInClick = () => {
-    setActiveView('auth');
-    setPendingView(null);
-    setMobileMenuOpen(false);
-  };
-
-  const getFilteredTasks = () => {
-    let filtered =
-      activeTab === 'All'
-        ? taskList
-        : taskList.filter((task) => task.category === activeTab);
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (task) =>
-          task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const getFilteredRecommendations = () => {
-    let filtered =
-      activeTab === 'All'
-        ? recommendationList
-        : recommendationList.filter((rec) => rec.category === activeTab);
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (rec) =>
-          rec.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          rec.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          rec.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const getFilteredProducts = () => {
-    let filtered =
-      activeTab === 'All'
-        ? products
-        : products.filter((product) => product.category === activeTab);
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const getTabsForView = () => {
-    switch (activeView) {
-      case 'tasks':
-        return ['All', ...taskCategories];
-      case 'learn':
-        return [
-          'All',
-          'Decluttering',
-          'Mindset',
-          'Digital',
-          'Kitchen',
-          'Wardrobe',
-          'Lifestyle',
-          'Organization',
-        ];
-      case 'score':
-        return ['All Users', 'Friends', 'This Week', 'This Month', 'All Time'];
-      case 'ai-designer':
-      case 'home':
-      case 'auth':
-        return [];
-      default:
-        return ['All'];
-    }
-  };
-
-  const completedTasks = taskList.filter((t) => t.completed).length;
-  const totalTaskPoints = taskList
-    .filter((t) => t.completed)
-    .reduce((sum, task) => sum + task.points, 0);
-
-  const completedRecommendations = recommendationList.filter((r) => r.completed).length;
-  const totalRecommendationPoints = recommendationList
-    .filter((r) => r.completed)
-    .reduce((sum, rec) => sum + (rec.points || 0), 0);
-
-  const totalPoints = totalTaskPoints + totalRecommendationPoints;
-
-  // Mock leaderboard data
-  const leaderboardData = [
-    { id: 1, name: 'Sarah Chen', email: 'sarah@example.com', points: 2450, tasksCompleted: 45, rank: 1, avatar: '👩‍💼', streak: 12 },
-    { id: 2, name: 'Alex Johnson', email: 'alex@example.com', points: 2380, tasksCompleted: 42, rank: 2, avatar: '👨‍💻', streak: 8 },
-    { id: 3, name: 'Maria Garcia', email: 'maria@example.com', points: 2290, tasksCompleted: 38, rank: 3, avatar: '👩‍🎨', streak: 15 },
-    { id: 4, name: 'David Kim', email: 'david@example.com', points: 2150, tasksCompleted: 35, rank: 4, avatar: '👨‍🔬', streak: 6 },
-    { id: 5, name: 'Emma Wilson', email: 'emma@example.com', points: 2080, tasksCompleted: 33, rank: 5, avatar: '👩‍🏫', streak: 9 },
-    { id: 6, name: 'You', email: user?.email || 'you@example.com', points: totalPoints, tasksCompleted: completedTasks + completedRecommendations, rank: 6, avatar: '👤', streak: 4 },
-    { id: 7, name: 'James Brown', email: 'james@example.com', points: 1950, tasksCompleted: 29, rank: 7, avatar: '👨‍🎯', streak: 3 },
-    { id: 8, name: 'Lisa Wang', email: 'lisa@example.com', points: 1890, tasksCompleted: 27, rank: 8, avatar: '👩‍💼', streak: 7 },
-  ].sort((a, b) => b.points - a.points).map((user, index) => ({ ...user, rank: index + 1 }));
-
-  // Show loading spinner while checking auth state or onboarding status
+  // Loading states
   if (authLoading || onboardingLoading) {
-    return (
-      <div className="relative">
-        <LoadingSpinner />
-        {/* Bolt Logo */}
-        <a
-          href="https://bolt.new"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
-        >
-          <img
-            src="/black_circle_360x360.png"
-            alt="Powered by Bolt"
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
-          />
-        </a>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
-  // Show auth form if activeView is 'auth'
-  if (activeView === 'auth') {
+  // Auth flow
+  if (!user) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-4 sm:p-6">
-        {/* Header Card */}
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <div className="flex items-center justify-between w-full">
-                {/* Left side - Logo and Title */}
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                  <img 
-                    src="/logo.png" 
-                    alt="Minixmal Logo" 
-                    className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl shadow-lg"
-                  />
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Minixmal</h1>
-                </div>
-
-                {/* Mobile Menu Button */}
-                <div className="lg:hidden">
-                  <button
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                  >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                  </button>
-                </div>
-
-                {/* Desktop Navigation */}
-                <div className="hidden lg:flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
-                  <button
-                    onClick={() => handleHeaderNavigation('home')}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                      activeView === 'home'
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Home
-                  </button>
-                  <button
-                    onClick={() => handleHeaderNavigation('ai-designer')}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                      activeView === 'ai-designer'
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    AI Designer
-                  </button>
-                  <button
-                    onClick={() => handleHeaderNavigation('learn')}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                      pendingView === 'learn'
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Learn
-                  </button>
-                  <button
-                    onClick={() => handleHeaderNavigation('tasks')}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                      pendingView === 'tasks'
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Tasks
-                  </button>
-                  <button
-                    onClick={() => handleHeaderNavigation('score')}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                      activeView === 'score'
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Score
-                  </button>
-                </div>
-
-                {/* Desktop Sign In Button */}
-                <div className="hidden lg:flex items-center space-x-4">
-                  <button
-                    className="bg-white/20 backdrop-blur-sm px-4 xl:px-6 py-2 xl:py-3 rounded-full text-white hover:bg-white/30 transition-colors font-semibold text-sm xl:text-base"
-                  >
-                    Sign In
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Navigation Menu */}
-            {mobileMenuOpen && (
-              <div className="lg:hidden mt-4 space-y-2">
-                <button
-                  onClick={() => handleHeaderNavigation('home')}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    activeView === 'home'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => handleHeaderNavigation('ai-designer')}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    activeView === 'ai-designer'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  AI Designer
-                </button>
-                <button
-                  onClick={() => handleHeaderNavigation('learn')}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    pendingView === 'learn'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Learn
-                </button>
-                <button
-                  onClick={() => handleHeaderNavigation('tasks')}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    pendingView === 'tasks'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Tasks
-                </button>
-                <button
-                  onClick={() => handleHeaderNavigation('score')}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    activeView === 'score'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Score
-                </button>
-                <button
-                  onClick={handleSignInClick}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all"
-                >
-                  Sign In
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Auth Form */}
-        <div className="flex items-center justify-center px-4">
-          <AuthForm
-            mode={authMode}
-            onSubmit={handleAuth}
-            onToggleMode={() => {
-              setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
-              setAuthError(null);
-            }}
-            loading={false}
-            error={authError}
-          />
-        </div>
-        
-        {/* Bolt Logo */}
-        <a
-          href="https://bolt.new"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
-        >
-          <img
-            src="/black_circle_360x360.png"
-            alt="Powered by Bolt"
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
-          />
-        </a>
-      </div>
-    );
-  }
-
-  // Show onboarding quiz if user needs to complete it
-  if (user && needsOnboarding) {
-    return (
-      <div className="relative">
-        <OnboardingQuiz
-          onComplete={handleOnboardingComplete}
-          loading={onboardingSubmitting}
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-4 sm:p-6 flex items-center justify-center">
+        <AuthForm
+          mode={authMode}
+          onSubmit={handleAuth}
+          onToggleMode={toggleAuthMode}
+          onForgotPassword={handleForgotPassword}
+          loading={authSubmitLoading}
+          error={authError}
         />
-        
-        {/* Bolt Logo */}
-        <a
-          href="https://bolt.new"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
-        >
-          <img
-            src="/black_circle_360x360.png"
-            alt="Powered by Bolt"
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
-          />
-        </a>
       </div>
     );
   }
+
+  // Onboarding flow
+  if (needsOnboarding) {
+    return (
+      <OnboardingQuiz
+        onComplete={handleOnboardingComplete}
+        loading={onboardingSubmitLoading}
+      />
+    );
+  }
+
+  const getTabIcon = (tab: TabType) => {
+    switch (tab) {
+      case 'tasks': return <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6" />;
+      case 'learn': return <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />;
+      case 'score': return <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />;
+      case 'ai-designer': return <Camera className="w-5 h-5 sm:w-6 sm:h-6" />;
+    }
+  };
+
+  const getTabLabel = (tab: TabType) => {
+    switch (tab) {
+      case 'tasks': return 'Tasks';
+      case 'learn': return 'Learn';
+      case 'score': return 'Score';
+      case 'ai-designer': return 'AI Designer';
+    }
+  };
+
+  const tabs: TabType[] = ['tasks', 'learn', 'score', 'ai-designer'];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 p-4 sm:p-6">
-      {/* Main Container */}
-      <div className="max-w-7xl mx-auto">
-        {/* Header Card */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-2xl">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center justify-between w-full">
-              {/* Left side - Logo and Title */}
-              <div className="flex items-center space-x-2 sm:space-x-4">
-                <img 
-                  src="/logo.png" 
-                  alt="Minixmal Logo" 
-                  className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl shadow-lg"
-                />
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Minixmal</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
+      {/* Header */}
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Logo and Title */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <img 
+                src="/logo.png" 
+                alt="Minixmal Logo" 
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+              />
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Minixmal
+              </h1>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-2xl font-semibold transition-all ${
+                    activeTab === tab
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {getTabIcon(tab)}
+                  <span>{getTabLabel(tab)}</span>
+                </button>
+              ))}
+            </nav>
+
+            {/* User Profile & Mobile Menu */}
+            <div className="flex items-center space-x-3">
+              {/* User Stats (Desktop) */}
+              <div className="hidden sm:flex items-center space-x-4 text-sm font-medium text-gray-700">
+                <div className="flex items-center space-x-1">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span>{totalPoints}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <span>{completedTasks}</span>
+                </div>
+              </div>
+
+              {/* User Profile Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className="flex items-center space-x-2 p-2 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <User className="w-5 h-5 text-gray-600" />
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                </button>
+                
+                {showUserProfile && (
+                  <div className="absolute right-0 top-full mt-2 z-50">
+                    <UserProfile />
+                  </div>
+                )}
               </div>
 
               {/* Mobile Menu Button */}
-              <div className="lg:hidden">
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                >
-                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
-              </div>
-
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex bg-white/20 backdrop-blur-sm rounded-2xl p-1">
-                <button
-                  onClick={() => handleNavigation('home')}
-                  className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                    activeView === 'home'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => handleNavigation('ai-designer')}
-                  className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                    activeView === 'ai-designer'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  AI Designer
-                </button>
-                <button
-                  onClick={() => handleNavigation('learn')}
-                  className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                    activeView === 'learn'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Learn
-                </button>
-                <button
-                  onClick={() => handleNavigation('tasks')}
-                  className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                    activeView === 'tasks'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Tasks
-                </button>
-                <button
-                  onClick={() => handleNavigation('score')}
-                  className={`px-4 xl:px-6 py-2 xl:py-3 rounded-xl font-semibold text-sm xl:text-base transition-all ${
-                    activeView === 'score'
-                      ? 'bg-white text-indigo-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Score
-                </button>
-              </div>
-
-              {/* Desktop User Menu */}
-              <div className="hidden lg:flex items-center space-x-4">
-                {user ? (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowUserProfile(!showUserProfile)}
-                      className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    >
-                      <User className="w-5 h-5" />
-                    </button>
-                    
-                    {showUserProfile && (
-                      <div className="absolute top-12 right-0 z-50">
-                        <UserProfile />
-                      </div>
-                    )}
-                  </div>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6 text-gray-600" />
                 ) : (
-                  <button
-                    onClick={handleSignInClick}
-                    className="bg-white/20 backdrop-blur-sm px-4 xl:px-6 py-2 xl:py-3 rounded-full text-white hover:bg-white/30 transition-colors font-semibold text-sm xl:text-base"
-                  >
-                    Sign In
-                  </button>
+                  <Menu className="w-6 h-6 text-gray-600" />
                 )}
-              </div>
+              </button>
             </div>
           </div>
 
-          {/* Mobile Navigation Menu */}
+          {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="lg:hidden mt-4 space-y-2">
-              <button
-                onClick={() => handleNavigation('home')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                  activeView === 'home'
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                Home
-              </button>
-              <button
-                onClick={() => handleNavigation('ai-designer')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                  activeView === 'ai-designer'
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                AI Designer
-              </button>
-              <button
-                onClick={() => handleNavigation('learn')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                  activeView === 'learn'
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                Learn
-              </button>
-              <button
-                onClick={() => handleNavigation('tasks')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                  activeView === 'tasks'
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                Tasks
-              </button>
-              <button
-                onClick={() => handleNavigation('score')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                  activeView === 'score'
-                    ? 'bg-white text-indigo-600 shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                Score
-              </button>
-              {user ? (
-                <button
-                  onClick={() => {
-                    setShowUserProfile(!showUserProfile);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all"
-                >
-                  Profile
-                </button>
-              ) : (
-                <button
-                  onClick={handleSignInClick}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all"
-                >
-                  Sign In
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Category Navigation */}
-          {getTabsForView().length > 0 && (
-            <div className="overflow-x-auto">
-              <div className="flex gap-2 justify-center min-w-max px-2 sm:px-4">
-                {getTabsForView().map((tab) => (
+            <div className="lg:hidden py-4 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-2">
+                {tabs.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all ${
                       activeTab === tab
-                        ? 'bg-white text-indigo-600 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                        : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    {tab}
+                    {getTabIcon(tab)}
+                    <span className="text-sm">{getTabLabel(tab)}</span>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Mobile User Stats */}
+              <div className="flex items-center justify-center space-x-6 mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span>{totalPoints} points</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <span>{completedTasks} completed</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Tasks Tab */}
+        {activeTab === 'tasks' && (
+          <div className="space-y-6 sm:space-y-8">
+            {/* Header */}
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">Minimalism Tasks</h2>
+              <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto">
+                Complete tasks to earn points and build your minimalist lifestyle. Start with easy wins and work your way up!
+              </p>
+            </div>
+
+            {/* Category Filter */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
+              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
+                {['All', ...taskCategories].map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedTaskCategory(category)}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-semibold transition-all text-xs sm:text-sm ${
+                      selectedTaskCategory === category
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 shadow-md'
+                    }`}
+                  >
+                    {category}
                   </button>
                 ))}
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Search Bar */}
-        {activeView !== 'ai-designer' && activeView !== 'home' && activeView !== 'score' && (
-          <div className="mb-4 sm:mb-6">
-            <div className="relative max-w-md">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg text-base"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Content */}
-        {activeView === 'home' && (
-          <div className="space-y-6 sm:space-y-8">
-            {/* Welcome Section */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-              <div className="text-center mb-6 sm:mb-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                  <Home className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                </div>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Welcome to Minixmal</h2>
-                <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Your comprehensive platform for embracing minimalism and creating a more intentional, peaceful life. 
-                  Discover the power of less and unlock the freedom that comes with simplicity.
-                </p>
-              </div>
-
-              {/* Feature Overview */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-                <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">Guided Tasks</h3>
-                  <p className="text-gray-600 text-sm">Step-by-step challenges to declutter every area of your life</p>
-                </div>
-
-                <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">Expert Insights</h3>
-                  <p className="text-gray-600 text-sm">Learn from minimalism principles and proven strategies</p>
-                </div>
-
-                <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">AI Designer</h3>
-                  <p className="text-gray-600 text-sm">Transform your spaces with AI-powered minimalist design</p>
-                </div>
-
-                <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">Score & Compete</h3>
-                  <p className="text-gray-600 text-sm">Track your progress and compete with other minimalists</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Progress Overview - Only show if user is logged in */}
-            {user && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                {/* Tasks Progress */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
-                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-2xl flex items-center justify-center">
-                      <Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Your Tasks</h3>
-                      <p className="text-gray-600 text-sm sm:text-base">Decluttering challenges and habits</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-2xl">
-                      <div className="text-xl sm:text-2xl font-bold text-blue-600">{completedTasks}</div>
-                      <div className="text-xs sm:text-sm text-gray-600">Completed</div>
-                    </div>
-                    <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-2xl">
-                      <div className="text-xl sm:text-2xl font-bold text-orange-600">{taskList.length - completedTasks}</div>
-                      <div className="text-xs sm:text-sm text-gray-600">Remaining</div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
-                      <span>Progress</span>
-                      <span>{Math.round((completedTasks / taskList.length) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${(completedTasks / taskList.length) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                      <span className="text-base sm:text-lg font-bold text-gray-900">{totalTaskPoints} points</span>
-                    </div>
-                    <button
-                      onClick={() => setActiveView('tasks')}
-                      className="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors text-sm sm:text-base"
-                    >
-                      View Tasks
-                    </button>
-                  </div>
-                </div>
-
-                {/* Learning Progress */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
-                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-2xl flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Your Learning</h3>
-                      <p className="text-gray-600 text-sm sm:text-base">Insights and principles</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="text-center p-3 sm:p-4 bg-green-50 rounded-2xl">
-                      <div className="text-xl sm:text-2xl font-bold text-green-600">{completedRecommendations}</div>
-                      <div className="text-xs sm:text-sm text-gray-600">Completed</div>
-                    </div>
-                    <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-2xl">
-                      <div className="text-xl sm:text-2xl font-bold text-orange-600">{recommendationList.length - completedRecommendations}</div>
-                      <div className="text-xs sm:text-sm text-gray-600">Remaining</div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
-                      <span>Progress</span>
-                      <span>{Math.round((completedRecommendations / recommendationList.length) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${(completedRecommendations / recommendationList.length) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                      <span className="text-base sm:text-lg font-bold text-gray-900">{totalRecommendationPoints} points</span>
-                    </div>
-                    <button
-                      onClick={() => setActiveView('learn')}
-                      className="bg-green-500 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-green-600 transition-colors text-sm sm:text-base"
-                    >
-                      Start Learning
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">Quick Actions</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <button
-                  onClick={() => setActiveView('ai-designer')}
-                  className="p-4 sm:p-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
-                >
-                  <Camera className="w-6 h-6 sm:w-8 sm:h-8 mb-3 mx-auto" />
-                  <h4 className="font-bold mb-2 text-sm sm:text-base">Transform Your Room</h4>
-                  <p className="text-xs sm:text-sm opacity-90">Upload a photo and get AI-powered minimalist design suggestions</p>
-                </button>
-
-                <button
-                  onClick={() => handleNavigation('tasks')}
-                  className="p-4 sm:p-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg"
-                >
-                  <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 mb-3 mx-auto" />
-                  <h4 className="font-bold mb-2 text-sm sm:text-base">Start Decluttering</h4>
-                  <p className="text-xs sm:text-sm opacity-90">Begin with simple tasks to build momentum in your minimalism journey</p>
-                </button>
-
-                <button
-                  onClick={() => handleNavigation('learn')}
-                  className="p-4 sm:p-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl text-white hover:scale-105 transition-transform shadow-lg sm:col-span-2 lg:col-span-1"
-                >
-                  <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8 mb-3 mx-auto" />
-                  <h4 className="font-bold mb-2 text-sm sm:text-base">Learn Principles</h4>
-                  <p className="text-xs sm:text-sm opacity-90">Discover the philosophy and practical wisdom behind minimalist living</p>
-                </button>
-              </div>
-            </div>
-
-            {/* Benefits Section */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl text-white">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">Why Choose Minimalism?</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                <div className="text-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Heart className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Reduced Stress</h4>
-                  <p className="text-white/90 text-sm sm:text-base">Less clutter means less mental burden and more peace of mind in your daily life.</p>
-                </div>
-
-                <div className="text-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Financial Freedom</h4>
-                  <p className="text-white/90 text-sm sm:text-base">Mindful consumption leads to significant savings and better financial health.</p>
-                </div>
-
-                <div className="text-center sm:col-span-2 lg:col-span-1">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Zap className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Increased Focus</h4>
-                  <p className="text-white/90 text-sm sm:text-base">Simplified environments enhance productivity and help you focus on what truly matters.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeView === 'tasks' && user && (
-          <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-gray-800">
-                  {completedTasks}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Completed</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-orange-600">
-                  {taskList.length - completedTasks}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Remaining</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                  {totalTaskPoints}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Points</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-green-600">
-                  {Math.round((completedTasks / taskList.length) * 100)}%
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Progress</div>
-              </div>
-            </div>
-
-            {/* Task Grid - Responsive layout */}
+            {/* Tasks Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {getFilteredTasks().map((task, index) => (
+              {filteredTasks.map((task, index) => (
                 <TaskCard
                   key={task.id}
                   task={task}
@@ -997,288 +359,134 @@ function App() {
                 />
               ))}
             </div>
-          </>
+          </div>
         )}
 
-        {activeView === 'learn' && user && (
-          <>
-            {/* Stats Cards for Learn Section */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-gray-800">
-                  {completedRecommendations}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Completed</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-orange-600">
-                  {recommendationList.length - completedRecommendations}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Remaining</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                  {totalRecommendationPoints}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Points</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="text-xl sm:text-2xl font-bold text-green-600">
-                  {Math.round((completedRecommendations / recommendationList.length) * 100)}%
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600">Progress</div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {getFilteredRecommendations().map((recommendation, index) => (
-                <RecommendationCard
-                  key={recommendation.id}
-                  recommendation={recommendation}
-                  index={index}
-                  onClick={() => handleRecommendationClick(recommendation)}
-                  onToggle={toggleRecommendation}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {activeView === 'score' && (
+        {/* Learn Tab */}
+        {activeTab === 'learn' && (
           <div className="space-y-6 sm:space-y-8">
             {/* Header */}
             <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">Leaderboard & Statistics</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">Learn Minimalism</h2>
               <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto">
-                See how you rank among fellow minimalists and track your progress over time.
+                Discover principles, tips, and insights to deepen your minimalism practice. Read articles and earn points!
               </p>
             </div>
 
-            {/* Your Stats */}
-            {user && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-                <div className="text-center mb-6 sm:mb-8">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                    <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Your Progress</h3>
-                  <p className="text-gray-600">Keep up the great work on your minimalism journey!</p>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                  <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                      <Award className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">{totalPoints}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Total Points</div>
-                  </div>
-
-                  <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                      <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">{completedTasks + completedRecommendations}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Tasks Completed</div>
-                  </div>
-
-                  <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                      <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">#{leaderboardData.find(u => u.name === 'You')?.rank || 6}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Global Rank</div>
-                  </div>
-
-                  <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                      <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-2">4</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Day Streak</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Leaderboard */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-              <div className="flex items-center space-x-3 mb-6 sm:mb-8">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Global Leaderboard</h3>
-                  <p className="text-gray-600 text-sm sm:text-base">Top minimalists from around the world</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                {leaderboardData.map((user, index) => (
-                  <div 
-                    key={user.id}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all ${
-                      user.name === 'You' 
-                        ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200' 
-                        : 'bg-gray-50 hover:bg-gray-100'
+            {/* Category Filter */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
+              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
+                {['All', 'Decluttering', 'Mindset', 'Technology', 'Finance', 'Lifestyle', 'Organization', 'Work', 'Wardrobe', 'Food', 'Home', 'Relationships', 'Environment', 'Habits', 'Health', 'Creativity', 'Travel'].map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedLearnCategory(category)}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-semibold transition-all text-xs sm:text-sm ${
+                      selectedLearnCategory === category
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 shadow-md'
                     }`}
                   >
-                    <div className="flex items-center space-x-3 sm:space-x-4">
-                      {/* Rank */}
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-base sm:text-lg ${
-                        user.rank === 1 ? 'bg-yellow-400 text-yellow-900' :
-                        user.rank === 2 ? 'bg-gray-300 text-gray-700' :
-                        user.rank === 3 ? 'bg-orange-400 text-orange-900' :
-                        'bg-gray-200 text-gray-600'
-                      }`}>
-                        {user.rank === 1 ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> :
-                         user.rank === 2 ? <Medal className="w-5 h-5 sm:w-6 sm:h-6" /> :
-                         user.rank === 3 ? <Award className="w-5 h-5 sm:w-6 sm:h-6" /> :
-                         user.rank}
-                      </div>
-
-                      {/* Avatar */}
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-lg sm:text-2xl">
-                        {user.avatar}
-                      </div>
-
-                      {/* User Info */}
-                      <div>
-                        <div className="font-semibold text-gray-900 flex items-center space-x-2">
-                          <span className="text-sm sm:text-base">{user.name}</span>
-                          {user.name === 'You' && (
-                            <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
-                              You
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs sm:text-sm text-gray-600">{user.tasksCompleted} tasks completed</div>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <div className="text-lg sm:text-2xl font-bold text-gray-900">{user.points.toLocaleString()}</div>
-                      <div className="text-xs sm:text-sm text-gray-600 flex items-center space-x-1">
-                        <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
-                        <span>{user.streak} day streak</span>
-                      </div>
-                    </div>
-                  </div>
+                    {category}
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-indigo-600" />
-                  Weekly Progress
-                </h3>
-                <div className="space-y-3">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
-                    <div key={day} className="flex items-center justify-between">
-                      <span className="text-gray-600 text-sm sm:text-base">{day}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 sm:w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
-                            style={{ width: `${Math.random() * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs sm:text-sm text-gray-500 w-6 sm:w-8">{Math.floor(Math.random() * 10)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Recommendations Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {recommendationsWithCompletion.map((recommendation, index) => (
+                <RecommendationCard
+                  key={recommendation.id}
+                  recommendation={recommendation}
+                  index={index}
+                  onClick={() => setSelectedRecommendation(recommendation)}
+                  onToggle={toggleRecommendation}
+                />
+              ))}
+            </div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Target className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-green-600" />
-                  Category Breakdown
-                </h3>
-                <div className="space-y-3">
-                  {['Wardrobe', 'Digital', 'Home', 'Finance', 'Health'].map((category, index) => (
-                    <div key={category} className="flex items-center justify-between">
-                      <span className="text-gray-600 text-sm sm:text-base">{category}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 sm:w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
-                            style={{ width: `${Math.random() * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs sm:text-sm text-gray-500 w-6 sm:w-8">{Math.floor(Math.random() * 20)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* Recommendation Modal */}
+            {selectedRecommendation && (
+              <RecommendationModal
+                recommendation={selectedRecommendation}
+                isOpen={!!selectedRecommendation}
+                onClose={() => setSelectedRecommendation(null)}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Score Tab */}
+        {activeTab === 'score' && (
+          <div className="space-y-6 sm:space-y-8">
+            {/* Header */}
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">Minimalist Score</h2>
+              <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto">
+                Discover curated minimalist products and tools to support your journey. Quality over quantity, always.
+              </p>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <Trophy className="w-8 h-8 sm:w-12 sm:h-12 text-yellow-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{totalPoints}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Total Points</div>
               </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <CheckSquare className="w-8 h-8 sm:w-12 sm:h-12 text-green-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedTasks}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Tasks Completed</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 text-center">
+                <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-blue-500 mx-auto mb-2 sm:mb-3" />
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{completedRecommendationsCount}</div>
+                <div className="text-gray-600 text-sm sm:text-base">Articles Read</div>
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
+              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
+                {['All', ...productCategories].map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedScoreCategory(category)}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-semibold transition-all text-xs sm:text-sm ${
+                      selectedScoreCategory === category
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 shadow-md'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           </div>
         )}
 
-        {activeView === 'ai-designer' && <AIRoomDesigner />}
-
-        {/* Empty State */}
-        {((activeView === 'tasks' && user && getFilteredTasks().length === 0) ||
-          (activeView === 'learn' && user &&
-            getFilteredRecommendations().length === 0) ||
-          (activeView === 'score' && getFilteredProducts().length === 0)) && (
-          <div className="text-center py-12 sm:py-16">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-sm rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
-              <Search className="w-8 h-8 sm:w-10 sm:h-10 text-white/60" />
-            </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              No results found
-            </h3>
-            <p className="text-white/70 text-base sm:text-lg">
-              Try adjusting your search or filter criteria
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Recommendation Modal */}
-      {selectedRecommendation && (
-        <RecommendationModal
-          recommendation={selectedRecommendation}
-          isOpen={isModalOpen}
-          onClose={closeModal}
-        />
-      )}
+        {/* AI Designer Tab */}
+        {activeTab === 'ai-designer' && <AIRoomDesigner />}
+      </main>
 
       {/* Click outside to close user profile */}
       {showUserProfile && (
         <div 
-          className="fixed inset-0 z-40" 
+          className="fixed inset-0 z-30" 
           onClick={() => setShowUserProfile(false)}
         />
       )}
-
-      {/* Mobile User Profile */}
-      {showUserProfile && (
-        <div className="lg:hidden fixed top-20 left-4 right-4 z-50">
-          <UserProfile />
-        </div>
-      )}
-
-      {/* Bolt Logo - Fixed Position */}
-      <a
-        href="https://bolt.new"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-110 focus:scale-110 focus:outline-none"
-      >
-        <img
-          src="/black_circle_360x360.png"
-          alt="Powered by Bolt"
-          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity"
-        />
-      </a>
     </div>
   );
-}
+};
 
 export default App;
