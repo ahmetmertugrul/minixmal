@@ -319,11 +319,11 @@ const AIRoomDesigner: React.FC = () => {
             </button>
           </div>
           
-          <div className="relative rounded-2xl overflow-hidden mb-4 sm:mb-6">
+          <div className="relative rounded-2xl overflow-hidden mb-4 sm:mb-6 bg-gray-100">
             <img 
               src={uploadedImage} 
               alt="Uploaded room" 
-              className="w-full h-48 sm:h-64 object-cover"
+              className="w-full h-auto max-h-96 object-contain mx-auto block"
             />
           </div>
 
@@ -375,11 +375,11 @@ const AIRoomDesigner: React.FC = () => {
                   <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                   <h4 className="text-base sm:text-lg font-semibold text-gray-900">Before</h4>
                 </div>
-                <div className="relative rounded-2xl overflow-hidden">
+                <div className="relative rounded-2xl overflow-hidden bg-gray-100">
                   <img 
                     src={analysisResult.beforeImage} 
                     alt="Before transformation" 
-                    className="w-full h-48 sm:h-64 object-cover"
+                    className="w-full h-auto max-h-64 object-contain mx-auto block"
                   />
                 </div>
               </div>
@@ -390,11 +390,11 @@ const AIRoomDesigner: React.FC = () => {
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                   <h4 className="text-base sm:text-lg font-semibold text-gray-900">After (AI Vision)</h4>
                 </div>
-                <div className="relative rounded-2xl overflow-hidden">
+                <div className="relative rounded-2xl overflow-hidden bg-gray-100">
                   <img 
                     src={analysisResult.afterImage} 
                     alt="After transformation" 
-                    className="w-full h-48 sm:h-64 object-cover"
+                    className="w-full h-auto max-h-64 object-contain mx-auto block"
                   />
                   <div className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-green-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                     Minimalist
