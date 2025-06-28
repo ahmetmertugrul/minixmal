@@ -38,6 +38,7 @@ interface AnalysisResult {
   }>;
   image_prompt: string;
   room_description: string;
+  architectural_inventory: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -87,60 +88,90 @@ Deno.serve(async (req: Request) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert minimalist interior designer for the "Minixmal" app. Your goal is to help users declutter and create minimalist, serene spaces while preserving the essential character and layout of their rooms.
+            content: `You are an expert minimalist designer for the "Minixmal" app. Your goal is to help users declutter and create minimalist, serene spaces while preserving the essential character and layout of their rooms.
 
-CRITICAL REQUIREMENTS for image analysis and generation:
-1. PRESERVE EXACT ARCHITECTURAL FEATURES: Keep all windows, doors, built-ins, fireplaces, and structural elements in their exact positions
-2. MAINTAIN ROOM LAYOUT: The furniture arrangement and room proportions must remain identical
-3. PRESERVE LIGHTING CONDITIONS: Keep the same natural and artificial lighting as the original
-4. MAINTAIN PERSPECTIVE: Use the exact same camera angle and viewpoint
-5. PRESERVE COLOR SCHEME: Keep existing wall colors, flooring, and major fixed elements
+SACRED RULES - NEVER BREAK THESE:
+🏗️ ARCHITECTURAL PRESERVATION:
+- Window shapes, sizes, positions, frames - IDENTICAL
+- Door styles, colors, hardware, positions - UNCHANGED  
+- Wall textures, patterns, paint colors - EXACT MATCH
+- Ceiling height, moldings, trim - PRESERVED
+- Flooring type, pattern, color - IDENTICAL
+- Built-in features (shelves, fireplaces, stairs) - UNTOUCHED
+- Room dimensions and proportions - EXACT
 
-MINIMALIST TRANSFORMATION FOCUS:
-- Remove excess decorative items and clutter
-- Reduce the number of small objects on surfaces
-- Organize remaining items with more intentional spacing
-- Create more negative space and breathing room
-- Keep essential furniture but potentially reduce quantity
-- Maintain functionality while reducing visual noise
+📐 SPATIAL INTEGRITY:
+- Camera angle and perspective - IDENTICAL
+- Lighting conditions (natural/artificial) - SAME
+- Furniture placement zones - MAINTAIN LAYOUT
+- Traffic flow patterns - UNCHANGED
+- Focal points and sight lines - PRESERVED
 
-The goal is to make the SAME ROOM look cleaner, more organized, and minimalist while keeping its essential character and layout completely intact.`
+✨ MINIMALIST TRANSFORMATION TARGETS:
+REMOVE/REDUCE:
+- Decorative objects on surfaces (vases, candles, books)
+- Wall art and photographs (keep max 1-2 key pieces)
+- Throw pillows (keep max 2 per seating area)
+- Small furniture pieces (side tables, ottomans)
+- Plants (keep max 2 statement plants)
+- Clutter and personal items
+- Multiple textiles and patterns
+
+ORGANIZE/REFINE:
+- Clear all surfaces of small objects
+- Create generous negative space
+- Align remaining items precisely
+- Use symmetrical arrangements
+- Maintain only essential, functional pieces
+
+ANALYSIS REQUIREMENTS:
+1. First, create an EXACT inventory of all architectural elements
+2. List current furniture and decor items
+3. Specify which items to remove vs. keep
+4. Note lighting and color schemes to preserve
+5. Provide detailed transformation instructions that maintain room's DNA`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Analyze this room image and provide a JSON response with exactly three keys:
+                text: `Following the SACRED RULES above, analyze this room image and provide a JSON response with exactly four keys:
 
-1. "room_description": A detailed description of the current room including:
-   - Architectural features (windows, doors, built-ins, fireplace, etc.)
-   - Room layout and furniture arrangement
-   - Lighting conditions and sources
-   - Color scheme and materials
-   - Current organization and clutter level
-   - Key features that define the space's character
+1. "architectural_inventory": Create an EXACT inventory of all architectural elements that MUST be preserved:
+   - Windows: exact shapes, sizes, positions, frame styles, colors
+   - Doors: styles, colors, hardware, positions
+   - Walls: textures, patterns, paint colors, materials
+   - Ceiling: height, moldings, trim details
+   - Flooring: type, pattern, color, material
+   - Built-ins: shelves, fireplaces, stairs, cabinets - exact positions and styles
+   - Room dimensions and proportions
+   - Lighting fixtures and sources
 
-2. "checklist": An array of 4-6 specific, actionable minimalist tasks. Each task must have:
-   - task: Clear, specific action (e.g., "Remove decorative items from coffee table")
-   - reason: Why this specific action helps achieve minimalism
+2. "room_description": Detailed analysis of current state:
+   - Current furniture arrangement and placement zones
+   - Decorative items and clutter present
+   - Traffic flow patterns
+   - Focal points and sight lines
+   - Current organization level
+   - Items that need minimalist attention
+
+3. "checklist": Array of 4-6 specific minimalist tasks following transformation targets:
+   - task: Specific action (e.g., "Remove decorative objects from coffee table, keep only 1 book")
+   - reason: Why this creates minimalist improvement
    - category: "Decluttering", "Organization", or "Styling"
    - priority: "high", "medium", or "low"
-   - estimatedTime: Realistic time estimate (e.g., "15 minutes", "1 hour")
+   - estimatedTime: Realistic time estimate
 
-3. "image_prompt": A detailed prompt for FLUX image generation that:
-   - MUST preserve the exact same room layout, architecture, and perspective
-   - MUST keep all built-in features (fireplace, windows, built-ins) in identical positions
-   - MUST maintain the same lighting conditions and camera angle
-   - MUST preserve the same wall colors, flooring, and fixed elements
-   - Shows minimalist improvements through:
-     * Fewer decorative objects on surfaces
-     * Better organization of remaining items
-     * More negative space and cleaner surfaces
-     * Reduced visual clutter while maintaining functionality
-   - Maximum 1000 characters
+4. "image_prompt": Detailed FLUX prompt that PRESERVES room's DNA:
+   - MUST maintain exact architectural inventory from step 1
+   - MUST preserve identical camera angle and perspective
+   - MUST keep same lighting conditions
+   - MUST maintain furniture placement zones
+   - Shows minimalist improvements through decluttering and organization only
+   - Maximum 800 characters for FLUX compatibility
 
-Focus on making the SAME ROOM look minimalist, not creating a different room.`
+Remember: Transform through SUBTRACTION and ORGANIZATION, not redesign. The room must remain recognizably the SAME SPACE with minimalist improvements.`
               },
               {
                 type: 'image_url',
@@ -151,9 +182,11 @@ Focus on making the SAME ROOM look minimalist, not creating a different room.`
             ]
           }
         ],
-        max_tokens: 3000,
-        temperature: 0.2, // Very low temperature for consistent, focused responses
-        top_p: 0.8, // Focused sampling for better consistency
+        max_tokens: 4000,
+        temperature: 0.1, // Extremely low for maximum consistency
+        top_p: 0.7, // Focused sampling
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0
       }),
     });
 
@@ -187,14 +220,14 @@ Focus on making the SAME ROOM look minimalist, not creating a different room.`
     
     // Ensure the prompt is optimized for FLUX and under character limit
     let imagePrompt = instructions.image_prompt;
-    if (imagePrompt.length > 1000) {
-      imagePrompt = imagePrompt.substring(0, 1000);
+    if (imagePrompt.length > 800) {
+      imagePrompt = imagePrompt.substring(0, 800);
     }
 
-    // Enhance the prompt with FLUX-specific quality and consistency parameters
+    // Enhance the prompt with FLUX-specific parameters for maximum consistency
     const enhancedPrompt = `${imagePrompt}
 
-CRITICAL: Maintain exact same room layout, architecture, lighting, and perspective. Professional interior photography, high resolution, photorealistic, same camera angle, identical room structure, minimalist aesthetic, clean surfaces, organized space, natural lighting, architectural photography quality.`;
+CRITICAL PRESERVATION: Exact same room layout, identical architecture, same camera perspective, same lighting, same colors, same materials, same proportions. Professional interior photography, photorealistic, high quality, minimalist organization, clean surfaces, decluttered space.`;
 
     const transformResponse = await fetch('https://api.studio.nebius.com/v1/images/generations', {
       method: 'POST',
@@ -205,11 +238,11 @@ CRITICAL: Maintain exact same room layout, architecture, lighting, and perspecti
       body: JSON.stringify({
         model: 'black-forest-labs/flux-dev',
         prompt: enhancedPrompt,
-        num_inference_steps: 50, // Higher steps for better quality and consistency
-        guidance_scale: 8.0, // Higher guidance for better prompt adherence
+        num_inference_steps: 60, // Higher steps for maximum quality and consistency
+        guidance_scale: 9.0, // Higher guidance for strict prompt adherence
         width: 1024,
         height: 768,
-        seed: Math.floor(Math.random() * 1000000), // Random seed for variety while maintaining consistency
+        seed: Math.floor(Math.random() * 1000000),
       }),
     });
 
@@ -238,7 +271,8 @@ CRITICAL: Maintain exact same room layout, architecture, lighting, and perspecti
     const response = {
       transformedImageUrl,
       checklist,
-      roomDescription: instructions.room_description || 'Room analyzed with Qwen2.5-VL-72B-Instruct',
+      roomDescription: instructions.room_description || 'Room analyzed with advanced minimalist principles',
+      architecturalInventory: instructions.architectural_inventory || 'Architectural elements preserved',
       imagePrompt: instructions.image_prompt,
       success: true
     };

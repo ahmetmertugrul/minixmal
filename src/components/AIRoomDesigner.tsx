@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   Trash2,
   AlertCircle,
-  Loader2
+  Loader2,
+  Building2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -22,6 +23,7 @@ interface AnalysisResult {
   checklist: ChecklistItem[];
   analysisComplete: boolean;
   roomDescription?: string;
+  architecturalInventory?: string;
   imagePrompt?: string;
 }
 
@@ -129,24 +131,24 @@ const AIRoomDesigner: React.FC = () => {
 
       const imageUrl = await uploadImageToSupabase(uploadedImage);
 
-      // Stage 2: AI Analysis
+      // Stage 2: AI Analysis with Sacred Rules
       setProcessingStage({
         stage: 'analyzing',
-        message: 'AI is analyzing your room layout and features...',
+        message: 'AI analyzing architectural elements and room layout...',
         progress: 25
       });
 
-      // Stage 3: Planning
+      // Stage 3: Planning with Preservation Focus
       setProcessingStage({
         stage: 'planning',
-        message: 'Creating personalized minimalist action plan...',
+        message: 'Creating minimalist plan while preserving room character...',
         progress: 50
       });
 
-      // Stage 4: Transforming
+      // Stage 4: Transforming with Consistency
       setProcessingStage({
         stage: 'transforming',
-        message: 'Generating high-quality minimalist transformation...',
+        message: 'Generating consistent minimalist transformation...',
         progress: 75
       });
 
@@ -173,7 +175,7 @@ const AIRoomDesigner: React.FC = () => {
       // Stage 5: Complete
       setProcessingStage({
         stage: 'complete',
-        message: 'Transformation complete!',
+        message: 'Sacred Rules transformation complete!',
         progress: 100
       });
 
@@ -184,6 +186,7 @@ const AIRoomDesigner: React.FC = () => {
         checklist: result.checklist,
         analysisComplete: true,
         roomDescription: result.roomDescription,
+        architecturalInventory: result.architecturalInventory,
         imagePrompt: result.imagePrompt
       });
       
@@ -246,6 +249,11 @@ const AIRoomDesigner: React.FC = () => {
           Upload a photo of your room and let our AI transform it into a minimalist sanctuary. 
           Get personalized recommendations and a step-by-step action plan.
         </p>
+        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4 max-w-3xl mx-auto">
+          <p className="text-white/90 text-sm font-medium">
+            🏗️ <strong>Sacred Rules Technology:</strong> Our AI preserves your room's exact architecture, layout, and character while creating minimalist improvements through smart decluttering and organization.
+          </p>
+        </div>
       </div>
 
       {/* Upload Section */}
@@ -333,7 +341,7 @@ const AIRoomDesigner: React.FC = () => {
               className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-3 text-sm sm:text-base"
             >
               <Wand2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Transform with AI</span>
+              <span>Transform with Sacred Rules AI</span>
             </button>
           </div>
         </div>
@@ -345,7 +353,7 @@ const AIRoomDesigner: React.FC = () => {
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
             {getStageIcon(processingStage.stage)}
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">AI Pipeline Processing</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Sacred Rules AI Processing</h3>
           <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
             {processingStage.message}
           </p>
@@ -366,7 +374,7 @@ const AIRoomDesigner: React.FC = () => {
         <div className="space-y-6 sm:space-y-8">
           {/* Before and After */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">AI Transformation Results</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">Sacred Rules AI Transformation</h3>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {/* Before */}
@@ -388,7 +396,7 @@ const AIRoomDesigner: React.FC = () => {
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center space-x-2">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-                  <h4 className="text-base sm:text-lg font-semibold text-gray-900">After (AI Vision)</h4>
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-900">After (Sacred Rules AI)</h4>
                 </div>
                 <div className="relative rounded-2xl overflow-hidden bg-gray-100">
                   <img 
@@ -406,7 +414,7 @@ const AIRoomDesigner: React.FC = () => {
             <div className="mt-6 sm:mt-8 text-center">
               <a
                 href={analysisResult.afterImage}
-                download="minimalist-room-transformation.jpg"
+                download="sacred-rules-minimalist-transformation.jpg"
                 className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all inline-flex items-center space-x-2 text-sm sm:text-base"
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -415,12 +423,27 @@ const AIRoomDesigner: React.FC = () => {
             </div>
           </div>
 
+          {/* Architectural Inventory */}
+          {analysisResult.architecturalInventory && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-indigo-600" />
+                Architectural Elements Preserved
+              </h3>
+              <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4">
+                <p className="text-indigo-800 text-sm sm:text-base leading-relaxed">
+                  {analysisResult.architecturalInventory}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Room Description */}
           {analysisResult.roomDescription && (
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 flex items-center">
                 <Camera className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-indigo-600" />
-                Room Analysis
+                Room Analysis & Transformation Strategy
               </h3>
               <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
                 {analysisResult.roomDescription}
@@ -451,7 +474,7 @@ const AIRoomDesigner: React.FC = () => {
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
             <div className="flex items-center space-x-3 mb-4 sm:mb-6">
               <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Your Personalized Action Plan</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Your Sacred Rules Action Plan</h3>
             </div>
             
             <div className="space-y-3 sm:space-y-4">
