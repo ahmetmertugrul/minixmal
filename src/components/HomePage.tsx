@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Sparkles,
   Users,
-  Clock
+  Clock,
+  LogIn
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -18,13 +19,15 @@ interface HomePageProps {
   completedTasks: number;
   completedRecommendations: number;
   onNavigate: (tab: 'tasks' | 'learn' | 'score' | 'ai-designer') => void;
+  isLoggedIn: boolean;
 }
 
 const HomePage: React.FC<HomePageProps> = ({ 
   totalPoints, 
   completedTasks, 
   completedRecommendations,
-  onNavigate 
+  onNavigate,
+  isLoggedIn
 }) => {
   const features = [
     {
@@ -32,28 +35,32 @@ const HomePage: React.FC<HomePageProps> = ({
       title: 'Gamified Tasks',
       description: 'Complete minimalism challenges and earn points while building better habits.',
       color: 'from-blue-500 to-blue-700',
-      action: () => onNavigate('tasks')
+      action: () => onNavigate('tasks'),
+      requiresAuth: true
     },
     {
       icon: <BookOpen className="w-8 h-8" />,
       title: 'Learn & Grow',
       description: 'Discover principles, tips, and insights from minimalism experts.',
       color: 'from-green-500 to-green-700',
-      action: () => onNavigate('learn')
+      action: () => onNavigate('learn'),
+      requiresAuth: false
     },
     {
       icon: <Camera className="w-8 h-8" />,
       title: 'AI Room Designer',
       description: 'Transform your space with AI-powered minimalist room transformations.',
       color: 'from-purple-500 to-purple-700',
-      action: () => onNavigate('ai-designer')
+      action: () => onNavigate('ai-designer'),
+      requiresAuth: true
     },
     {
       icon: <Trophy className="w-8 h-8" />,
       title: 'Track Progress',
       description: 'Monitor your minimalism journey with detailed stats and achievements.',
       color: 'from-yellow-500 to-orange-600',
-      action: () => onNavigate('score')
+      action: () => onNavigate('score'),
+      requiresAuth: false
     }
   ];
 
@@ -95,22 +102,40 @@ const HomePage: React.FC<HomePageProps> = ({
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-          {quickStats.map((stat, index) => (
-            <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20">
-              <div className="flex items-center justify-center space-x-3">
-                <div className={stat.color}>
-                  {stat.icon}
-                </div>
-                <div className="text-left">
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+        {/* Quick Stats - Only show if logged in */}
+        {isLoggedIn && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {quickStats.map((stat, index) => (
+              <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20">
+                <div className="flex items-center justify-center space-x-3">
+                  <div className={stat.color}>
+                    {stat.icon}
+                  </div>
+                  <div className="text-left">
+                    <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                    <div className="text-sm text-gray-600">{stat.label}</div>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+
+        {/* Welcome message for non-logged in users */}
+        {!isLoggedIn && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 max-w-2xl mx-auto">
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Start Your Journey Today</h3>
+              <p className="text-gray-600">
+                Explore minimalism principles and discover how intentional living can transform your life. 
+                Sign in to track your progress and unlock personalized features.
+              </p>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Features Grid */}
@@ -122,8 +147,16 @@ const HomePage: React.FC<HomePageProps> = ({
             className="group bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
           >
             <div className="space-y-4">
-              <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                {feature.icon}
+              <div className="flex items-center justify-between">
+                <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  {feature.icon}
+                </div>
+                {feature.requiresAuth && !isLoggedIn && (
+                  <div className="flex items-center space-x-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <LogIn className="w-3 h-3" />
+                    <span>Sign in required</span>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
@@ -134,7 +167,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 </p>
               </div>
               <div className="flex items-center text-indigo-600 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Get Started</span>
+                <span>{feature.requiresAuth && !isLoggedIn ? 'Sign In to Access' : 'Get Started'}</span>
                 <ArrowRight className="w-5 h-5 ml-2" />
               </div>
             </div>
@@ -183,11 +216,11 @@ const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           <button
-            onClick={() => onNavigate('tasks')}
+            onClick={() => onNavigate('learn')}
             className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3 mx-auto hover:scale-105"
           >
             <Sparkles className="w-6 h-6" />
-            <span>Start Your First Task</span>
+            <span>{isLoggedIn ? 'Start Your First Task' : 'Explore Minimalism'}</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
