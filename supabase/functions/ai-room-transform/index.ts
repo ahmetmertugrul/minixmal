@@ -37,8 +37,8 @@ interface AnalysisResult {
     estimatedTime: string;
   }>;
   image_prompt: string;
-  room_description: string;
-  architectural_inventory: string;
+  room_description: string | object;
+  architectural_inventory: string | object;
 }
 
 Deno.serve(async (req: Request) => {
@@ -215,6 +215,15 @@ Remember: Transform through SUBTRACTION and ORGANIZATION, not redesign. The room
 
     console.log('Generated instructions:', instructions);
 
+    // Ensure architectural_inventory and room_description are strings
+    const architecturalInventory = typeof instructions.architectural_inventory === 'object' 
+      ? JSON.stringify(instructions.architectural_inventory, null, 2)
+      : instructions.architectural_inventory || 'Architectural elements preserved';
+
+    const roomDescription = typeof instructions.room_description === 'object'
+      ? JSON.stringify(instructions.room_description, null, 2)
+      : instructions.room_description || 'Room analyzed with advanced minimalist principles';
+
     // Step 2: Generate transformed image with FLUX
     console.log('Step 2: Generating transformed image with FLUX...');
     
@@ -271,8 +280,8 @@ CRITICAL PRESERVATION: Exact same room layout, identical architecture, same came
     const response = {
       transformedImageUrl,
       checklist,
-      roomDescription: instructions.room_description || 'Room analyzed with advanced minimalist principles',
-      architecturalInventory: instructions.architectural_inventory || 'Architectural elements preserved',
+      roomDescription,
+      architecturalInventory,
       imagePrompt: instructions.image_prompt,
       success: true
     };
