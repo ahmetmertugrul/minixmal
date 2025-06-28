@@ -22,6 +22,12 @@ interface QwenResponse {
   }>;
 }
 
+interface FluxResponse {
+  data: Array<{
+    url: string;
+  }>;
+}
+
 interface AnalysisResult {
   checklist: Array<{
     task: string;
@@ -69,7 +75,7 @@ Deno.serve(async (req: Request) => {
 
     // Step 1: Analyze the room image with Qwen2.5-VL-72B-Instruct
     console.log('Step 1: Analyzing room image with Qwen2.5-VL...');
-    const analysisResponse = await fetch('https://api.studio.nebius.ai/v1/chat/completions', {
+    const analysisResponse = await fetch('https://api.studio.nebius.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${nebiusApiKey}`,
@@ -89,7 +95,7 @@ Deno.serve(async (req: Request) => {
                 type: 'text',
                 text: `Analyze this room image and provide two things in JSON format:
 1. Create a step-by-step checklist of 4-8 actionable tasks to make the room minimalist. Each task should have: task, reason, category (Decluttering/Organization/Styling), priority (high/medium/low), and estimatedTime.
-2. Write a detailed, inspiring prompt for FLUX.1-dev image generation to create a minimalist version of this exact room, keeping the same layout and structure but removing clutter and adding minimalist styling. Keep the prompt under 2000 characters.
+2. Write a detailed, inspiring prompt for FLUX image generation to create a minimalist version of this exact room, keeping the same layout and structure but removing clutter and adding minimalist styling. Keep the prompt under 1500 characters.
 
 Provide the output as a JSON object with two keys: "checklist" (array of task objects) and "image_prompt" (string).`
               },
@@ -109,6 +115,7 @@ Provide the output as a JSON object with two keys: "checklist" (array of task ob
 
     if (!analysisResponse.ok) {
       const errorText = await analysisResponse.text();
+      console.error('Qwen analysis failed:', errorText);
       throw new Error(`Qwen analysis failed: ${analysisResponse.statusText} - ${errorText}`);
     }
 
@@ -131,36 +138,34 @@ Provide the output as a JSON object with two keys: "checklist" (array of task ob
 
     console.log('Generated instructions:', instructions);
 
-    // Step 2: Generate transformed image with FLUX.1-dev
-    console.log('Step 2: Generating transformed image with FLUX.1-dev...');
+    // Step 2: Generate transformed image with FLUX
+    console.log('Step 2: Generating transformed image with FLUX...');
     
-    // Ensure the prompt is under 2000 characters for FLUX.1-dev
+    // Ensure the prompt is under 1500 characters for FLUX
     let imagePrompt = instructions.image_prompt;
-    if (imagePrompt.length > 1900) {
-      imagePrompt = imagePrompt.substring(0, 1900) + '...';
+    if (imagePrompt.length > 1400) {
+      imagePrompt = imagePrompt.substring(0, 1400) + '...';
     }
 
-    const transformResponse = await fetch('https://api.studio.nebius.ai/v1/images/generations', {
+    const transformResponse = await fetch('https://api.studio.nebius.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${nebiusApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'black-forest-labs/FLUX.1-dev',
-        prompt: imagePrompt + ", minimalist interior design, clean lines, organized, peaceful, high quality, professional photography",
-        n: 1,
-        size: "1024x768",
-        response_format: "url"
+        model: 'black-forest-labs/flux-dev',
+        prompt: imagePrompt + ", minimalist interior design, clean lines, organized, peaceful, high quality, professional photography"
       }),
     });
 
     if (!transformResponse.ok) {
       const errorText = await transformResponse.text();
+      console.error('FLUX image generation failed:', errorText);
       throw new Error(`FLUX image generation failed: ${transformResponse.statusText} - ${errorText}`);
     }
 
-    const transformResult = await transformResponse.json();
+    const transformResult: FluxResponse = await transformResponse.json();
     const transformedImageUrl = transformResult.data[0].url;
 
     console.log('Generated image URL:', transformedImageUrl);
