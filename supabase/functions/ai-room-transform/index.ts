@@ -136,42 +136,24 @@ ANALYSIS REQUIREMENTS:
             content: [
               {
                 type: 'text',
-                text: `Following the SACRED RULES above, analyze this room image and provide a JSON response with exactly four keys:
+                text: `Following the SACRED RULES above, analyze this room image and provide a JSON response with exactly two keys:
 
-1. "architectural_inventory": Create an EXACT inventory of all architectural elements that MUST be preserved:
-   - Windows: exact shapes, sizes, positions, frame styles, colors
-   - Doors: styles, colors, hardware, positions
-   - Walls: textures, patterns, paint colors, materials
-   - Ceiling: height, moldings, trim details
-   - Flooring: type, pattern, color, material
-   - Built-ins: shelves, fireplaces, stairs, cabinets - exact positions and styles
-   - Room dimensions and proportions
-   - Lighting fixtures and sources
-
-2. "room_description": Detailed analysis of current state:
-   - Current furniture arrangement and placement zones
-   - Decorative items and clutter present
-   - Traffic flow patterns
-   - Focal points and sight lines
-   - Current organization level
-   - Items that need minimalist attention
-
-3. "checklist": Array of 4-6 specific minimalist tasks following transformation targets:
+1. "checklist": Array of 8-12 specific minimalist tasks following transformation targets:
    - task: Specific action (e.g., "Remove decorative objects from coffee table, keep only 1 book")
    - reason: Why this creates minimalist improvement
    - category: "Decluttering", "Organization", or "Styling"
    - priority: "high", "medium", or "low"
    - estimatedTime: Realistic time estimate
 
-4. "image_prompt": Detailed FLUX prompt that PRESERVES room's DNA:
-   - MUST maintain exact architectural inventory from step 1
+2. "image_prompt": Detailed FLUX prompt that PRESERVES room's DNA:
+   - MUST maintain exact architectural elements
    - MUST preserve identical camera angle and perspective
    - MUST keep same lighting conditions
    - MUST maintain furniture placement zones
    - Shows minimalist improvements through decluttering and organization only
    - Maximum 800 characters for FLUX compatibility
 
-Remember: Transform through SUBTRACTION and ORGANIZATION, not redesign. The room must remain recognizably the SAME SPACE with minimalist improvements.`
+Remember: Transform through SUBTRACTION and ORGANIZATION, not redesign. The room must remain recognizably the SAME SPACE with minimalist improvements. Provide MORE recommendations (8-12 tasks) for comprehensive transformation.`
               },
               {
                 type: 'image_url',
@@ -214,15 +196,6 @@ Remember: Transform through SUBTRACTION and ORGANIZATION, not redesign. The room
     }
 
     console.log('Generated instructions:', instructions);
-
-    // Ensure architectural_inventory and room_description are strings
-    const architecturalInventory = typeof instructions.architectural_inventory === 'object' 
-      ? JSON.stringify(instructions.architectural_inventory, null, 2)
-      : instructions.architectural_inventory || 'Architectural elements preserved';
-
-    const roomDescription = typeof instructions.room_description === 'object'
-      ? JSON.stringify(instructions.room_description, null, 2)
-      : instructions.room_description || 'Room analyzed with advanced minimalist principles';
 
     // Step 2: Generate transformed image with FLUX
     console.log('Step 2: Generating transformed image with FLUX...');
@@ -280,8 +253,7 @@ CRITICAL PRESERVATION: Exact same room layout, identical architecture, same came
     const response = {
       transformedImageUrl,
       checklist,
-      roomDescription,
-      architecturalInventory,
+      roomDescription: 'Room analyzed with advanced minimalist principles',
       imagePrompt: instructions.image_prompt,
       success: true
     };
