@@ -8,13 +8,15 @@ import {
   Menu,
   X,
   User,
-  ChevronDown
+  ChevronDown,
+  Home
 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import AuthForm from './components/AuthForm';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import LoadingSpinner from './components/LoadingSpinner';
+import HomePage from './components/HomePage';
 import TaskCard from './components/TaskCard';
 import RecommendationCard from './components/RecommendationCard';
 import RecommendationModal from './components/RecommendationModal';
@@ -28,14 +30,14 @@ import { Task } from './data/tasks';
 import { Recommendation } from './data/recommendations';
 import { OnboardingAnswer } from './types/onboarding';
 
-type TabType = 'tasks' | 'learn' | 'score' | 'ai-designer';
+type TabType = 'home' | 'tasks' | 'learn' | 'score' | 'ai-designer';
 
 const App: React.FC = () => {
   const { user, loading: authLoading, signUp, signIn, signOut, resetPassword } = useAuth();
   const { profile, loading: onboardingLoading, needsOnboarding, completeOnboarding } = useOnboarding();
   
-  // UI State
-  const [activeTab, setActiveTab] = useState<TabType>('tasks');
+  // UI State - Default to 'home' tab
+  const [activeTab, setActiveTab] = useState<TabType>('home');
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSubmitLoading, setAuthSubmitLoading] = useState(false);
@@ -145,6 +147,11 @@ const App: React.FC = () => {
     ? products
     : products.filter(product => product.category === selectedScoreCategory);
 
+  // Navigation handler for home page
+  const handleNavigateFromHome = (tab: 'tasks' | 'learn' | 'score' | 'ai-designer') => {
+    setActiveTab(tab);
+  };
+
   // Loading states
   if (authLoading || onboardingLoading) {
     return <LoadingSpinner />;
@@ -178,6 +185,7 @@ const App: React.FC = () => {
 
   const getTabIcon = (tab: TabType) => {
     switch (tab) {
+      case 'home': return <Home className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'tasks': return <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'learn': return <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />;
       case 'score': return <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />;
@@ -187,6 +195,7 @@ const App: React.FC = () => {
 
   const getTabLabel = (tab: TabType) => {
     switch (tab) {
+      case 'home': return 'Home';
       case 'tasks': return 'Tasks';
       case 'learn': return 'Learn';
       case 'score': return 'Score';
@@ -194,7 +203,7 @@ const App: React.FC = () => {
     }
   };
 
-  const tabs: TabType[] = ['tasks', 'learn', 'score', 'ai-designer'];
+  const tabs: TabType[] = ['home', 'tasks', 'learn', 'score', 'ai-designer'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
@@ -318,6 +327,16 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Home Tab */}
+        {activeTab === 'home' && (
+          <HomePage
+            totalPoints={totalPoints}
+            completedTasks={completedTasks}
+            completedRecommendations={completedRecommendationsCount}
+            onNavigate={handleNavigateFromHome}
+          />
+        )}
+
         {/* Tasks Tab */}
         {activeTab === 'tasks' && (
           <div className="space-y-6 sm:space-y-8">
