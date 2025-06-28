@@ -132,21 +132,21 @@ const AIRoomDesigner: React.FC = () => {
       // Stage 2: AI Analysis
       setProcessingStage({
         stage: 'analyzing',
-        message: 'AI is analyzing your room...',
+        message: 'AI is analyzing your room layout and features...',
         progress: 25
       });
 
       // Stage 3: Planning
       setProcessingStage({
         stage: 'planning',
-        message: 'Creating personalized action plan...',
+        message: 'Creating personalized minimalist action plan...',
         progress: 50
       });
 
       // Stage 4: Transforming
       setProcessingStage({
         stage: 'transforming',
-        message: 'Generating minimalist transformation...',
+        message: 'Generating high-quality minimalist transformation...',
         progress: 75
       });
 
@@ -323,7 +323,7 @@ const AIRoomDesigner: React.FC = () => {
             <img 
               src={uploadedImage} 
               alt="Uploaded room" 
-              className="w-full h-auto max-h-96 object-contain mx-auto block"
+              className="w-full h-auto max-h-[600px] object-contain mx-auto block"
             />
           </div>
 
@@ -379,7 +379,7 @@ const AIRoomDesigner: React.FC = () => {
                   <img 
                     src={analysisResult.beforeImage} 
                     alt="Before transformation" 
-                    className="w-full h-auto max-h-64 object-contain mx-auto block"
+                    className="w-full h-auto max-h-[400px] object-contain mx-auto block"
                   />
                 </div>
               </div>
@@ -394,7 +394,7 @@ const AIRoomDesigner: React.FC = () => {
                   <img 
                     src={analysisResult.afterImage} 
                     alt="After transformation" 
-                    className="w-full h-auto max-h-64 object-contain mx-auto block"
+                    className="w-full h-auto max-h-[400px] object-contain mx-auto block"
                   />
                   <div className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-green-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                     Minimalist
@@ -414,6 +414,19 @@ const AIRoomDesigner: React.FC = () => {
               </a>
             </div>
           </div>
+
+          {/* Room Description */}
+          {analysisResult.roomDescription && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <Camera className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-indigo-600" />
+                Room Analysis
+              </h3>
+              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+                {analysisResult.roomDescription}
+              </p>
+            </div>
+          )}
 
           {/* Progress Overview */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">

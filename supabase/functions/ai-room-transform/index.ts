@@ -89,49 +89,58 @@ Deno.serve(async (req: Request) => {
             role: 'system',
             content: `You are an expert minimalist interior designer for the "Minixmal" app. Your goal is to help users declutter and create minimalist, serene spaces while preserving the essential character and layout of their rooms.
 
-IMPORTANT: When creating image prompts, you must preserve:
-- The exact room layout and architecture
-- Window positions and natural lighting
-- Built-in features (fireplace, built-ins, etc.)
-- Room proportions and perspective
-- The overall spatial arrangement
+CRITICAL REQUIREMENTS for image analysis and generation:
+1. PRESERVE EXACT ARCHITECTURAL FEATURES: Keep all windows, doors, built-ins, fireplaces, and structural elements in their exact positions
+2. MAINTAIN ROOM LAYOUT: The furniture arrangement and room proportions must remain identical
+3. PRESERVE LIGHTING CONDITIONS: Keep the same natural and artificial lighting as the original
+4. MAINTAIN PERSPECTIVE: Use the exact same camera angle and viewpoint
+5. PRESERVE COLOR SCHEME: Keep existing wall colors, flooring, and major fixed elements
 
-Focus on minimalist improvements through:
-- Reducing visual clutter and excess items
-- Organizing remaining items thoughtfully
-- Enhancing natural light and clean lines
-- Using neutral, calming color palettes
-- Maintaining functionality while reducing quantity`
+MINIMALIST TRANSFORMATION FOCUS:
+- Remove excess decorative items and clutter
+- Reduce the number of small objects on surfaces
+- Organize remaining items with more intentional spacing
+- Create more negative space and breathing room
+- Keep essential furniture but potentially reduce quantity
+- Maintain functionality while reducing visual noise
+
+The goal is to make the SAME ROOM look cleaner, more organized, and minimalist while keeping its essential character and layout completely intact.`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Analyze this room image and provide a JSON response with three keys:
+                text: `Analyze this room image and provide a JSON response with exactly three keys:
 
-1. "room_description": A detailed description of the current room layout, architecture, lighting, and key features that should be preserved.
+1. "room_description": A detailed description of the current room including:
+   - Architectural features (windows, doors, built-ins, fireplace, etc.)
+   - Room layout and furniture arrangement
+   - Lighting conditions and sources
+   - Color scheme and materials
+   - Current organization and clutter level
+   - Key features that define the space's character
 
-2. "checklist": An array of 4-6 actionable minimalist tasks. Each task should have:
-   - task: Clear, specific action to take
-   - reason: Why this helps achieve minimalism
+2. "checklist": An array of 4-6 specific, actionable minimalist tasks. Each task must have:
+   - task: Clear, specific action (e.g., "Remove decorative items from coffee table")
+   - reason: Why this specific action helps achieve minimalism
    - category: "Decluttering", "Organization", or "Styling"
    - priority: "high", "medium", or "low"
-   - estimatedTime: Realistic time estimate
+   - estimatedTime: Realistic time estimate (e.g., "15 minutes", "1 hour")
 
 3. "image_prompt": A detailed prompt for FLUX image generation that:
-   - Preserves the EXACT same room layout, architecture, and perspective
-   - Keeps all built-in features (fireplace, windows, built-ins) in the same positions
-   - Maintains the same lighting conditions and room proportions
-   - Shows the same room but with minimalist improvements:
-     * Reduced clutter and excess decorative items
+   - MUST preserve the exact same room layout, architecture, and perspective
+   - MUST keep all built-in features (fireplace, windows, built-ins) in identical positions
+   - MUST maintain the same lighting conditions and camera angle
+   - MUST preserve the same wall colors, flooring, and fixed elements
+   - Shows minimalist improvements through:
+     * Fewer decorative objects on surfaces
      * Better organization of remaining items
-     * Cleaner surfaces with more negative space
-     * Neutral color palette (whites, beiges, soft grays)
-     * Same furniture arrangement but potentially fewer pieces
-   - Limit to 1200 characters maximum
+     * More negative space and cleaner surfaces
+     * Reduced visual clutter while maintaining functionality
+   - Maximum 1000 characters
 
-Ensure the transformed room is recognizably the SAME space but with minimalist principles applied.`
+Focus on making the SAME ROOM look minimalist, not creating a different room.`
               },
               {
                 type: 'image_url',
@@ -142,8 +151,9 @@ Ensure the transformed room is recognizably the SAME space but with minimalist p
             ]
           }
         ],
-        max_tokens: 2500,
-        temperature: 0.3 // Lower temperature for more consistent, focused responses
+        max_tokens: 3000,
+        temperature: 0.2, // Very low temperature for consistent, focused responses
+        top_p: 0.8, // Focused sampling for better consistency
       }),
     });
 
@@ -177,14 +187,14 @@ Ensure the transformed room is recognizably the SAME space but with minimalist p
     
     // Ensure the prompt is optimized for FLUX and under character limit
     let imagePrompt = instructions.image_prompt;
-    if (imagePrompt.length > 1200) {
-      imagePrompt = imagePrompt.substring(0, 1200);
+    if (imagePrompt.length > 1000) {
+      imagePrompt = imagePrompt.substring(0, 1000);
     }
 
-    // Enhance the prompt with FLUX-specific quality and style parameters
+    // Enhance the prompt with FLUX-specific quality and consistency parameters
     const enhancedPrompt = `${imagePrompt}
 
-Style: Professional interior photography, minimalist design, clean aesthetic, natural lighting, high resolution, architectural photography, serene atmosphere, neutral color palette, organized space, uncluttered surfaces, modern minimalism`;
+CRITICAL: Maintain exact same room layout, architecture, lighting, and perspective. Professional interior photography, high resolution, photorealistic, same camera angle, identical room structure, minimalist aesthetic, clean surfaces, organized space, natural lighting, architectural photography quality.`;
 
     const transformResponse = await fetch('https://api.studio.nebius.com/v1/images/generations', {
       method: 'POST',
@@ -195,11 +205,11 @@ Style: Professional interior photography, minimalist design, clean aesthetic, na
       body: JSON.stringify({
         model: 'black-forest-labs/flux-dev',
         prompt: enhancedPrompt,
-        num_inference_steps: 50, // Higher steps for better quality
-        guidance_scale: 7.5, // Balanced guidance for prompt adherence
+        num_inference_steps: 50, // Higher steps for better quality and consistency
+        guidance_scale: 8.0, // Higher guidance for better prompt adherence
         width: 1024,
         height: 768,
-        seed: Math.floor(Math.random() * 1000000) // Random seed for variety
+        seed: Math.floor(Math.random() * 1000000), // Random seed for variety while maintaining consistency
       }),
     });
 
