@@ -18,8 +18,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation - storage boxes and winter clothes
       '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette - fabric swatches and color coordination
       '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit - organized shoe collection
-      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessories - elegant jewelry and accessories
-      '7': 'https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg', // Laundry - modern washing machine and detergent
+      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessory minimization - elegant jewelry and accessories
+      '7': 'https://images.pexels.com/photos/5591663/pexels-photo-5591663.jpeg', // Laundry simplification - laundry basket with clean clothes
       '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing - professional business attire
       
       // Food/Kitchen tasks - each with distinct kitchen imagery
@@ -47,8 +47,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '26': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Decoration - minimal wall art and decor
       '27': 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg', // Storage system - organized shelving and storage boxes
       '28': 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg', // Paper reduction - organized documents and filing
-      '29': 'https://images.pexels.com/photos/4239119/pexels-photo-4239119.jpeg', // Cleaning supplies - eco-friendly cleaning products
-      '30': 'https://images.pexels.com/photos/271897/pexels-photo-271897.jpeg', // Linen closet - neatly folded towels and linens
+      '29': 'https://images.pexels.com/photos/5591728/pexels-photo-5591728.jpeg', // Cleaning supplies - natural cleaning products and tools
+      '30': 'https://images.pexels.com/photos/6489664/pexels-photo-6489664.jpeg', // Linen closet - organized towels and bedding
       '31': 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg', // Entryway - organized front door area with hooks
       '32': 'https://images.pexels.com/photos/6621186/pexels-photo-6621186.jpeg', // Bathroom - minimal toiletries and bathroom essentials
       '33': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Bedroom - peaceful, clutter-free bedroom
@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       
       // Health tasks - each with distinct health imagery
       '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins and health supplements
-      '48': 'https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg', // Exercise - workout equipment and fitness
+      '48': 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', // Exercise - gym equipment and fitness gear (no woman)
       '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - minimal skincare products
       '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - comfortable bedroom for better sleep
       
@@ -86,16 +86,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board and inspiration wall
       
       // Travel tasks - each with distinct travel imagery
-      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Packing - minimalist packing and suitcase
+      '56': 'https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg', // Minimalist packing - organized suitcase with essentials
       '57': 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg', // Travel gear - travel accessories and essentials
       '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad - laptop and remote work setup
-      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenirs - meaningful travel memories
+      '59': 'https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg', // Souvenir mindfulness - travel journal and meaningful items
       
       // Environment tasks - each with distinct eco imagery
       '60': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Zero waste - recycling and waste reduction
       '61': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Plastic reduction - reusable bags and eco alternatives
       '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit - LED light bulb and energy saving
-      '63': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Sustainable shopping - eco-friendly products
+      '63': 'https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg', // Sustainable shopping - eco-friendly products and natural materials
       '64': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Local living - farmers market and local produce
       
       // Habits tasks - each with distinct lifestyle imagery
