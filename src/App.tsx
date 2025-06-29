@@ -37,7 +37,8 @@ const App: React.FC = () => {
     uncompleteTask,
     readArticle, 
     unreadArticle,
-    dismissNewBadges 
+    dismissNewBadges,
+    resetUserStats
   } = useScoring();
 
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
@@ -52,6 +53,20 @@ const App: React.FC = () => {
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+
+  // Initialize with empty sets and reset stats when user first loads
+  useEffect(() => {
+    if (user && userStats) {
+      // Check if this is a fresh user or if stats need to be reset
+      const hasAnyCompletedItems = completedTasks.size > 0 || completedRecommendations.size > 0;
+      const hasStatsButNoCompletions = (userStats.tasks_completed > 0 || userStats.articles_read > 0 || userStats.total_points > 0) && !hasAnyCompletedItems;
+      
+      if (hasStatsButNoCompletions) {
+        // Reset stats to match the actual completion state (all zeros)
+        resetUserStats();
+      }
+    }
+  }, [user, userStats, completedTasks.size, completedRecommendations.size]);
 
   // Load completed items from localStorage
   useEffect(() => {

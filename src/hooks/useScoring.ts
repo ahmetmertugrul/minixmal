@@ -45,7 +45,7 @@ export const useScoring = () => {
         const earned = badges.filter(badge => earnedBadgeIds.includes(badge.id));
         setEarnedBadges(earned);
       } else {
-        // Create initial stats
+        // Create initial stats with all zeros
         await createInitialStats();
       }
     } catch (error) {
@@ -84,6 +84,50 @@ export const useScoring = () => {
       console.error('Error creating initial stats:', error);
     } else {
       setUserStats(data);
+    }
+  };
+
+  const resetUserStats = async () => {
+    if (!user) return;
+
+    try {
+      // Reset all stats to zero
+      const resetStats: Partial<UserStats> = {
+        total_points: 0,
+        level: 1,
+        experience_points: 0,
+        points_to_next_level: 250,
+        streak_days: 0,
+        longest_streak: 0,
+        tasks_completed: 0,
+        articles_read: 0,
+        rooms_transformed: 0,
+        badges_earned: [],
+        achievements_unlocked: [],
+        last_activity: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('user_stats')
+        .update(resetStats)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error resetting user stats:', error);
+      } else {
+        setUserStats(data);
+        setEarnedBadges([]);
+        
+        // Clear all points transactions
+        await supabase
+          .from('points_transactions')
+          .delete()
+          .eq('user_id', user.id);
+      }
+    } catch (error) {
+      console.error('Error resetting user stats:', error);
     }
   };
 
@@ -515,6 +559,7 @@ export const useScoring = () => {
     unreadArticle,
     transformRoom,
     dismissNewBadges,
-    loadUserStats
+    loadUserStats,
+    resetUserStats
   };
 };
