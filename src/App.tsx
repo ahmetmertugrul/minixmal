@@ -376,7 +376,7 @@ function App() {
                   task={task}
                   index={index}
                   onToggle={handleTaskToggle}
-                  onOpenModal={handleOpenTaskModal}
+                  onClick={() => handleOpenTaskModal(task)}
                 />
               ))}
             </div>
@@ -437,7 +437,7 @@ function App() {
         )}
       </main>
 
-      {/* Task Modal */}
+      {/* Task Modal - ONLY ADDITION */}
       {selectedTask && (
         <TaskModal
           task={selectedTask}

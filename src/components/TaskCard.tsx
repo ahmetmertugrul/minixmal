@@ -6,10 +6,10 @@ interface TaskCardProps {
   task: Task;
   index: number;
   onToggle: (taskId: string) => void;
-  onOpenModal: (task: Task) => void;
+  onClick: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onOpenModal }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onClick }) => {
   const getTaskImage = (taskId: string) => {
     // Unique, specific image for each task based on its title and content
     const imageMap: { [key: string]: string } = {
@@ -224,7 +224,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onOpenModal 
       onToggle(task.id);
     } else {
       // If not completed, clicking the card opens the modal
-      onOpenModal(task);
+      onClick(task);
     }
   };
 
@@ -324,7 +324,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onOpenModal 
             </div>
             <p className="text-xl sm:text-2xl font-bold mb-2 text-white">Completed!</p>
             <p className="text-base sm:text-lg text-white mb-2">+{task.points} points</p>
-            <p className="text-sm text-white/80">Click to undo</p>
+            <p className="text-xs sm:text-sm text-white/80">Click to undo</p>
           </div>
         </div>
       )}
