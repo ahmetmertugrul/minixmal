@@ -432,146 +432,155 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
-      {/* Header */}
-      <header className="bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-white">Minixmal</h1>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
-              <button
-                onClick={() => setActiveTab('home')}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === 'home'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Home className="w-4 h-4 inline mr-2" />
-                Home
-              </button>
-              <button
-                onClick={() => setActiveTab('ai-designer')}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === 'ai-designer'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Wand2 className="w-4 h-4 inline mr-2" />
-                AI Designer
-              </button>
-              <button
-                onClick={() => setActiveTab('learn')}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === 'learn'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <BookOpen className="w-4 h-4 inline mr-2" />
-                Learn
-              </button>
-              <button
-                onClick={() => setActiveTab('tasks')}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === 'tasks'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Target className="w-4 h-4 inline mr-2" />
-                Tasks
-              </button>
-              <button
-                onClick={() => setActiveTab('score')}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === 'score'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Trophy className="w-4 h-4 inline mr-2" />
-                Score
-              </button>
-            </nav>
-
-            {/* User Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowUserProfile(!showUserProfile)}
-                className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-              >
-                <User className="w-5 h-5" />
-              </button>
-              
-              {showUserProfile && (
-                <div className="absolute right-0 top-12 z-50">
-                  <UserProfile />
+      {/* Header - RESTORED TO ORIGINAL DESIGN */}
+      <div className="p-4 sm:p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Main Header Container */}
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/20 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              {/* Logo */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-              )}
+                <h1 className="text-xl sm:text-2xl font-bold text-white">Minixmal</h1>
+              </div>
+
+              {/* Navigation Pills */}
+              <div className="hidden md:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-2xl p-2">
+                <button
+                  onClick={() => setActiveTab('home')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'home'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => setActiveTab('ai-designer')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'ai-designer'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  AI Designer
+                </button>
+                <button
+                  onClick={() => setActiveTab('learn')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'learn'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Learn
+                </button>
+                <button
+                  onClick={() => setActiveTab('tasks')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'tasks'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Tasks
+                </button>
+                <button
+                  onClick={() => setActiveTab('score')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'score'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Score
+                </button>
+              </div>
+
+              {/* User Menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg"
+                >
+                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+                
+                {showUserProfile && (
+                  <div className="absolute right-0 top-14 z-50">
+                    <UserProfile />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Navigation for Leaderboard */}
+          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl p-3 shadow-lg border border-white/20">
+            <div className="flex items-center justify-center space-x-6 text-white/80">
+              <button className="hover:text-white transition-colors font-medium">All Users</button>
+              <button className="hover:text-white transition-colors font-medium">Friends</button>
+              <button className="hover:text-white transition-colors font-medium">This Week</button>
+              <button className="hover:text-white transition-colors font-medium">This Month</button>
+              <button className="hover:text-white transition-colors font-medium">All Time</button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-white/20">
-          <div className="flex items-center justify-around py-2">
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-                activeTab === 'home' ? 'text-white' : 'text-white/60'
-              }`}
-            >
-              <Home className="w-5 h-5" />
-              <span className="text-xs mt-1">Home</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('ai-designer')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-                activeTab === 'ai-designer' ? 'text-white' : 'text-white/60'
-              }`}
-            >
-              <Wand2 className="w-5 h-5" />
-              <span className="text-xs mt-1">AI</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('learn')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-                activeTab === 'learn' ? 'text-white' : 'text-white/60'
-              }`}
-            >
-              <BookOpen className="w-5 h-5" />
-              <span className="text-xs mt-1">Learn</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('tasks')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-                activeTab === 'tasks' ? 'text-white' : 'text-white/60'
-              }`}
-            >
-              <Target className="w-5 h-5" />
-              <span className="text-xs mt-1">Tasks</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('score')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-                activeTab === 'score' ? 'text-white' : 'text-white/60'
-              }`}
-            >
-              <Trophy className="w-5 h-5" />
-              <span className="text-xs mt-1">Score</span>
-            </button>
-          </div>
+      {/* Mobile Navigation */}
+      <div className="md:hidden bg-white/10 backdrop-blur-sm border-t border-white/20 px-4 py-2">
+        <div className="flex items-center justify-around">
+          <button
+            onClick={() => setActiveTab('home')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'home' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-xs mt-1">Home</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('ai-designer')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'ai-designer' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <Wand2 className="w-5 h-5" />
+            <span className="text-xs mt-1">AI</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('learn')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'learn' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="text-xs mt-1">Learn</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'tasks' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <Target className="w-5 h-5" />
+            <span className="text-xs mt-1">Tasks</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('score')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'score' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <Trophy className="w-5 h-5" />
+            <span className="text-xs mt-1">Score</span>
+          </button>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
