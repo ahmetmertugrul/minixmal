@@ -1,5 +1,24 @@
-import React from 'react';
-import { X, Clock, Star, Award, Target, CheckCircle, Lightbulb } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  X, 
+  Clock, 
+  Star, 
+  Award, 
+  Target, 
+  CheckCircle, 
+  Lightbulb, 
+  TrendingUp,
+  Users,
+  Calendar,
+  Zap,
+  BookOpen,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Pause,
+  RotateCcw
+} from 'lucide-react';
 import { Task } from '../data/tasks';
 
 interface TaskDetailModalProps {
@@ -17,6 +36,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onToggleComplete,
   completed 
 }) => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'guide' | 'benefits' | 'community'>('overview');
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
   if (!isOpen) return null;
 
   const getDifficultyColor = (difficulty: string) => {
@@ -49,7 +71,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
 
   const getTaskImage = (taskId: string) => {
-    // Same image mapping as in TaskCard
     const imageMap: { [key: string]: string } = {
       '1': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
       '2': 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg',
@@ -126,6 +147,362 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     return imageMap[taskId] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
   };
 
+  // Enhanced task data with detailed information
+  const getTaskDetails = (task: Task) => {
+    const baseDetails = {
+      overview: {
+        whatYoullDo: task.description,
+        whyItMatters: "This task is designed to help you create more intentional living spaces and reduce decision fatigue in your daily life.",
+        expectedOutcome: "You'll experience increased clarity, reduced stress, and a more organized environment that supports your goals."
+      },
+      stepByStepGuide: [
+        "Gather all necessary supplies and set aside dedicated time",
+        "Start with the easiest items to build momentum",
+        "Sort items into keep, donate, and discard categories",
+        "Organize remaining items with clear systems",
+        "Take photos to track your progress and celebrate wins"
+      ],
+      benefits: [
+        "Reduced visual clutter and mental overwhelm",
+        "Easier maintenance and cleaning routines",
+        "More space for activities that matter to you",
+        "Increased focus and productivity",
+        "Greater appreciation for items you choose to keep"
+      ],
+      commonChallenges: [
+        "Emotional attachment to items",
+        "Fear of making the wrong decision",
+        "Perfectionism preventing progress",
+        "Lack of time or energy"
+      ],
+      solutions: [
+        "Start small with just 15 minutes",
+        "Use the 'one-touch rule' for quick decisions",
+        "Take photos of sentimental items before donating",
+        "Focus on progress, not perfection"
+      ]
+    };
+
+    // Task-specific customizations
+    const customizations: { [key: string]: any } = {
+      '1': {
+        overview: {
+          whatYoullDo: "Create a curated collection of 30-40 versatile clothing pieces that all work together, eliminating decision fatigue and ensuring you always look put-together.",
+          whyItMatters: "A capsule wardrobe saves time, money, and mental energy while ensuring you always have something appropriate to wear.",
+          expectedOutcome: "You'll spend less time choosing outfits, feel more confident in your style, and have a closet full of pieces you truly love."
+        },
+        stepByStepGuide: [
+          "Empty your entire closet and lay everything out",
+          "Try on each piece and assess fit, condition, and how it makes you feel",
+          "Choose a color palette of 3-4 colors that work well together",
+          "Select versatile basics that can be mixed and matched",
+          "Add a few statement pieces that reflect your personality",
+          "Organize by category and ensure everything coordinates",
+          "Donate items that don't fit your new capsule vision"
+        ],
+        benefits: [
+          "Faster morning routines with less decision fatigue",
+          "Higher quality wardrobe with pieces you actually wear",
+          "Reduced shopping impulses and better spending habits",
+          "Increased confidence in your personal style",
+          "Less laundry and easier closet maintenance"
+        ]
+      },
+      '9': {
+        overview: {
+          whatYoullDo: "Evaluate every kitchen tool and gadget, keeping only those you use regularly to create a more functional cooking space.",
+          whyItMatters: "A streamlined kitchen with essential tools makes cooking more enjoyable and efficient while reducing clutter.",
+          expectedOutcome: "You'll have more counter space, easier access to tools you actually use, and a more peaceful cooking environment."
+        },
+        stepByStepGuide: [
+          "Remove all tools and gadgets from drawers and cabinets",
+          "Group similar items together (cutting tools, measuring, etc.)",
+          "Identify tools you use weekly vs. monthly vs. rarely",
+          "Keep one high-quality version of each essential tool",
+          "Test if specialty gadgets can be replaced by versatile tools",
+          "Organize remaining tools for easy access",
+          "Donate or sell tools you haven't used in 6+ months"
+        ],
+        benefits: [
+          "More counter and storage space for cooking",
+          "Easier to find and access the tools you need",
+          "Reduced cleaning and maintenance time",
+          "Better quality tools that last longer",
+          "More enjoyable and efficient cooking experience"
+        ]
+      },
+      '16': {
+        overview: {
+          whatYoullDo: "Reduce screen time and digital overwhelm by setting boundaries with technology and creating tech-free zones in your life.",
+          whyItMatters: "Digital minimalism improves focus, sleep quality, and real-world relationships while reducing anxiety and information overload.",
+          expectedOutcome: "You'll feel more present, focused, and in control of your technology use rather than controlled by it."
+        },
+        stepByStepGuide: [
+          "Track your current screen time for awareness",
+          "Identify your most problematic apps or devices",
+          "Set specific times for checking emails and social media",
+          "Create phone-free zones (bedroom, dining table)",
+          "Use app timers and notification controls",
+          "Replace digital activities with analog alternatives",
+          "Establish a digital sunset routine before bed"
+        ],
+        benefits: [
+          "Improved sleep quality and duration",
+          "Better focus and productivity during work",
+          "Stronger real-world relationships and connections",
+          "Reduced anxiety and information overwhelm",
+          "More time for hobbies and meaningful activities"
+        ]
+      }
+    };
+
+    return { ...baseDetails, ...(customizations[task.id] || {}) };
+  };
+
+  const taskDetails = getTaskDetails(task);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
+            {/* What You'll Do */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Target className="w-5 h-5 text-blue-500 mr-2" />
+                What You'll Do
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {taskDetails.overview.whatYoullDo}
+              </p>
+            </div>
+
+            {/* Why It Matters */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
+                Why It Matters
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {taskDetails.overview.whyItMatters}
+              </p>
+            </div>
+
+            {/* Expected Outcome */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <TrendingUp className="w-5 h-5 text-green-500 mr-2" />
+                Expected Outcome
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {taskDetails.overview.expectedOutcome}
+              </p>
+            </div>
+
+            {/* Task Stats */}
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-2xl">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-indigo-600">{task.points}</div>
+                <div className="text-sm text-gray-600">Points Reward</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{task.timeEstimate}</div>
+                <div className="text-sm text-gray-600">Time Needed</div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'guide':
+        return (
+          <div className="space-y-6">
+            {/* Step-by-Step Guide */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Play className="w-5 h-5 text-blue-500 mr-2" />
+                Step-by-Step Guide
+              </h3>
+              <div className="space-y-3">
+                {taskDetails.stepByStepGuide.map((step, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-xl">
+                    <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <span className="text-gray-700">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tips for Success */}
+            {task.tips && task.tips.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <Zap className="w-5 h-5 text-yellow-500 mr-2" />
+                  Pro Tips
+                </h3>
+                <div className="space-y-2">
+                  {task.tips.map((tip, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-xl">
+                      <Star className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Common Challenges & Solutions */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+                Common Challenges & Solutions
+              </h3>
+              <div className="space-y-3">
+                {taskDetails.commonChallenges.map((challenge, index) => (
+                  <div key={index} className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start space-x-3 mb-2">
+                      <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700 font-medium">{challenge}</span>
+                    </div>
+                    <div className="flex items-start space-x-3 ml-7">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-600">{taskDetails.solutions[index]}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'benefits':
+        return (
+          <div className="space-y-6">
+            {/* Key Benefits */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <TrendingUp className="w-5 h-5 text-green-500 mr-2" />
+                Key Benefits
+              </h3>
+              <div className="grid gap-3">
+                {taskDetails.benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-green-50 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Long-term Impact */}
+            <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Calendar className="w-5 h-5 text-indigo-500 mr-2" />
+                Long-term Impact
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                Completing this task is more than just organizing—it's about creating sustainable systems that support your ideal lifestyle. The habits you build here will compound over time, leading to lasting positive changes in how you interact with your environment and make decisions.
+              </p>
+            </div>
+
+            {/* Progress Tracking */}
+            {task.progress !== undefined && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Current Progress</h3>
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+                    style={{ width: `${task.progress}%` }}
+                  >
+                    <span className="text-white text-xs font-bold">{task.progress}%</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">Keep going! You're making great progress.</p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'community':
+        return (
+          <div className="space-y-6">
+            {/* Community Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-2xl">
+                <div className="text-2xl font-bold text-blue-600">2,847</div>
+                <div className="text-sm text-gray-600">People completed this</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-2xl">
+                <div className="text-2xl font-bold text-green-600">4.8★</div>
+                <div className="text-sm text-gray-600">Average rating</div>
+              </div>
+            </div>
+
+            {/* Success Stories */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Users className="w-5 h-5 text-purple-500 mr-2" />
+                Success Stories
+              </h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-white border border-gray-200 rounded-xl">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      S
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">Sarah M.</div>
+                      <div className="text-sm text-gray-500">Completed 2 weeks ago</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "This task completely transformed my morning routine. I used to spend 20 minutes deciding what to wear, now it takes 2 minutes and I feel more confident!"
+                  </p>
+                </div>
+
+                <div className="p-4 bg-white border border-gray-200 rounded-xl">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      M
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">Mike R.</div>
+                      <div className="text-sm text-gray-500">Completed 1 month ago</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "The step-by-step guide made this so much easier than I expected. I was dreading it but actually enjoyed the process!"
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Related Tasks */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <BookOpen className="w-5 h-5 text-indigo-500 mr-2" />
+                Related Tasks
+              </h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <span className="text-gray-700">Color Palette Simplification</span>
+                  <span className="text-sm text-indigo-600 font-medium">Next →</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <span className="text-gray-700">Seasonal Closet Rotation</span>
+                  <span className="text-sm text-indigo-600 font-medium">Recommended</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -135,7 +512,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header Image */}
         <div className="relative h-48 sm:h-64">
           <img 
@@ -169,68 +546,65 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <Award className="w-5 h-5 text-white" />
             <span className="text-white font-bold">{task.points} pts</span>
           </div>
+
+          {/* Title Overlay */}
+          <div className="absolute bottom-4 left-4 right-20">
+            <div className="text-sm font-medium text-white/80 bg-black/20 px-3 py-1 rounded-full inline-block mb-2">
+              {task.category}
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+              {task.title}
+            </h2>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 bg-gray-50">
+          <div className="flex overflow-x-auto">
+            {[
+              { id: 'overview', label: 'Overview', icon: Target },
+              { id: 'guide', label: 'Step-by-Step', icon: Play },
+              { id: 'benefits', label: 'Benefits', icon: TrendingUp },
+              { id: 'community', label: 'Community', icon: Users }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center space-x-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${
+                    activeTab === tab.id
+                      ? 'text-indigo-600 border-b-2 border-indigo-600 bg-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-12rem)]">
-          {/* Title and Category */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
-                {task.category}
-              </span>
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-20rem)]">
+          {renderTabContent()}
+        </div>
+
+        {/* Footer Action */}
+        <div className="border-t border-gray-200 p-6 bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1 text-gray-500">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm">{task.timeEstimate}</span>
               </div>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-              {task.title}
-            </h2>
-          </div>
-
-          {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-            <p className="text-gray-700 leading-relaxed">
-              {task.description}
-            </p>
-          </div>
-
-          {/* Tips */}
-          {task.tips && task.tips.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
-                Tips for Success
-              </h3>
-              <ul className="space-y-2">
-                {task.tips.map((tip, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-gray-700">{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Progress Indicator */}
-          {task.progress !== undefined && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Progress</h3>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${task.progress}%` }}
-                />
+              <div className="flex items-center space-x-1 text-gray-500">
+                <Award className="w-4 h-4" />
+                <span className="text-sm">{task.points} points</span>
               </div>
-              <p className="text-sm text-gray-600 mt-2">{task.progress}% complete</p>
             </div>
-          )}
-
-          {/* Action Button */}
-          <div className="flex justify-center pt-4">
+            
             <button
               onClick={() => onToggleComplete(task.id)}
               className={`px-8 py-3 rounded-2xl font-semibold text-lg transition-all duration-300 flex items-center space-x-3 ${
@@ -239,8 +613,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl'
               }`}
             >
-              <CheckCircle className="w-6 h-6" />
-              <span>{completed ? 'Mark as Incomplete' : 'Mark as Complete'}</span>
+              {completed ? <RotateCcw className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+              <span>{completed ? 'Mark Incomplete' : 'Mark Complete'}</span>
             </button>
           </div>
         </div>
