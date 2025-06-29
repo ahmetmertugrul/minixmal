@@ -9,54 +9,105 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
-  const getTaskImage = (category: string, illustration: string) => {
-    // Map categories and illustrations to relevant images from Pexels
+  const getTaskImage = (taskId: string) => {
+    // Unique image for each specific task
     const imageMap: { [key: string]: string } = {
-      // Wardrobe images
-      'wardrobe': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
-      'Wardrobe': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
+      // Wardrobe tasks
+      '1': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg', // Capsule wardrobe - clothes on hangers
+      '2': 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg', // One-in-one-out - donation box
+      '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation - storage boxes
+      '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette - color swatches
+      '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit - shoes organized
+      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessories - jewelry box
+      '7': 'https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg', // Laundry - washing machine
+      '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing - business attire
       
-      // Kitchen/Food images
-      'kitchen': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg',
-      'Food': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg',
+      // Food/Kitchen tasks
+      '9': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg', // Kitchen tools - utensils
+      '10': 'https://images.pexels.com/photos/4226796/pexels-photo-4226796.jpeg', // Pantry - glass containers
+      '11': 'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg', // Gadget purge - kitchen gadgets
+      '12': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Meal planning - notebook and vegetables
+      '13': 'https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg', // Dish minimization - clean dishes
+      '14': 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg', // Spice rack - spices in jars
+      '15': 'https://images.pexels.com/photos/2062431/pexels-photo-2062431.jpeg', // Counter space - clean kitchen counter
       
-      // Technology/Digital images
-      'digital-detox': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg',
-      'Technology': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg',
+      // Technology tasks
+      '16': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital detox - phone and laptop
+      '17': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email inbox - computer screen
+      '18': 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg', // App audit - smartphone apps
+      '19': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Photo cleanup - camera and photos
+      '20': 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg', // Social media - social icons
+      '21': 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg', // Password manager - security
+      '22': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Cloud storage - cloud computing
+      '23': 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg', // Notifications - phone notifications
       
-      // Home images
-      'home': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
-      'Home': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
+      // Home tasks
+      '24': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', // Room declutter - organized room
+      '25': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg', // Furniture - minimalist furniture
+      '26': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Decoration - wall art
+      '27': 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg', // Storage system - organized shelves
+      '28': 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg', // Paper reduction - documents
+      '29': 'https://images.pexels.com/photos/4239119/pexels-photo-4239119.jpeg', // Cleaning supplies - cleaning products
+      '30': 'https://images.pexels.com/photos/271897/pexels-photo-271897.jpeg', // Linen closet - folded towels
+      '31': 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg', // Entryway - front door area
+      '32': 'https://images.pexels.com/photos/6621186/pexels-photo-6621186.jpeg', // Bathroom - toiletries
+      '33': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Bedroom - peaceful bedroom
       
-      // Workspace/Work images
-      'workspace': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
-      'Work': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
+      // Finance tasks
+      '34': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg', // Budget - calculator and money
+      '35': 'https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg', // Subscriptions - credit cards
+      '36': 'https://images.pexels.com/photos/164527/pexels-photo-164527.jpeg', // Mindful spending - shopping cart
+      '37': 'https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg', // Bank accounts - banking
+      '38': 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg', // Investments - stock charts
       
-      // Finance images
-      'budget': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg',
-      'Finance': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg',
+      // Relationships tasks
+      '39': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg', // Social circle - group of friends
+      '40': 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg', // Communication - conversation
+      '41': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Events - calendar
+      '42': 'https://images.pexels.com/photos/264547/pexels-photo-264547.jpeg', // Gift giving - wrapped gifts
       
-      // Relationships images
-      'relationships': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg',
-      'Relationships': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg',
+      // Work tasks
+      '43': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Workspace - clean desk
+      '44': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Task management - to-do list
+      '45': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Meetings - conference room
+      '46': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email management - inbox
       
-      // Health images
-      'Health': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg',
+      // Health tasks
+      '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins
+      '48': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Exercise - workout equipment
+      '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - skincare products
+      '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - bedroom setup
       
-      // Creativity images
-      'Creativity': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg',
+      // Creativity tasks
+      '51': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Art supplies - paintbrushes
+      '52': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Creative space - art studio
+      '53': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Project focus - art project
+      '54': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Digital creative - computer design
+      '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board
       
-      // Travel images
-      'Travel': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg',
+      // Travel tasks
+      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Packing - suitcase
+      '57': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Travel gear - travel accessories
+      '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad - laptop travel
+      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenirs - travel memories
       
-      // Environment images
-      'Environment': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg',
+      // Environment tasks
+      '60': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Zero waste - recycling
+      '61': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Plastic reduction - eco bags
+      '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit - light bulb
+      '63': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Sustainable shopping - eco products
+      '64': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Local living - farmers market
       
-      // Habits images
-      'Habits': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg'
+      // Habits tasks
+      '65': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Morning routine - sunrise
+      '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine - bedtime
+      '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking - routine
+      '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue - choices
+      '69': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Mindfulness - meditation
+      '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking - focused work
     };
 
-    return imageMap[category] || imageMap[illustration] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
+    return imageMap[taskId] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
   };
 
   const getCardBackground = (index: number) => {
@@ -190,26 +241,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       onClick={handleCardClick}
     >
       {/* Header */}
-      <div className="flex justify-between items-start p-4 sm:p-6">
-        <div className="flex flex-wrap gap-2">
-          <span className="bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-white">
+      <div className="flex justify-between items-start p-3 sm:p-4">
+        <div className="flex flex-wrap gap-1 sm:gap-2">
+          <span className="bg-black/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs font-medium text-white">
             {task.category}
           </span>
-          <span className={`${getDifficultyColor(task.difficulty)} px-3 py-1 rounded-full text-xs font-medium text-white`}>
+          <span className={`${getDifficultyColor(task.difficulty)} px-2 sm:px-3 py-1 rounded-full text-xs font-medium text-white`}>
             {task.difficulty}
           </span>
         </div>
-        <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-          <Award className="w-4 h-4 text-white" />
-          <span className="text-sm font-medium text-white">{task.points}</span>
+        <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
+          <Award className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+          <span className="text-xs sm:text-sm font-medium text-white">{task.points}</span>
         </div>
       </div>
 
       {/* Image Area */}
-      <div className="px-4 sm:px-6 mb-4">
-        <div className="w-full h-32 sm:h-40 bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden">
+      <div className="px-3 sm:px-4 mb-3 sm:mb-4">
+        <div className="w-full h-28 sm:h-36 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl overflow-hidden">
           <img 
-            src={getTaskImage(task.category, task.illustration)} 
+            src={getTaskImage(task.id)} 
             alt={task.title}
             className="w-full h-full object-cover"
           />
@@ -217,29 +268,29 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       </div>
 
       {/* Content */}
-      <div className="px-4 sm:px-6 space-y-2 sm:space-y-3">
-        <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+      <div className="px-3 sm:px-4 space-y-1 sm:space-y-2">
+        <h3 className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2">
           {task.title}
         </h3>
-        <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+        <p className="text-white/90 text-xs sm:text-sm leading-relaxed line-clamp-2">
           {getOneLineDescription(task)}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between">
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="flex items-center space-x-1">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-700" />
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+              <Star className="w-2 h-2 sm:w-3 sm:h-3 text-yellow-700" />
             </div>
-            <span className="text-xs sm:text-sm font-medium text-white capitalize">
+            <span className="text-xs font-medium text-white capitalize">
               {task.type.replace('-', ' ')}
             </span>
           </div>
-          <div className="flex items-center space-x-1 text-xs sm:text-sm text-white/80">
-            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span>{task.timeEstimate}</span>
+          <div className="flex items-center space-x-1 text-xs text-white/80">
+            <Clock className="w-3 h-3" />
+            <span className="truncate max-w-16 sm:max-w-20">{task.timeEstimate}</span>
           </div>
         </div>
         
@@ -247,16 +298,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
         <button
           onClick={handleTickClick}
           className={`
-            tick-mark-button w-8 h-8 sm:w-10 sm:h-10 
+            tick-mark-button w-7 h-7 sm:w-8 sm:h-8 
             rounded-full flex items-center justify-center transition-all duration-300
-            shadow-lg hover:shadow-xl
+            shadow-lg hover:shadow-xl flex-shrink-0
             ${task.completed 
               ? 'bg-white text-green-600 hover:bg-gray-100' 
               : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
             }
           `}
         >
-          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          <Check className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
       </div>
 
