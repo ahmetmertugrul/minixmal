@@ -7,6 +7,7 @@ import AuthForm from './components/AuthForm';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import LoadingSpinner from './components/LoadingSpinner';
 import TaskCard from './components/TaskCard';
+import TaskDetailModal from './components/TaskDetailModal';
 import RecommendationCard from './components/RecommendationCard';
 import RecommendationModal from './components/RecommendationModal';
 import ProductCard from './components/ProductCard';
@@ -39,6 +40,7 @@ const App: React.FC = () => {
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [completedRecommendations, setCompletedRecommendations] = useState<Set<string>>(new Set());
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
 
   // Load completed items from localStorage
@@ -100,16 +102,26 @@ const App: React.FC = () => {
     const newCompletedTasks = new Set(completedTasks);
     
     if (completedTasks.has(taskId)) {
+      // Task is being uncompleted - remove from completed set
       newCompletedTasks.delete(taskId);
+      // Note: Points are not deducted when uncompleting tasks
+      // This prevents gaming the system by repeatedly completing/uncompleting
     } else {
+      // Task is being completed - add to completed set and award points
       newCompletedTasks.add(taskId);
-      // Award points for completing task
       if (userStats) {
         await completeTask(task);
       }
     }
     
     setCompletedTasks(newCompletedTasks);
+  };
+
+  const handleTaskCardClick = (task: Task) => {
+    // Only open modal if task is not completed
+    if (!completedTasks.has(task.id)) {
+      setSelectedTask(task);
+    }
   };
 
   const handleRecommendationToggle = async (recommendationId: string) => {
@@ -364,6 +376,7 @@ const App: React.FC = () => {
                   task={task}
                   index={index}
                   onToggle={handleTaskToggle}
+                  onCardClick={handleTaskCardClick}
                 />
               ))}
             </div>
@@ -596,6 +609,17 @@ const App: React.FC = () => {
           />
         </a>
       </div>
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onToggleComplete={handleTaskToggle}
+          completed={completedTasks.has(selectedTask.id)}
+        />
+      )}
 
       {/* Recommendation Modal */}
       {selectedRecommendation && (

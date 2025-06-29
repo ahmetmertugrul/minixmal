@@ -6,9 +6,10 @@ interface TaskCardProps {
   task: Task;
   index: number;
   onToggle: (taskId: string) => void;
+  onCardClick: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onCardClick }) => {
   const getTaskImage = (taskId: string) => {
     // Unique, specific image for each task based on its title and content
     const imageMap: { [key: string]: string } = {
@@ -218,10 +219,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
     if ((e.target as HTMLElement).closest('.tick-mark-button')) {
       return;
     }
-    // If the task is completed, clicking anywhere should toggle it
+    
+    // If the task is completed, don't open the modal
     if (task.completed) {
-      onToggle(task.id);
+      return;
     }
+    
+    // Open the modal for incomplete tasks
+    onCardClick(task);
   };
 
   const handleTickClick = (e: React.MouseEvent) => {
