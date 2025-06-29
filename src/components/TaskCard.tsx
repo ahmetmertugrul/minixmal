@@ -113,7 +113,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
     if ((e.target as HTMLElement).closest('.tick-mark-button')) {
       return;
     }
-    // Card click behavior can be added here if needed
+    // If the task is completed, clicking anywhere should toggle it
+    if (task.completed) {
+      onToggle(task.id);
+    }
   };
 
   const handleTickClick = (e: React.MouseEvent) => {
@@ -125,10 +128,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
     <div
       className={`
         h-72 sm:h-80 relative
-        ${task.completed 
-          ? 'bg-gradient-to-br from-green-500 to-green-700' 
-          : `bg-gradient-to-br ${getCardBackground(index)}`
-        }
+        bg-gradient-to-br ${getCardBackground(index)}
         rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
         shadow-xl hover:shadow-2xl backdrop-blur-sm
@@ -216,12 +216,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
         <Check className="w-4 h-4 sm:w-5 sm:h-5" />
       </button>
 
-      {/* Completion Overlay - Only show text, not blocking the entire card */}
+      {/* Completion Overlay - Full green overlay like in the image */}
       {task.completed && (
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2">
-          <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-bold text-green-600">+{task.points} points</span>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer">
+          <div className="text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <Check className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
+            </div>
+            <p className="text-xl sm:text-2xl font-bold mb-2 text-white">Completed!</p>
+            <p className="text-base sm:text-lg text-white mb-2">+{task.points} points</p>
+            <p className="text-sm text-white/80">Click to undo</p>
           </div>
         </div>
       )}
