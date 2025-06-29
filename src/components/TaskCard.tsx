@@ -18,7 +18,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation - storage boxes and winter clothes
       '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette - fabric swatches and color coordination
       '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit - organized shoe collection
-      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessory minimization - elegant jewelry and accessories
+      '6': 'https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg', // Accessory minimization - elegant jewelry and accessories
       '7': 'https://images.pexels.com/photos/5591663/pexels-photo-5591663.jpeg', // Laundry simplification - laundry basket with clean clothes
       '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing - professional business attire
       
@@ -74,13 +74,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       
       // Health tasks - each with distinct health imagery
       '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins and health supplements
-      '48': 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', // Exercise - MALE athlete working out with weights (non-nude)
+      '48': 'https://images.pexels.com/photos/2105493/pexels-photo-2105493.jpeg', // Exercise - MALE athlete working out with weights (non-nude)
       '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - minimal skincare products
       '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - comfortable bedroom for better sleep
       
       // Creativity tasks - each with distinct creative imagery
       '51': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Art supplies - paintbrushes and art materials
-      '52': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Creative space - organized art studio
+      '52': 'https://images.unsplash.com/photo-1741466071728-cc5691bfb535', // Creative space - organized art studio
       '53': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Project focus - focused art project work
       '54': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Digital creative - computer design work
       '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board and inspiration wall
@@ -103,7 +103,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine - peaceful bedtime setup
       '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking - routine and habit formation
       '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue - choices and decision making
-      '69': 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg', // Mindfulness - meditation stones and zen practice
+      '69': 'https://images.pexels.com/photos/2865901/pexels-photo-2865901.jpeg', // Mindfulness - meditation stones and zen practice
       '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking - focused work and productivity
     };
 
