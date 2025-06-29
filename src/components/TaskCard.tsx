@@ -10,101 +10,101 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
   const getTaskImage = (taskId: string) => {
-    // Unique image for each specific task
+    // Unique, specific image for each task based on its title and content
     const imageMap: { [key: string]: string } = {
-      // Wardrobe tasks
-      '1': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg', // Capsule wardrobe - clothes on hangers
-      '2': 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg', // One-in-one-out - donation box
-      '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation - storage boxes
-      '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette - color swatches
-      '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit - shoes organized
-      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessories - jewelry box
-      '7': 'https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg', // Laundry - washing machine
-      '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing - business attire
+      // Wardrobe tasks - each with distinct wardrobe-related imagery
+      '1': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg', // Capsule wardrobe - minimal clothes on hangers
+      '2': 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg', // One-in-one-out - donation box with clothes
+      '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation - storage boxes and winter clothes
+      '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette - fabric swatches and color coordination
+      '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit - organized shoe collection
+      '6': 'https://images.pexels.com/photos/1927574/pexels-photo-1927574.jpeg', // Accessories - elegant jewelry and accessories
+      '7': 'https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg', // Laundry - modern washing machine and detergent
+      '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing - professional business attire
       
-      // Food/Kitchen tasks
-      '9': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg', // Kitchen tools - utensils
-      '10': 'https://images.pexels.com/photos/4226796/pexels-photo-4226796.jpeg', // Pantry - glass containers
-      '11': 'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg', // Gadget purge - kitchen gadgets
-      '12': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Meal planning - notebook and vegetables
-      '13': 'https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg', // Dish minimization - clean dishes
-      '14': 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg', // Spice rack - spices in jars
-      '15': 'https://images.pexels.com/photos/2062431/pexels-photo-2062431.jpeg', // Counter space - clean kitchen counter
+      // Food/Kitchen tasks - each with distinct kitchen imagery
+      '9': 'https://images.pexels.com/photos/2284166/pexels-photo-2284166.jpeg', // Kitchen tools - chef's knife and cutting board
+      '10': 'https://images.pexels.com/photos/4226796/pexels-photo-4226796.jpeg', // Pantry - glass storage containers with grains
+      '11': 'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg', // Gadget purge - various kitchen gadgets
+      '12': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Meal planning - notebook with vegetables and planning
+      '13': 'https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg', // Dish minimization - clean white dishes stacked
+      '14': 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg', // Spice rack - organized spices in glass jars
+      '15': 'https://images.pexels.com/photos/2062431/pexels-photo-2062431.jpeg', // Counter space - clean, minimal kitchen counter
       
-      // Technology tasks
-      '16': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital detox - phone and laptop
-      '17': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email inbox - computer screen
-      '18': 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg', // App audit - smartphone apps
-      '19': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Photo cleanup - camera and photos
-      '20': 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg', // Social media - social icons
-      '21': 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg', // Password manager - security
-      '22': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Cloud storage - cloud computing
-      '23': 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg', // Notifications - phone notifications
+      // Technology tasks - each with distinct tech imagery
+      '16': 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg', // Digital detox - phone with apps and digital wellness
+      '17': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email inbox - computer screen showing email interface
+      '18': 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg', // App audit - smartphone with social media apps
+      '19': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Photo cleanup - camera with scattered photos
+      '20': 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg', // Social media - social media icons and notifications
+      '21': 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg', // Password manager - security and lock icons
+      '22': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Cloud storage - cloud computing and file organization
+      '23': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Notifications - phone with notification bubbles
       
-      // Home tasks
-      '24': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', // Room declutter - organized room
-      '25': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg', // Furniture - minimalist furniture
-      '26': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Decoration - wall art
-      '27': 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg', // Storage system - organized shelves
-      '28': 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg', // Paper reduction - documents
-      '29': 'https://images.pexels.com/photos/4239119/pexels-photo-4239119.jpeg', // Cleaning supplies - cleaning products
-      '30': 'https://images.pexels.com/photos/271897/pexels-photo-271897.jpeg', // Linen closet - folded towels
-      '31': 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg', // Entryway - front door area
-      '32': 'https://images.pexels.com/photos/6621186/pexels-photo-6621186.jpeg', // Bathroom - toiletries
-      '33': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Bedroom - peaceful bedroom
+      // Home tasks - each with distinct home organization imagery
+      '24': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', // Room declutter - organized, minimal living room
+      '25': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg', // Furniture - minimalist furniture arrangement
+      '26': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Decoration - minimal wall art and decor
+      '27': 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg', // Storage system - organized shelving and storage boxes
+      '28': 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg', // Paper reduction - organized documents and filing
+      '29': 'https://images.pexels.com/photos/4239119/pexels-photo-4239119.jpeg', // Cleaning supplies - eco-friendly cleaning products
+      '30': 'https://images.pexels.com/photos/271897/pexels-photo-271897.jpeg', // Linen closet - neatly folded towels and linens
+      '31': 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg', // Entryway - organized front door area with hooks
+      '32': 'https://images.pexels.com/photos/6621186/pexels-photo-6621186.jpeg', // Bathroom - minimal toiletries and bathroom essentials
+      '33': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Bedroom - peaceful, clutter-free bedroom
       
-      // Finance tasks
-      '34': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg', // Budget - calculator and money
-      '35': 'https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg', // Subscriptions - credit cards
-      '36': 'https://images.pexels.com/photos/164527/pexels-photo-164527.jpeg', // Mindful spending - shopping cart
-      '37': 'https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg', // Bank accounts - banking
-      '38': 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg', // Investments - stock charts
+      // Finance tasks - each with distinct financial imagery
+      '34': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg', // Budget - calculator, money, and budget planning
+      '35': 'https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg', // Subscriptions - credit cards and subscription services
+      '36': 'https://images.pexels.com/photos/164527/pexels-photo-164527.jpeg', // Mindful spending - shopping cart and money decisions
+      '37': 'https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg', // Bank accounts - banking and financial documents
+      '38': 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg', // Investments - stock charts and investment planning
       
-      // Relationships tasks
-      '39': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg', // Social circle - group of friends
-      '40': 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg', // Communication - conversation
-      '41': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Events - calendar
-      '42': 'https://images.pexels.com/photos/264547/pexels-photo-264547.jpeg', // Gift giving - wrapped gifts
+      // Relationships tasks - each with distinct social imagery
+      '39': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg', // Social circle - group of close friends
+      '40': 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg', // Communication - people having meaningful conversation
+      '41': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Events - calendar and event planning
+      '42': 'https://images.pexels.com/photos/264547/pexels-photo-264547.jpeg', // Gift giving - thoughtfully wrapped gifts
       
-      // Work tasks
-      '43': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Workspace - clean desk
-      '44': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Task management - to-do list
-      '45': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Meetings - conference room
-      '46': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email management - inbox
+      // Work tasks - each with distinct workplace imagery
+      '43': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Workspace - clean, organized desk setup
+      '44': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Task management - to-do list and productivity tools
+      '45': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Meetings - conference room and meeting setup
+      '46': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email management - organized email inbox
       
-      // Health tasks
-      '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins
-      '48': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Exercise - workout equipment
-      '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - skincare products
-      '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - bedroom setup
+      // Health tasks - each with distinct health imagery
+      '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins and health supplements
+      '48': 'https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg', // Exercise - workout equipment and fitness
+      '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - minimal skincare products
+      '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - comfortable bedroom for better sleep
       
-      // Creativity tasks
-      '51': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Art supplies - paintbrushes
-      '52': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Creative space - art studio
-      '53': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Project focus - art project
-      '54': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Digital creative - computer design
-      '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board
+      // Creativity tasks - each with distinct creative imagery
+      '51': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Art supplies - paintbrushes and art materials
+      '52': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Creative space - organized art studio
+      '53': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Project focus - focused art project work
+      '54': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Digital creative - computer design work
+      '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board and inspiration wall
       
-      // Travel tasks
-      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Packing - suitcase
-      '57': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Travel gear - travel accessories
-      '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad - laptop travel
-      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenirs - travel memories
+      // Travel tasks - each with distinct travel imagery
+      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Packing - minimalist packing and suitcase
+      '57': 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg', // Travel gear - travel accessories and essentials
+      '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad - laptop and remote work setup
+      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenirs - meaningful travel memories
       
-      // Environment tasks
-      '60': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Zero waste - recycling
-      '61': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Plastic reduction - eco bags
-      '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit - light bulb
-      '63': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Sustainable shopping - eco products
-      '64': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Local living - farmers market
+      // Environment tasks - each with distinct eco imagery
+      '60': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Zero waste - recycling and waste reduction
+      '61': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Plastic reduction - reusable bags and eco alternatives
+      '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit - LED light bulb and energy saving
+      '63': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Sustainable shopping - eco-friendly products
+      '64': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Local living - farmers market and local produce
       
-      // Habits tasks
-      '65': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Morning routine - sunrise
-      '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine - bedtime
-      '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking - routine
-      '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue - choices
-      '69': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Mindfulness - meditation
-      '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking - focused work
+      // Habits tasks - each with distinct lifestyle imagery
+      '65': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Morning routine - sunrise and morning rituals
+      '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine - peaceful bedtime setup
+      '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking - routine and habit formation
+      '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue - choices and decision making
+      '69': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Mindfulness - meditation and mindful practice
+      '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking - focused work and productivity
     };
 
     return imageMap[taskId] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
