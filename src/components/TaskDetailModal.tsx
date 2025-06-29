@@ -21,6 +21,124 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Get task-specific image based on task ID or category
+  const getTaskImage = (task: Task) => {
+    // Specific images for individual tasks
+    const taskImages: { [key: string]: string } = {
+      // Wardrobe tasks
+      '1': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg', // Capsule wardrobe
+      '2': 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg', // One-in-one-out
+      '3': 'https://images.pexels.com/photos/4210864/pexels-photo-4210864.jpeg', // Seasonal rotation
+      '4': 'https://images.pexels.com/photos/1148960/pexels-photo-1148960.jpeg', // Color palette
+      '5': 'https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg', // Shoe audit
+      '6': 'https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg', // Accessory minimization
+      '7': 'https://images.pexels.com/photos/5591663/pexels-photo-5591663.jpeg', // Laundry simplification
+      '8': 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg', // Uniform dressing
+      
+      // Food/Kitchen tasks
+      '9': 'https://images.pexels.com/photos/2284166/pexels-photo-2284166.jpeg', // Kitchen tools
+      '10': 'https://images.pexels.com/photos/4226796/pexels-photo-4226796.jpeg', // Pantry organization
+      '11': 'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg', // Gadget purge
+      '12': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Meal planning
+      '13': 'https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg', // Dish minimization
+      '14': 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg', // Spice rack
+      '15': 'https://images.pexels.com/photos/2062431/pexels-photo-2062431.jpeg', // Counter space
+      
+      // Technology tasks
+      '16': 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg', // Digital detox
+      '17': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email inbox
+      '18': 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg', // App audit
+      '19': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Photo cleanup
+      '20': 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg', // Social media
+      '21': 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg', // Password manager
+      '22': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Cloud storage
+      '23': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Notifications
+      
+      // Home tasks
+      '24': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', // Room declutter
+      '25': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg', // Furniture
+      '26': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Decoration
+      '27': 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg', // Storage system
+      '28': 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg', // Paper reduction
+      '29': 'https://images.pexels.com/photos/5591728/pexels-photo-5591728.jpeg', // Cleaning supplies
+      '30': 'https://images.pexels.com/photos/6489664/pexels-photo-6489664.jpeg', // Linen closet
+      '31': 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg', // Entryway
+      '32': 'https://images.pexels.com/photos/6621186/pexels-photo-6621186.jpeg', // Bathroom
+      '33': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Bedroom
+      
+      // Finance tasks
+      '34': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg', // Budget
+      '35': 'https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg', // Subscriptions
+      '36': 'https://images.pexels.com/photos/164527/pexels-photo-164527.jpeg', // Mindful spending
+      '37': 'https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg', // Bank accounts
+      '38': 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg', // Investments
+      
+      // Relationships tasks
+      '39': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg', // Social circle
+      '40': 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg', // Communication
+      '41': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Events
+      '42': 'https://images.pexels.com/photos/264547/pexels-photo-264547.jpeg', // Gift giving
+      
+      // Work tasks
+      '43': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Workspace
+      '44': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Task management
+      '45': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Meetings
+      '46': 'https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg', // Email management
+      
+      // Health tasks
+      '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements
+      '48': 'https://images.pexels.com/photos/2105493/pexels-photo-2105493.jpeg', // Exercise
+      '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare
+      '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep
+      
+      // Creativity tasks
+      '51': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Art supplies
+      '52': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Creative space
+      '53': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg', // Project focus
+      '54': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Digital creative
+      '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration
+      
+      // Travel tasks
+      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Minimalist packing
+      '57': 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg', // Travel gear
+      '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad
+      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenir mindfulness
+      
+      // Environment tasks
+      '60': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Zero waste
+      '61': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Plastic reduction
+      '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit
+      '63': 'https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg', // Sustainable shopping
+      '64': 'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg', // Local living
+      
+      // Habits tasks
+      '65': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Morning routine
+      '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine
+      '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking
+      '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue
+      '69': 'https://images.pexels.com/photos/2865901/pexels-photo-2865901.jpeg', // Mindfulness
+      '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking
+    };
+
+    // Fallback images by category
+    const categoryImages: { [key: string]: string } = {
+      'Wardrobe': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
+      'Food': 'https://images.pexels.com/photos/2284166/pexels-photo-2284166.jpeg',
+      'Technology': 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg',
+      'Home': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
+      'Finance': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg',
+      'Relationships': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg',
+      'Work': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
+      'Health': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg',
+      'Creativity': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg',
+      'Travel': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg',
+      'Environment': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg',
+      'Habits': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg'
+    };
+
+    return taskImages[task.id] || categoryImages[task.category] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
+  };
+
   // Comprehensive task-specific data
   const getTaskData = (task: Task) => {
     const taskData: { [key: string]: any } = {
@@ -377,38 +495,46 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       
       {/* Modal */}
       <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white flex-shrink-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
-              <div className="flex items-center space-x-3 mb-2">
-                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                  {task.category}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  task.difficulty === 'easy' ? 'bg-green-500' :
-                  task.difficulty === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
-                }`}>
-                  {task.difficulty}
-                </span>
-                <div className="flex items-center space-x-1 bg-white/20 px-3 py-1 rounded-full">
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm font-medium">{task.timeEstimate}</span>
-                </div>
+        {/* Hero Image */}
+        <div className="relative h-48 sm:h-56 overflow-hidden flex-shrink-0">
+          <img 
+            src={getTaskImage(task)} 
+            alt={task.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-sm"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Task Info Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <div className="flex items-center space-x-3 mb-2">
+              <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                {task.category}
+              </span>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm ${
+                task.difficulty === 'easy' ? 'bg-green-500/80' :
+                task.difficulty === 'medium' ? 'bg-yellow-500/80' : 'bg-red-500/80'
+              }`}>
+                {task.difficulty}
+              </span>
+              <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm font-medium">{task.timeEstimate}</span>
               </div>
-              <h2 className="text-2xl font-bold leading-tight mb-2">
-                {task.title}
-              </h2>
-              <p className="text-white/90 text-base">
-                {task.description}
-              </p>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-2">
+              {task.title}
+            </h2>
+            <p className="text-white/90 text-base">
+              {task.description}
+            </p>
           </div>
         </div>
 
