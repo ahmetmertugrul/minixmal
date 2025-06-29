@@ -410,15 +410,15 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
       {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-0 z-40">
+      <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Minixmal</span>
+              <span className="text-xl font-bold text-white">Minixmal</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -431,8 +431,8 @@ function App() {
                     onClick={() => setActiveTab(item.id as Tab)}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all ${
                       activeTab === item.id
-                        ? 'bg-indigo-600 text-white shadow-lg'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-white/20 text-white shadow-lg'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -451,12 +451,12 @@ function App() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="md:hidden p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-gray-700" />
+                  <X className="w-6 h-6 text-white" />
                 ) : (
-                  <Menu className="w-6 h-6 text-gray-700" />
+                  <Menu className="w-6 h-6 text-white" />
                 )}
               </button>
             </div>
@@ -464,7 +464,7 @@ function App() {
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="md:hidden py-4 border-t border-white/20">
               <div className="space-y-2">
                 {navigation.map((item) => {
                   const Icon = item.icon;
@@ -477,8 +477,8 @@ function App() {
                       }}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
                         activeTab === item.id
-                          ? 'bg-indigo-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -488,7 +488,7 @@ function App() {
                 })}
               </div>
               
-              <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-white/20">
                 <UserProfile />
               </div>
             </div>
