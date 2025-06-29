@@ -581,16 +581,19 @@ const App: React.FC = () => {
         <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
       </div>
 
-      {/* Bolt.new Logo - Bottom Right */}
+      {/* Custom Logo - Bottom Right */}
       <div className="fixed bottom-4 right-4 z-40">
         <a
           href="https://bolt.new"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center space-x-2 bg-black/80 backdrop-blur-sm text-white px-3 py-2 rounded-lg hover:bg-black/90 transition-colors text-sm"
+          className="block hover:scale-105 transition-transform duration-200"
         >
-          <Zap className="w-4 h-4" />
-          <span>Built with Bolt</span>
+          <img
+            src="/black_circle_360x360 copy.png"
+            alt="Powered by Bolt"
+            className="w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
+          />
         </a>
       </div>
 
