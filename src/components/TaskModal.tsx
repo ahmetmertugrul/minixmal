@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Clock, Star, Target, Award, CheckCircle, Lightbulb, Users, Zap } from 'lucide-react';
+import { X, Clock, Star, Award, CheckCircle, Target, Lightbulb, Users, Zap } from 'lucide-react';
 import { Task } from '../data/tasks';
 
 interface TaskModalProps {
@@ -14,1576 +14,1654 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, isOpen, onClose, onToggle }
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-500 text-white';
-      case 'medium': return 'bg-yellow-500 text-white';
-      case 'hard': return 'bg-red-500 text-white';
-      default: return 'bg-gray-500 text-white';
+      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'challenge': return <Target className="w-5 h-5" />;
-      case 'habit': return <Zap className="w-5 h-5" />;
-      case 'declutter': return <CheckCircle className="w-5 h-5" />;
-      case 'mindset': return <Lightbulb className="w-5 h-5" />;
-      default: return <Star className="w-5 h-5" />;
-    }
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      'Wardrobe': 'bg-purple-100 text-purple-800',
+      'Food': 'bg-green-100 text-green-800',
+      'Technology': 'bg-blue-100 text-blue-800',
+      'Home': 'bg-orange-100 text-orange-800',
+      'Finance': 'bg-emerald-100 text-emerald-800',
+      'Relationships': 'bg-pink-100 text-pink-800',
+      'Work': 'bg-indigo-100 text-indigo-800',
+      'Health': 'bg-red-100 text-red-800',
+      'Creativity': 'bg-violet-100 text-violet-800',
+      'Travel': 'bg-cyan-100 text-cyan-800',
+      'Environment': 'bg-teal-100 text-teal-800',
+      'Habits': 'bg-amber-100 text-amber-800'
+    };
+    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const getDetailedDescription = (taskId: string): { overview: string; steps: string[]; benefits: string[]; tips: string[] } => {
-    const descriptions: { [key: string]: { overview: string; steps: string[]; benefits: string[]; tips: string[] } } = {
+  const getTaskDetails = (taskId: string) => {
+    const details: { [key: string]: { overview: string; steps: string[]; benefits: string[]; tips: string[] } } = {
       '1': {
-        overview: 'A capsule wardrobe is a curated collection of 30-40 versatile pieces that all work together seamlessly. This approach eliminates decision fatigue while ensuring you always look put-together and feel confident in your clothing choices.',
+        overview: 'A capsule wardrobe is a curated collection of 30-40 versatile pieces that all work together seamlessly. This approach eliminates decision fatigue while ensuring you always look polished and put-together.',
         steps: [
-          'Audit your current wardrobe and identify pieces you actually wear',
+          'Audit your current wardrobe and identify your most-worn pieces',
           'Choose a cohesive color palette of 3-4 colors that complement each other',
-          'Select quality basics: well-fitting jeans, classic shirts, blazers, and versatile dresses',
-          'Ensure every piece can be mixed and matched with at least 3 other items',
-          'Donate or sell items that don\'t fit your new capsule criteria'
+          'Select quality basics: well-fitting jeans, classic shirts, blazers, and versatile shoes',
+          'Ensure every piece can mix and match with at least 3 other items',
+          'Donate or store items that don\'t fit your new capsule criteria',
+          'Create outfit combinations and document them for easy reference'
         ],
         benefits: [
-          'Saves time getting dressed each morning',
-          'Reduces clothing expenses by focusing on quality over quantity',
-          'Creates a signature style that reflects your personality',
+          'Reduces decision fatigue and morning stress',
+          'Saves money by preventing impulse purchases',
+          'Creates a signature style that always looks intentional',
           'Simplifies travel packing and laundry routines'
         ],
         tips: [
           'Start with neutrals like black, white, navy, and beige',
-          'Invest in quality fabrics that will last longer',
+          'Invest in quality pieces that will last multiple seasons',
           'Consider your lifestyle when selecting pieces',
-          'Take photos of successful outfit combinations for reference'
+          'Take photos of successful outfit combinations'
         ]
       },
       '2': {
-        overview: 'The one-in-one-out rule is a simple but powerful strategy to prevent wardrobe accumulation. Every time you bring a new clothing item into your closet, you commit to removing one existing piece.',
+        overview: 'The one-in-one-out rule maintains balance in your wardrobe by ensuring that for every new item you bring in, one existing item must go. This prevents accumulation and keeps your closet curated.',
         steps: [
           'Before purchasing any new clothing item, identify what you\'ll remove',
-          'Choose the item to remove based on wear frequency and condition',
-          'Donate, sell, or recycle the outgoing item immediately',
-          'Keep a donation bag in your closet for easy implementation',
+          'Choose the item to donate based on wear frequency and condition',
+          'Ensure the new item serves a clear purpose in your wardrobe',
+          'Donate the outgoing item immediately to avoid second-guessing',
+          'Keep a donation bag ready for easy implementation',
           'Track your adherence to this rule for the first month'
         ],
         benefits: [
-          'Maintains a consistent wardrobe size',
+          'Prevents wardrobe bloat and overcrowding',
           'Forces mindful purchasing decisions',
           'Keeps your closet organized and manageable',
-          'Helps others by donating usable clothing'
+          'Helps others through regular donations'
         ],
         tips: [
-          'Apply this rule to all clothing categories including shoes and accessories',
-          'Consider the season when making swaps',
-          'Be honest about what you actually wear',
-          'Make the donation immediately to avoid second-guessing'
+          'Apply this rule to all clothing categories including accessories',
+          'Consider the cost-per-wear of new purchases',
+          'Choose higher quality items that will last longer',
+          'Make exceptions only for worn-out essentials'
         ]
       },
       '3': {
-        overview: 'Seasonal closet rotation involves storing off-season clothing to reduce visual clutter and make your current wardrobe more functional. This practice helps you focus on what\'s relevant for the current weather.',
+        overview: 'Seasonal closet rotation involves storing off-season clothes to reduce visual clutter and make your current wardrobe more functional. This creates a cleaner, more organized space.',
         steps: [
-          'Sort clothing by season and weather appropriateness',
+          'Sort clothes by season and current weather needs',
           'Clean all items before storing to prevent damage',
           'Use vacuum-sealed bags or clear storage containers',
           'Label storage containers with contents and season',
-          'Store in a cool, dry place away from direct sunlight'
+          'Store in a cool, dry place away from direct sunlight',
+          'Set calendar reminders for seasonal transitions'
         ],
         benefits: [
-          'Makes your closet feel larger and more organized',
-          'Protects off-season clothing from damage',
-          'Helps you rediscover forgotten pieces each season',
-          'Reduces decision fatigue by limiting daily options'
+          'Reduces visual clutter in your closet',
+          'Makes current options more visible and accessible',
+          'Protects off-season clothes from damage',
+          'Creates more space for current wardrobe'
         ],
         tips: [
-          'Include a few transitional pieces for unexpected weather',
-          'Take photos of stored items for easy reference',
           'Use cedar blocks or lavender sachets to deter moths',
-          'Review stored items annually and donate unworn pieces'
+          'Rotate clothes every 3-4 months based on climate',
+          'Keep a few transitional pieces accessible year-round',
+          'Use this opportunity to assess what you actually wear'
         ]
       },
       '4': {
-        overview: 'Color palette simplification involves limiting your wardrobe to 3-4 complementary colors that work harmoniously together. This creates a cohesive look and ensures everything in your closet coordinates effortlessly.',
+        overview: 'Limiting your wardrobe to 3-4 complementary colors creates a cohesive, sophisticated look where everything coordinates effortlessly. This approach maximizes outfit combinations while minimizing pieces.',
         steps: [
-          'Analyze your current wardrobe to identify your most-worn colors',
+          'Analyze your current wardrobe to identify dominant colors',
           'Choose 2-3 neutral base colors (black, white, navy, beige, gray)',
           'Select 1-2 accent colors that complement your base palette',
-          'Remove or donate items that don\'t fit your chosen palette',
-          'Future purchases should only include your selected colors'
+          'Gradually replace items that don\'t fit your color scheme',
+          'Test color combinations to ensure they work together',
+          'Create a color reference guide for shopping'
         ],
         benefits: [
           'Everything in your wardrobe coordinates automatically',
           'Shopping becomes easier with clear color guidelines',
-          'Creates a sophisticated, intentional appearance',
-          'Reduces the number of accessories needed'
+          'Creates a signature style and sophisticated appearance',
+          'Maximizes outfit combinations with fewer pieces'
         ],
         tips: [
           'Consider your skin tone when choosing colors',
-          'Start with colors you already love and wear frequently',
-          'Allow for one "wild card" color for special occasions',
-          'Test color combinations before committing to purchases'
+          'Start with colors you already love and wear often',
+          'Use the 80/20 rule: 80% neutrals, 20% accent colors',
+          'Take color swatches when shopping for perfect matches'
         ]
       },
       '5': {
-        overview: 'A shoe collection audit involves critically evaluating every pair of shoes you own, keeping only those that are comfortable, frequently worn, and serve a specific purpose in your lifestyle.',
+        overview: 'A shoe audit involves keeping only footwear you wear regularly and that serves a clear purpose in your life. Quality over quantity ensures comfort and reduces clutter.',
         steps: [
-          'Gather all shoes from closets, entryways, and storage areas',
-          'Try on each pair and assess comfort and fit',
-          'Categorize by purpose: work, casual, exercise, formal, seasonal',
+          'Remove all shoes from storage and lay them out',
+          'Try on each pair and assess comfort and condition',
+          'Categorize by purpose: work, casual, exercise, formal',
           'Keep only one pair per category unless you have specific needs',
-          'Donate shoes in good condition, recycle worn-out pairs'
+          'Donate shoes in good condition that you don\'t wear',
+          'Invest in quality replacements for worn-out essentials'
         ],
         benefits: [
-          'Reduces entryway clutter and storage needs',
-          'Ensures you always have comfortable, appropriate footwear',
-          'Saves money by avoiding duplicate purchases',
-          'Makes packing for trips much simpler'
+          'Easier shoe selection and organization',
+          'Better foot health from wearing comfortable shoes',
+          'Reduced storage needs and clutter',
+          'Cost savings from buying fewer, better shoes'
         ],
         tips: [
           'Prioritize comfort over trends',
-          'Invest in quality shoes that will last longer',
-          'Consider your actual lifestyle, not aspirational activities',
-          'Keep shoes in good repair with regular maintenance'
+          'Choose versatile colors that match multiple outfits',
+          'Invest in quality leather that improves with age',
+          'Consider your actual lifestyle when selecting shoes'
         ]
       },
       '6': {
-        overview: 'Accessory minimization focuses on curating a small collection of high-quality, versatile accessories that enhance your outfits without overwhelming your style or storage space.',
+        overview: 'Curating a small collection of versatile accessories means keeping only pieces that enhance multiple outfits and reflect your personal style. Quality accessories can transform basic outfits.',
         steps: [
-          'Collect all accessories: jewelry, belts, scarves, bags, watches',
-          'Sort by category and frequency of use',
-          'Keep only pieces that work with multiple outfits',
-          'Choose quality over quantity for remaining pieces',
-          'Organize remaining accessories for easy access and visibility'
+          'Gather all accessories: jewelry, scarves, belts, bags, watches',
+          'Identify pieces you wear regularly and love',
+          'Choose accessories that work with your color palette',
+          'Keep only timeless pieces that won\'t go out of style',
+          'Organize remaining accessories for easy visibility',
+          'Donate or gift accessories you no longer wear'
         ],
         benefits: [
-          'Reduces decision fatigue when getting dressed',
-          'Ensures accessories always complement your wardrobe',
-          'Saves storage space and reduces clutter',
-          'Highlights your favorite, most meaningful pieces'
+          'Simplified morning routine and decision-making',
+          'Higher quality accessories that last longer',
+          'Cohesive style that always looks intentional',
+          'Reduced storage needs and clutter'
         ],
         tips: [
-          'Stick to your established color palette',
-          'Choose timeless styles over trendy pieces',
-          'Invest in one high-quality bag that works for multiple occasions',
-          'Consider the maintenance requirements of delicate accessories'
+          'Choose classic styles over trendy pieces',
+          'Invest in one high-quality watch and handbag',
+          'Select jewelry in one metal tone for consistency',
+          'Keep accessories visible to remember to wear them'
         ]
       },
       '7': {
-        overview: 'Laundry simplification involves streamlining your laundry routine by reducing the number of products, steps, and decisions required to keep your clothes clean and well-maintained.',
+        overview: 'Simplifying your laundry routine involves using fewer, more effective products and creating efficient systems. This reduces clutter and makes laundry less overwhelming.',
         steps: [
-          'Audit your current laundry products and tools',
+          'Audit current laundry products and their effectiveness',
           'Choose one high-quality, multi-purpose detergent',
-          'Eliminate specialty products unless absolutely necessary',
-          'Establish a simple sorting system (lights, darks, delicates)',
-          'Create a consistent washing and folding schedule'
+          'Eliminate single-use products like fabric softener',
+          'Organize laundry supplies in a designated area',
+          'Create a simple sorting system (lights, darks, delicates)',
+          'Establish a regular laundry schedule'
         ],
         benefits: [
-          'Reduces storage space needed for laundry supplies',
-          'Saves money on unnecessary specialty products',
-          'Simplifies the laundry process and reduces decision fatigue',
-          'Ensures clothes are properly cared for with consistent routine'
+          'Reduced chemical exposure and environmental impact',
+          'Less storage space needed for products',
+          'Simplified decision-making during laundry',
+          'Cost savings from buying fewer products'
         ],
         tips: [
-          'Air dry when possible to extend fabric life',
-          'Fold or hang clothes immediately to prevent wrinkles',
-          'Use cold water for most loads to save energy',
-          'Keep a stain removal pen handy for immediate treatment'
+          'Use white vinegar as a natural fabric softener',
+          'Air dry when possible to extend clothing life',
+          'Fold clothes immediately to prevent wrinkles',
+          'Keep laundry supplies minimal and organized'
         ]
       },
       '8': {
-        overview: 'Uniform dressing involves developing a signature style formula that you can repeat with slight variations. This approach eliminates daily outfit decisions while ensuring you always look polished and feel confident.',
+        overview: 'Uniform dressing involves creating a signature style with similar outfits, reducing decision fatigue while maintaining a polished appearance. Many successful people use this strategy.',
         steps: [
           'Identify your lifestyle needs and personal style preferences',
           'Choose a basic outfit formula (e.g., jeans + blouse + blazer)',
-          'Select 3-5 variations of each component in your color palette',
-          'Practice mixing and matching within your formula',
-          'Refine the formula based on what works best for your body and lifestyle'
+          'Select 3-5 variations of this formula in your color palette',
+          'Ensure all pieces are high quality and well-fitting',
+          'Practice creating outfits within your formula',
+          'Gradually replace items that don\'t fit the formula'
         ],
         benefits: [
-          'Eliminates morning decision fatigue',
-          'Creates a recognizable personal style',
-          'Simplifies shopping and wardrobe planning',
-          'Ensures you always feel appropriately dressed'
+          'Eliminates daily outfit decision fatigue',
+          'Creates a recognizable personal brand',
+          'Simplifies shopping and wardrobe maintenance',
+          'Always ensures appropriate, polished appearance'
         ],
         tips: [
-          'Start with one formula and perfect it before adding variations',
-          'Consider having different formulas for work and weekend',
-          'Focus on fit and quality rather than variety',
-          'Allow for small personal touches like jewelry or scarves'
+          'Start with one formula and perfect it before adding variety',
+          'Choose comfortable pieces you genuinely enjoy wearing',
+          'Consider having different formulas for work and casual',
+          'Focus on fit and quality over quantity'
         ]
       },
       '9': {
-        overview: 'Essential kitchen tools focuses on identifying and keeping only the cooking implements you use regularly. This creates a more functional, organized kitchen while eliminating clutter from rarely-used gadgets.',
+        overview: 'Essential kitchen tools are the foundation of efficient cooking. By keeping only tools you use weekly, you create a functional, uncluttered kitchen that inspires cooking.',
         steps: [
-          'Remove all tools and gadgets from drawers and cabinets',
-          'Sort into categories: daily use, weekly use, monthly use, rarely used',
-          'Keep only daily and weekly use items in prime kitchen real estate',
+          'Remove all tools from drawers and cabinets',
+          'Sort tools by frequency of use: daily, weekly, monthly, rarely',
+          'Keep only daily and weekly use items in prime locations',
           'Store monthly items in less accessible areas',
-          'Donate or sell rarely used items unless they serve a specific purpose'
+          'Donate or discard rarely used tools',
+          'Organize remaining tools for easy access and visibility'
         ],
         benefits: [
-          'Faster meal preparation with easy access to needed tools',
-          'More counter and storage space for cooking',
-          'Easier cleaning and organization',
-          'Reduced decision fatigue when cooking'
+          'Faster meal preparation with easy tool access',
+          'Reduced kitchen clutter and easier cleaning',
+          'Better quality tools through focused investment',
+          'More counter and storage space available'
         ],
         tips: [
-          'Prioritize multi-purpose tools over single-use gadgets',
-          'Invest in quality versions of your most-used tools',
-          'Consider your actual cooking habits, not aspirational ones',
-          'Keep a "trial box" for questionable items before donating'
+          'Invest in one high-quality chef\'s knife',
+          'Choose tools that serve multiple purposes',
+          'Keep frequently used tools within arm\'s reach of prep area',
+          'Replace worn tools with better quality versions'
         ]
       },
       '10': {
-        overview: 'Pantry organization involves creating a systematic approach to food storage that maximizes space, reduces waste, and makes meal planning and cooking more efficient and enjoyable.',
+        overview: 'An organized pantry with clear containers and labels creates a functional, beautiful space that reduces food waste and makes meal planning easier.',
         steps: [
-          'Remove everything from your pantry and clean shelves thoroughly',
+          'Empty entire pantry and clean all surfaces',
           'Check expiration dates and discard expired items',
-          'Group similar items together (grains, canned goods, snacks, etc.)',
-          'Invest in clear, airtight containers for bulk items',
-          'Label everything clearly with contents and expiration dates'
+          'Group similar items together (grains, spices, canned goods)',
+          'Transfer dry goods to airtight, clear containers',
+          'Label all containers with contents and expiration dates',
+          'Organize shelves with most-used items at eye level'
         ],
         benefits: [
-          'Reduces food waste by improving visibility',
-          'Makes meal planning easier with clear inventory',
-          'Prevents duplicate purchases',
-          'Creates a more pleasant cooking experience'
+          'Reduced food waste through better visibility',
+          'Easier meal planning and grocery shopping',
+          'Protection from pests and longer food freshness',
+          'Beautiful, Instagram-worthy pantry appearance'
         ],
         tips: [
-          'Use the "first in, first out" principle for perishables',
-          'Keep frequently used items at eye level',
-          'Maintain a running grocery list based on pantry inventory',
-          'Review and reorganize seasonally'
+          'Use uniform containers for a cohesive look',
+          'Implement first-in-first-out rotation system',
+          'Keep a pantry inventory list for shopping',
+          'Store heavy items on lower shelves for safety'
         ]
       },
       '11': {
-        overview: 'Gadget purge involves removing single-use kitchen gadgets that take up valuable space but are rarely used. This creates more room for essential tools and simplifies your cooking process.',
+        overview: 'Removing single-use kitchen gadgets that rarely leave the drawer creates more space and reduces clutter. Focus on versatile tools that serve multiple purposes.',
         steps: [
           'Identify all single-use gadgets in your kitchen',
-          'Honestly assess how often you\'ve used each item in the past year',
-          'Consider if the gadget\'s function can be performed by a multi-use tool',
-          'Keep only gadgets you use monthly or that save significant time',
-          'Donate or sell the rest to someone who will use them'
+          'Assess how often you\'ve used each item in the past year',
+          'Research alternative methods using basic tools',
+          'Keep only gadgets you use monthly or more',
+          'Donate gadgets in good condition',
+          'Resist purchasing new single-use items'
         ],
         benefits: [
-          'Frees up valuable drawer and cabinet space',
-          'Reduces cleaning and maintenance requirements',
-          'Simplifies cooking by focusing on versatile tools',
-          'Saves money by avoiding future gadget purchases'
+          'More drawer and cabinet space available',
+          'Easier cleaning and organization',
+          'Reduced decision fatigue when cooking',
+          'Cost savings from not buying unnecessary gadgets'
         ],
         tips: [
-          'Be honest about your actual cooking habits',
-          'Consider borrowing specialty items for rare occasions',
-          'Focus on quality multi-purpose tools',
-          'Resist the temptation to buy new gadgets without removing old ones'
+          'A good knife can replace many specialized cutting tools',
+          'Use a regular pot instead of single-use steamers',
+          'Consider borrowing rarely-needed tools from friends',
+          'Focus on mastering basic cooking techniques'
         ]
       },
       '12': {
-        overview: 'A meal planning system involves creating a structured approach to deciding what to eat each week, which reduces stress, saves money, and ensures healthier eating habits while minimizing food waste.',
+        overview: 'A simple weekly meal planning routine reduces stress, saves money, and ensures healthier eating. Planning prevents last-minute decisions and food waste.',
         steps: [
-          'Choose a consistent day each week for meal planning',
-          'Review your schedule to identify busy days and plan accordingly',
-          'Plan 5-7 meals, leaving room for flexibility',
-          'Create a grocery list based on your meal plan',
-          'Prep ingredients in advance when possible'
+          'Choose a consistent day each week for planning',
+          'Review your schedule for the upcoming week',
+          'Plan 5-7 meals including prep time considerations',
+          'Create a grocery list based on planned meals',
+          'Prep ingredients in advance when possible',
+          'Keep backup easy meals for busy days'
         ],
         benefits: [
-          'Reduces daily decision fatigue about what to eat',
-          'Saves money by avoiding impulse food purchases',
-          'Reduces food waste through intentional shopping',
-          'Promotes healthier eating habits'
+          'Reduced daily stress about meal decisions',
+          'Significant cost savings on groceries',
+          'Healthier eating through intentional choices',
+          'Less food waste and more efficient shopping'
         ],
         tips: [
           'Start with planning just 3-4 meals per week',
           'Choose recipes with overlapping ingredients',
-          'Keep a list of go-to meals for busy weeks',
-          'Plan for leftovers and batch cooking'
+          'Batch cook grains and proteins for multiple meals',
+          'Keep a list of family-favorite easy meals'
         ]
       },
       '13': {
-        overview: 'Dish minimization involves keeping only the dishes and utensils you actually need for your household size and entertaining style, creating a more organized and functional kitchen.',
+        overview: 'Keeping only necessary dishes and utensils simplifies kitchen management and reduces cleaning time. One set per person plus a few extras for guests is sufficient.',
         steps: [
-          'Count how many people you typically cook for daily',
-          'Keep one complete set per person plus 2-4 extra for guests',
-          'Choose durable, versatile pieces that can serve multiple purposes',
-          'Donate excess dishes, especially mismatched or damaged items',
-          'Organize remaining dishes for easy access and efficient storage'
+          'Count current household members and typical guests',
+          'Keep one complete set per person plus 2-3 extras',
+          'Choose durable, dishwasher-safe materials',
+          'Donate excess dishes in good condition',
+          'Store remaining dishes in easily accessible locations',
+          'Resist accumulating promotional or novelty dishes'
         ],
         benefits: [
-          'Reduces cabinet clutter and makes dishes easier to find',
-          'Simplifies dishwashing and storage',
-          'Forces you to wash dishes more regularly',
-          'Creates a more cohesive, intentional kitchen aesthetic'
+          'Less time spent washing and organizing dishes',
+          'More cabinet space for other essentials',
+          'Easier to maintain matching sets',
+          'Reduced decision fatigue when setting table'
         ],
         tips: [
           'Choose white or neutral colors for versatility',
-          'Invest in quality pieces that will last',
-          'Consider stackable designs for efficient storage',
-          'Keep serving pieces minimal and multi-functional'
+          'Invest in quality pieces that stack efficiently',
+          'Keep special occasion dishes separate and minimal',
+          'Replace broken pieces promptly to maintain sets'
         ]
       },
       '14': {
-        overview: 'Spice rack simplification involves curating your spice collection to include only fresh, frequently-used spices while organizing them for easy access and optimal flavor retention.',
+        overview: 'A curated spice collection with fresh, quality options enhances cooking while reducing clutter. Buy small quantities and replace regularly for best flavor.',
         steps: [
-          'Gather all spices from various locations in your kitchen',
-          'Check expiration dates and discard old or stale spices',
-          'Keep only spices you use at least once every 3-6 months',
-          'Organize remaining spices alphabetically or by cuisine type',
-          'Store in airtight containers away from heat and light'
+          'Check expiration dates on all current spices',
+          'Discard spices older than 2-3 years',
+          'Identify spices you use regularly in cooking',
+          'Organize remaining spices alphabetically or by cuisine',
+          'Buy small quantities of frequently used spices',
+          'Label spices with purchase dates'
         ],
         benefits: [
-          'Ensures you\'re cooking with fresh, flavorful spices',
-          'Saves money by avoiding duplicate purchases',
-          'Makes cooking more efficient with easy spice access',
-          'Reduces cabinet clutter and improves organization'
+          'Better flavor in cooking with fresh spices',
+          'Easier to find spices during cooking',
+          'Reduced waste from expired spices',
+          'More organized and functional spice storage'
         ],
         tips: [
           'Buy whole spices when possible for longer freshness',
-          'Label containers with purchase or expiration dates',
-          'Start with basic spices and add specialty ones as needed',
-          'Consider growing fresh herbs for frequently used varieties'
+          'Store spices away from heat and light',
+          'Keep most-used spices in prime locations',
+          'Consider growing fresh herbs for frequently used ones'
         ]
       },
       '15': {
-        overview: 'Counter space clearing involves maintaining clean, uncluttered kitchen counters that provide ample workspace for cooking while creating a more peaceful and functional kitchen environment.',
+        overview: 'Keeping kitchen counters clear except for daily essentials creates a clean, functional workspace that inspires cooking and makes cleaning easier.',
         steps: [
-          'Remove all items from kitchen counters',
-          'Identify which items you use daily and truly need counter access',
-          'Find proper storage locations for everything else',
-          'Establish a "clean as you go" habit while cooking',
-          'Designate specific homes for items that must stay on counters'
+          'Remove all items from countertops',
+          'Identify truly daily-use items (coffee maker, knife block)',
+          'Find storage solutions for occasional-use appliances',
+          'Create designated homes for items you use weekly',
+          'Establish a daily habit of clearing counters',
+          'Resist the urge to use counters for storage'
         ],
         benefits: [
-          'Provides more workspace for meal preparation',
-          'Makes kitchen cleaning faster and easier',
-          'Creates a more peaceful, organized atmosphere',
-          'Reduces visual clutter and stress'
+          'Easier daily cleaning and maintenance',
+          'More workspace available for food preparation',
+          'Kitchen appears larger and more organized',
+          'Reduced stress from visual clutter'
         ],
         tips: [
-          'Keep only 3-5 items maximum on counters',
-          'Choose appliances you use daily for counter storage',
-          'Use wall-mounted storage for frequently used items',
-          'Establish a nightly counter-clearing routine'
+          'Use appliance garages or cabinets for storage',
+          'Keep only 2-3 items on counters maximum',
+          'Choose appliances that serve multiple purposes',
+          'Clean as you cook to maintain clear surfaces'
         ]
       },
       '16': {
-        overview: 'A digital detox challenge involves intentionally reducing screen time and digital consumption to improve focus, mental health, and real-world connections while breaking unhealthy technology habits.',
+        overview: 'A digital detox reduces screen time and digital overwhelm, improving mental clarity, sleep quality, and real-world relationships. Start with small, manageable changes.',
         steps: [
-          'Track your current screen time to establish a baseline',
-          'Set specific goals for reduced usage (e.g., 2 hours less per day)',
-          'Create phone-free zones and times (meals, bedroom, first hour of morning)',
-          'Replace digital activities with physical ones (reading, walking, hobbies)',
-          'Use app timers and restrictions to enforce your limits'
+          'Track current screen time to establish baseline',
+          'Set specific phone-free hours (meals, before bed)',
+          'Remove social media apps from your phone',
+          'Create physical phone-free zones in your home',
+          'Replace digital activities with analog alternatives',
+          'Use app timers to limit recreational screen time'
         ],
         benefits: [
-          'Improves focus and attention span',
-          'Reduces anxiety and improves sleep quality',
-          'Increases time for meaningful activities and relationships',
-          'Enhances creativity and problem-solving abilities'
+          'Improved focus and attention span',
+          'Better sleep quality and mental health',
+          'Stronger real-world relationships',
+          'Increased productivity and creativity'
         ],
         tips: [
-          'Start with small, achievable reductions',
-          'Find accountability partners or join digital detox groups',
-          'Prepare alternative activities before reducing screen time',
-          'Be patient with yourself as you develop new habits'
+          'Start with one hour of phone-free time daily',
+          'Use a physical alarm clock instead of your phone',
+          'Keep phones out of the bedroom',
+          'Find engaging offline hobbies to replace screen time'
         ]
       },
       '17': {
-        overview: 'Achieving inbox zero means processing all emails so your inbox is empty, creating a system for managing email efficiently and reducing the mental burden of unprocessed messages.',
+        overview: 'Achieving and maintaining inbox zero creates mental clarity and ensures important emails don\'t get lost. Process emails efficiently with clear systems.',
         steps: [
-          'Set aside dedicated time to process your entire inbox',
+          'Set aside dedicated time to process current backlog',
+          'Unsubscribe from newsletters and promotions you don\'t read',
           'Create folders or labels for different types of emails',
-          'Process each email with the 2-minute rule: if it takes less than 2 minutes, do it now',
-          'Delete, archive, or file emails immediately after reading',
-          'Unsubscribe from newsletters and promotions you don\'t read'
+          'Process emails using: delete, delegate, do, or defer',
+          'Set specific times for checking email (2-3 times daily)',
+          'Use filters and rules to automatically organize emails'
         ],
         benefits: [
-          'Reduces mental stress from overwhelming inbox',
-          'Improves email response time and professionalism',
-          'Makes important emails easier to find',
-          'Creates a sense of accomplishment and control'
+          'Reduced stress and mental clutter',
+          'Important emails never get lost or forgotten',
+          'Faster email processing and response times',
+          'Professional appearance and reliability'
         ],
         tips: [
-          'Process emails at set times rather than constantly checking',
-          'Use filters and rules to automatically sort incoming emails',
-          'Keep your folder structure simple and intuitive',
-          'Maintain inbox zero daily with a 10-minute evening routine'
+          'Touch each email only once when processing',
+          'Use templates for common responses',
+          'Turn off email notifications to avoid constant interruption',
+          'Archive rather than delete for important records'
         ]
       },
       '18': {
-        overview: 'An app audit involves reviewing all applications on your devices, removing unused ones, and organizing the remaining apps to reduce digital clutter and improve device performance.',
+        overview: 'Removing unused apps and organizing your phone creates a more focused, intentional relationship with technology. Keep only apps that add genuine value.',
         steps: [
-          'Review all apps on your phone, tablet, and computer',
-          'Delete apps you haven\'t used in the past 3 months',
-          'Move frequently used apps to your home screen',
+          'Review all apps on your phone and their last use date',
+          'Delete apps you haven\'t used in the past month',
           'Organize remaining apps into logical folders',
-          'Turn off notifications for non-essential apps'
+          'Move most important apps to home screen',
+          'Turn off notifications for non-essential apps',
+          'Regularly review and clean up apps monthly'
         ],
         benefits: [
-          'Improves device performance and battery life',
-          'Reduces digital distractions and decision fatigue',
-          'Frees up storage space on your devices',
-          'Makes finding and using important apps easier'
+          'Faster phone performance and longer battery life',
+          'Reduced digital distractions and time-wasting',
+          'Easier to find and use important apps',
+          'More intentional technology use'
         ],
         tips: [
-          'Be honest about which apps you actually use',
-          'Consider web versions instead of dedicated apps',
-          'Review and audit apps quarterly',
-          'Resist downloading new apps without removing old ones'
+          'Keep social media apps off your home screen',
+          'Use website versions instead of apps when possible',
+          'Group similar apps together in folders',
+          'Consider the true value each app adds to your life'
         ]
       },
       '19': {
-        overview: 'Photo library cleanup involves organizing, deleting duplicates, and curating your digital photos to create a manageable collection that preserves meaningful memories without overwhelming storage.',
+        overview: 'Organizing and cleaning up your photo library makes memories more accessible and frees up storage space. Remove duplicates and organize meaningfully.',
         steps: [
-          'Back up all photos to cloud storage before starting',
-          'Delete obvious duplicates and blurry or poor-quality photos',
-          'Create albums or folders for different events, years, or themes',
-          'Remove screenshots and temporary photos you no longer need',
-          'Set up automatic backup and organization systems for future photos'
+          'Back up all photos to cloud storage first',
+          'Delete obvious duplicates and blurry photos',
+          'Create albums for different events and time periods',
+          'Remove screenshots and temporary photos',
+          'Use photo management tools to identify similar photos',
+          'Set up automatic backup for future photos'
         ],
         benefits: [
-          'Frees up significant storage space on devices',
-          'Makes finding specific photos much easier',
-          'Preserves meaningful memories in an organized way',
-          'Improves device performance'
+          'Faster phone performance with more storage',
+          'Easier to find and share specific memories',
+          'Better organization for printing or sharing',
+          'Reduced anxiety from digital clutter'
         ],
         tips: [
-          'Use photo management apps to identify duplicates automatically',
-          'Be selective about keeping multiple similar shots',
-          'Create yearly folders for easy chronological organization',
-          'Regularly delete photos as you take them to prevent accumulation'
+          'Delete photos immediately if they\'re not good',
+          'Use descriptive album names with dates',
+          'Consider printing favorite photos for physical albums',
+          'Review and clean up photos monthly'
         ]
       },
       '20': {
-        overview: 'Social media cleanse involves curating your social media feeds by unfollowing accounts that don\'t add value to your life, reducing negative content consumption and improving mental well-being.',
+        overview: 'Curating your social media feeds by unfollowing accounts that don\'t add value creates a more positive, inspiring online experience.',
         steps: [
-          'Review all accounts you follow across all platforms',
-          'Unfollow accounts that make you feel negative, inadequate, or anxious',
-          'Keep accounts that inspire, educate, or genuinely entertain you',
+          'Review all accounts you follow on each platform',
+          'Unfollow accounts that make you feel negative or inadequate',
+          'Keep accounts that inspire, educate, or genuinely entertain',
+          'Mute keywords related to topics that stress you',
           'Limit the number of platforms you actively use',
-          'Set specific times for social media consumption'
+          'Set boundaries around social media consumption'
         ],
         benefits: [
-          'Improves mental health and self-esteem',
-          'Reduces time wasted on meaningless content',
-          'Creates a more positive and inspiring feed',
-          'Increases focus on real-world activities and relationships'
+          'More positive and inspiring social media experience',
+          'Reduced comparison and negative emotions',
+          'Better mental health and self-esteem',
+          'More time for real-world activities'
         ],
         tips: [
-          'Be ruthless about unfollowing accounts that don\'t serve you',
-          'Follow accounts that align with your goals and values',
-          'Use social media mindfully rather than as a default activity',
-          'Consider taking periodic breaks from social media entirely'
+          'Follow accounts aligned with your values and goals',
+          'Use the "unfollow" button liberally without guilt',
+          'Consider taking regular social media breaks',
+          'Focus on quality connections over follower count'
         ]
       },
       '21': {
-        overview: 'Setting up a password manager involves using a secure application to generate, store, and manage unique passwords for all your accounts, improving security while simplifying login management.',
+        overview: 'A password manager simplifies login management while improving security. Use strong, unique passwords for every account without memorizing them.',
         steps: [
-          'Research and choose a reputable password manager service',
-          'Install the password manager on all your devices',
-          'Import existing passwords or add them manually',
-          'Generate new, unique passwords for all important accounts',
-          'Enable two-factor authentication where possible'
+          'Research and choose a reputable password manager',
+          'Install the password manager on all devices',
+          'Import existing passwords or create new strong ones',
+          'Enable two-factor authentication where possible',
+          'Use the password generator for new accounts',
+          'Regularly review and update old passwords'
         ],
         benefits: [
-          'Dramatically improves online security',
-          'Eliminates the need to remember multiple passwords',
-          'Saves time logging into accounts',
-          'Alerts you to compromised or weak passwords'
+          'Improved security with unique passwords for every account',
+          'Simplified login process across all devices',
+          'Reduced stress from forgotten passwords',
+          'Better protection against data breaches'
         ],
         tips: [
-          'Use a strong, unique master password',
-          'Enable automatic password generation for new accounts',
-          'Regularly review and update passwords for important accounts',
-          'Keep your password manager app updated for security'
+          'Choose a password manager with good reviews and security',
+          'Use a strong master password you can remember',
+          'Enable automatic password updates when possible',
+          'Regularly backup your password database'
         ]
       },
       '22': {
-        overview: 'Cloud storage organization involves creating a logical, consistent file structure in your cloud storage that makes finding and managing digital files efficient and stress-free.',
+        overview: 'Organizing cloud storage with a clear folder structure makes files easy to find and reduces digital stress. Create logical systems that work for your needs.',
         steps: [
-          'Create a clear folder hierarchy with main categories',
-          'Use consistent naming conventions for files and folders',
-          'Delete duplicate files and outdated documents',
-          'Set up automatic syncing across all your devices',
-          'Regularly review and clean up your cloud storage'
+          'Create a folder structure based on your life categories',
+          'Move files from desktop and downloads into appropriate folders',
+          'Delete duplicate files and old versions',
+          'Use consistent naming conventions for files',
+          'Set up automatic sync across devices',
+          'Regularly clean up and organize new files'
         ],
         benefits: [
-          'Makes finding files quick and easy',
-          'Ensures important documents are backed up and accessible',
-          'Reduces digital clutter and confusion',
-          'Improves collaboration when sharing files'
+          'Faster file retrieval and better productivity',
+          'Automatic backup and sync across devices',
+          'Reduced stress from lost or disorganized files',
+          'Professional organization for work documents'
         ],
         tips: [
-          'Use descriptive, searchable file names',
-          'Create templates for recurring document types',
-          'Set up automatic backup for important folders',
-          'Review and organize files monthly to prevent accumulation'
+          'Use descriptive folder names and file names',
+          'Keep folder structure simple and logical',
+          'Archive old files rather than deleting important documents',
+          'Use tags or labels for additional organization'
         ]
       },
       '23': {
-        overview: 'Notification minimization involves turning off non-essential notifications to reduce digital interruptions, improve focus, and regain control over your attention and time.',
+        overview: 'Turning off non-essential notifications reduces interruptions and improves focus. Be intentional about which apps deserve your immediate attention.',
         steps: [
-          'Review notification settings on all your devices',
-          'Turn off notifications for social media, games, and entertainment apps',
-          'Keep only essential notifications like calls, texts, and calendar alerts',
-          'Set up "Do Not Disturb" schedules for focused work time',
-          'Use notification grouping to reduce visual clutter'
+          'Review notification settings for all apps',
+          'Turn off notifications for social media and entertainment apps',
+          'Keep notifications only for essential communications',
+          'Use "Do Not Disturb" mode during focused work time',
+          'Set specific times for checking non-urgent messages',
+          'Customize notification sounds for different priorities'
         ],
         benefits: [
-          'Improves focus and concentration',
-          'Reduces stress and anxiety from constant interruptions',
-          'Increases productivity and deep work time',
-          'Helps you be more intentional about device usage'
+          'Improved focus and productivity',
+          'Reduced stress and anxiety from constant interruptions',
+          'Better control over your time and attention',
+          'More intentional technology use'
         ],
         tips: [
-          'Start by turning off all notifications, then selectively enable essential ones',
-          'Use different notification sounds for truly important alerts',
-          'Check apps manually rather than relying on notifications',
-          'Review and adjust notification settings regularly'
+          'Start by turning off all notifications, then add back only essential ones',
+          'Use scheduled "Do Not Disturb" for sleep and work hours',
+          'Check messages at designated times rather than reactively',
+          'Consider using a separate device for work communications'
         ]
       },
       '24': {
-        overview: 'Room-by-room decluttering involves systematically going through each space in your home to remove unnecessary items, creating more organized, peaceful, and functional living areas.',
+        overview: 'Systematically decluttering each room creates a peaceful, organized home environment. Take it one room at a time to avoid overwhelm.',
         steps: [
           'Choose one room to start with (preferably the easiest)',
-          'Remove everything from the room and clean thoroughly',
-          'Sort items into keep, donate, sell, and trash categories',
-          'Only return items you truly need and use regularly',
-          'Organize remaining items with designated homes for everything'
+          'Remove everything from the room',
+          'Clean the empty space thoroughly',
+          'Sort items into keep, donate, trash, and relocate piles',
+          'Return only items you love and use to the room',
+          'Organize remaining items with designated homes'
         ],
         benefits: [
-          'Creates more spacious, peaceful living environments',
-          'Makes cleaning and maintenance much easier',
-          'Helps you appreciate and use what you keep',
-          'Reduces stress and improves mental clarity'
+          'Peaceful, organized living environment',
+          'Easier cleaning and maintenance',
+          'Better mental clarity and reduced stress',
+          'More space for activities you enjoy'
         ],
         tips: [
-          'Start with less emotional items like books or kitchen gadgets',
+          'Start with the room that will give you the most motivation',
           'Take before and after photos for motivation',
-          'Don\'t move clutter to another room - make real decisions',
-          'Celebrate progress after completing each room'
+          'Don\'t move on to the next room until the current one is complete',
+          'Involve family members in decisions about shared spaces'
         ]
       },
       '25': {
-        overview: 'Furniture minimization involves keeping only furniture pieces that serve a clear, essential purpose in your daily life while creating more open, peaceful living spaces.',
+        overview: 'Keeping only furniture that serves a clear purpose creates more open, functional living spaces. Multi-functional pieces maximize utility while minimizing clutter.',
         steps: [
-          'Evaluate each piece of furniture for its actual usage',
-          'Consider if multiple pieces could be replaced by one multi-functional item',
-          'Remove furniture that\'s only used for storage of unnecessary items',
-          'Ensure remaining pieces fit well in your space and lifestyle',
-          'Arrange furniture to maximize flow and openness'
+          'List all furniture pieces and their primary functions',
+          'Identify pieces that serve multiple purposes',
+          'Remove furniture that\'s rarely used or purely decorative',
+          'Consider the flow and functionality of each room',
+          'Sell or donate excess furniture in good condition',
+          'Invest in quality, multi-functional pieces when needed'
         ],
         benefits: [
-          'Creates more open, spacious feeling rooms',
-          'Makes cleaning and rearranging much easier',
-          'Reduces the temptation to accumulate clutter',
-          'Highlights the beauty of remaining pieces'
+          'More open, spacious feeling in your home',
+          'Easier cleaning and room maintenance',
+          'Better traffic flow and functionality',
+          'Reduced dusting and upkeep requirements'
         ],
         tips: [
-          'Focus on quality over quantity',
-          'Choose pieces that serve multiple functions',
-          'Consider your actual lifestyle, not aspirational decorating',
-          'Leave plenty of open space for movement and breathing room'
+          'Choose furniture that serves multiple functions',
+          'Consider the scale of furniture relative to room size',
+          'Invest in quality pieces that will last',
+          'Leave adequate space for movement and activities'
         ]
       },
       '26': {
-        overview: 'Decoration curation involves displaying only meaningful artwork and decorative items that truly enhance your space and bring you joy, while removing excess that creates visual clutter.',
+        overview: 'Displaying only meaningful decorations and artwork creates a curated, intentional aesthetic. Each piece should bring joy or serve a purpose.',
         steps: [
-          'Remove all decorative items from walls and surfaces',
+          'Remove all decorative items from surfaces and walls',
           'Sort items by emotional significance and aesthetic value',
-          'Choose only pieces that have personal meaning or exceptional beauty',
-          'Display items with plenty of white space around them',
-          'Store or donate excess decorations'
+          'Choose only pieces that truly bring you joy',
+          'Create focal points rather than scattered decoration',
+          'Leave plenty of white space for visual rest',
+          'Rotate seasonal decorations rather than displaying everything'
         ],
         benefits: [
-          'Creates a more peaceful, uncluttered visual environment',
-          'Highlights the beauty of your favorite pieces',
-          'Makes cleaning and dusting much easier',
-          'Allows you to truly appreciate displayed items'
+          'Cleaner, more sophisticated aesthetic',
+          'Easier dusting and cleaning',
+          'Greater appreciation for displayed pieces',
+          'More peaceful, calming environment'
         ],
         tips: [
-          'Follow the "less is more" principle',
-          'Group similar items together for impact',
-          'Leave plenty of empty wall space',
-          'Rotate seasonal decorations rather than displaying everything'
+          'Follow the rule of odd numbers for groupings',
+          'Choose a consistent color palette for cohesion',
+          'Display items at eye level for best impact',
+          'Leave surfaces mostly clear for functionality'
         ]
       },
       '27': {
-        overview: 'Storage system setup involves creating organized, labeled storage solutions that give every item a designated home, making it easy to find things and maintain organization long-term.',
+        overview: 'Creating organized storage solutions ensures everything has a designated home, making it easier to maintain order and find items when needed.',
         steps: [
-          'Assess what items you need to store after decluttering',
-          'Choose appropriate storage containers for different item types',
-          'Label everything clearly with contents and categories',
-          'Create zones for similar items (office supplies, seasonal items, etc.)',
-          'Make frequently used items easily accessible'
+          'Assess storage needs for remaining items',
+          'Invest in appropriate storage containers and organizers',
+          'Label all storage containers clearly',
+          'Create zones for different types of items',
+          'Use vertical space efficiently with shelving',
+          'Implement easy-to-maintain organization systems'
         ],
         benefits: [
-          'Makes finding items quick and effortless',
-          'Maintains organization with minimal effort',
-          'Prevents items from becoming lost or forgotten',
-          'Creates a sense of order and control'
+          'Everything has a designated place',
+          'Faster cleanup and organization',
+          'Easier to find items when needed',
+          'Maintained organization over time'
         ],
         tips: [
-          'Use clear containers when possible for easy identification',
-          'Keep storage systems simple and intuitive',
-          'Store items where you naturally look for them',
-          'Review and adjust storage systems seasonally'
+          'Use clear containers to see contents easily',
+          'Store frequently used items in accessible locations',
+          'Group similar items together',
+          'Make organization systems simple enough to maintain'
         ]
       },
       '28': {
-        overview: 'Paper reduction involves digitizing important documents, eliminating unnecessary paper accumulation, and creating systems to manage essential physical documents efficiently.',
+        overview: 'Going paperless where possible and organizing important documents reduces physical clutter while improving document security and accessibility.',
         steps: [
-          'Gather all papers from throughout your home',
-          'Sort into categories: keep, scan, shred, recycle',
-          'Scan important documents and store digitally with backup',
+          'Gather all paper documents from around your home',
+          'Sort into categories: keep, scan, shred',
+          'Scan important documents to digital format',
           'Shred sensitive documents securely',
-          'Set up systems to handle incoming mail and papers immediately'
+          'Create a simple filing system for remaining papers',
+          'Set up digital systems for future documents'
         ],
         benefits: [
-          'Reduces physical clutter and storage needs',
-          'Makes important documents easier to find and access',
-          'Protects important papers through digital backup',
-          'Reduces fire and flood risk to important documents'
+          'Reduced physical clutter and storage needs',
+          'Better document security and backup',
+          'Easier document retrieval and sharing',
+          'Environmental benefits from reduced paper use'
         ],
         tips: [
-          'Scan documents in searchable PDF format',
-          'Use consistent naming conventions for digital files',
-          'Set up automatic bill pay to reduce paper mail',
-          'Process mail immediately rather than letting it accumulate'
+          'Keep only original documents that legally require physical copies',
+          'Use cloud storage for digital document backup',
+          'Create a simple, logical filing system',
+          'Scan documents immediately rather than letting them pile up'
         ]
       },
       '29': {
-        overview: 'Cleaning supply simplification involves using fewer, more effective cleaning products that can handle multiple tasks, reducing clutter while maintaining a clean, healthy home.',
+        overview: 'Using multi-purpose cleaners and reducing chemical clutter creates a simpler, more natural cleaning routine while reducing storage needs.',
         steps: [
-          'Inventory all current cleaning products and tools',
-          'Research multi-purpose, eco-friendly alternatives',
-          'Choose 3-5 essential products that cover all your cleaning needs',
-          'Dispose of old, toxic, or redundant products safely',
-          'Organize remaining supplies in an accessible location'
+          'Inventory all current cleaning products',
+          'Research natural, multi-purpose alternatives',
+          'Choose 3-5 essential cleaning products maximum',
+          'Dispose of excess chemicals safely',
+          'Organize remaining products in a designated area',
+          'Create simple cleaning routines with fewer products'
         ],
         benefits: [
-          'Reduces storage space needed for cleaning supplies',
-          'Saves money on unnecessary specialty products',
-          'Simplifies cleaning routines and decisions',
-          'Often healthier for your family and environment'
+          'Reduced chemical exposure for family and pets',
+          'Less storage space needed for cleaning supplies',
+          'Simplified cleaning routines and decisions',
+          'Cost savings from buying fewer products'
         ],
         tips: [
-          'Look for plant-based, non-toxic formulations',
-          'Consider making your own cleaners with simple ingredients',
-          'Choose refillable containers to reduce waste',
-          'Keep cleaning supplies in each major area of your home'
+          'White vinegar and baking soda handle most cleaning tasks',
+          'Choose concentrated products to reduce packaging',
+          'Use microfiber cloths for effective cleaning with less product',
+          'Make your own simple cleaners with basic ingredients'
         ]
       },
       '30': {
-        overview: 'Linen closet organization involves keeping only necessary linens in good condition while creating an organized system that makes finding and storing bedding and towels efficient.',
+        overview: 'Keeping only necessary linens in good condition simplifies laundry and storage while ensuring you always have fresh, quality bedding and towels.',
         steps: [
-          'Remove all linens and assess their condition',
-          'Keep 2 sets of sheets per bed and 2-3 towels per person',
-          'Donate worn or excess linens to animal shelters',
-          'Fold linens consistently for neat storage',
-          'Organize by type and frequency of use'
+          'Gather all linens: sheets, towels, blankets, pillowcases',
+          'Assess condition and keep only items in good repair',
+          'Follow the rule: 2 sets per bed, 2 towels per person',
+          'Donate excess linens in good condition',
+          'Organize remaining linens by type and size',
+          'Invest in quality replacements for worn items'
         ],
         benefits: [
-          'Makes finding linens quick and easy',
-          'Reduces laundry burden with fewer items to wash',
-          'Creates more storage space for other items',
-          'Ensures you\'re using fresh, quality linens'
+          'Easier linen closet organization',
+          'Simplified laundry routines',
+          'Always fresh, quality linens available',
+          'Reduced storage space requirements'
         ],
         tips: [
-          'Store sheet sets inside their matching pillowcase',
-          'Keep frequently used items at eye level',
-          'Use shelf dividers to maintain organization',
-          'Replace linens when they become worn rather than accumulating'
+          'Choose neutral colors that coordinate with any decor',
+          'Invest in quality linens that improve with washing',
+          'Fold linens consistently for neat storage',
+          'Replace worn linens promptly to maintain quality'
         ]
       },
       '31': {
-        overview: 'Entryway simplification involves creating a clutter-free, functional entrance to your home that provides storage for daily essentials while making a welcoming first impression.',
+        overview: 'Creating a clutter-free, functional entryway sets a positive tone for your home and provides practical storage for daily essentials.',
         steps: [
-          'Remove all items currently in your entryway',
-          'Install hooks for coats and bags at appropriate heights',
-          'Add a shoe storage solution that fits your space',
-          'Create a designated spot for keys, mail, and daily essentials',
-          'Keep only current season items in the entryway'
+          'Remove all items currently in the entryway',
+          'Install hooks for coats and bags',
+          'Add a small table or shelf for keys and mail',
+          'Include a basket or tray for shoes',
+          'Keep only current season outerwear accessible',
+          'Establish daily habits for maintaining organization'
         ],
         benefits: [
-          'Creates a welcoming first impression for guests',
-          'Makes leaving and arriving home more efficient',
-          'Prevents clutter from spreading to other areas',
-          'Provides a transition space between outside and inside'
+          'Welcoming first impression for guests',
+          'Easier departure and arrival routines',
+          'Reduced lost keys and forgotten items',
+          'Sets organized tone for entire home'
         ],
         tips: [
-          'Keep entryway items to a minimum',
-          'Use vertical space with hooks and shelves',
-          'Add a small basket for items that need to go upstairs',
-          'Maintain the space daily with a quick tidy routine'
+          'Keep entryway minimal and functional',
+          'Use furniture that provides both seating and storage',
+          'Add a mirror for last-minute appearance checks',
+          'Include a small dish for pocket items'
         ]
       },
       '32': {
-        overview: 'Bathroom essentials involves keeping only daily-use toiletries and products, creating a clean, organized bathroom that supports your health and wellness routines efficiently.',
+        overview: 'Keeping only daily-use toiletries and essential products creates a clean, spa-like bathroom environment while simplifying routines.',
         steps: [
-          'Remove all products from bathroom surfaces and storage',
+          'Remove all products from bathroom surfaces and cabinets',
           'Check expiration dates and discard old products',
           'Keep only products you use daily or weekly',
-          'Organize remaining items by frequency of use',
-          'Store backup items elsewhere to reduce visual clutter'
+          'Store backup products in a separate location',
+          'Organize remaining products by frequency of use',
+          'Create designated spots for each type of product'
         ],
         benefits: [
-          'Creates a spa-like, peaceful bathroom environment',
-          'Makes cleaning much faster and easier',
-          'Ensures you\'re using fresh, effective products',
-          'Reduces decision fatigue in daily routines'
+          'Cleaner, more spa-like bathroom appearance',
+          'Easier cleaning and maintenance',
+          'Simplified morning and evening routines',
+          'Better product visibility and usage'
         ],
         tips: [
-          'Keep counters as clear as possible',
           'Use drawer organizers for small items',
+          'Keep counters as clear as possible',
           'Choose multi-purpose products when possible',
-          'Store towels and linens in a nearby closet if space is limited'
+          'Store daily items within easy reach'
         ]
       },
       '33': {
-        overview: 'Creating a bedroom sanctuary involves designing a peaceful, clutter-free space dedicated to rest and relaxation, promoting better sleep and mental well-being.',
+        overview: 'Transforming your bedroom into a peaceful, clutter-free sanctuary promotes better sleep and creates a calming retreat from daily stress.',
         steps: [
           'Remove all non-sleep related items from the bedroom',
-          'Eliminate electronics or move them to another room',
-          'Choose calming colors and minimal decorations',
-          'Invest in quality bedding and blackout curtains',
-          'Create designated storage for clothing and personal items'
+          'Clear nightstands of everything except essentials',
+          'Remove electronics and screens from the bedroom',
+          'Choose calming, neutral colors for bedding and decor',
+          'Ensure adequate storage for clothing and personal items',
+          'Create a relaxing bedtime environment'
         ],
         benefits: [
-          'Improves sleep quality and duration',
-          'Reduces stress and promotes relaxation',
-          'Creates a more romantic, intimate atmosphere',
-          'Makes the bedroom easier to clean and maintain'
+          'Improved sleep quality and duration',
+          'Reduced stress and anxiety',
+          'Better romantic atmosphere',
+          'Clearer mental space for rest and relaxation'
         ],
         tips: [
-          'Keep the room cool, dark, and quiet',
-          'Use the bedroom only for sleep and intimacy',
-          'Choose furniture with clean, simple lines',
-          'Add plants or natural elements for a calming effect'
+          'Keep only books, water, and alarm clock on nightstands',
+          'Use blackout curtains for better sleep',
+          'Choose comfortable, quality bedding',
+          'Maintain cool temperature for optimal sleep'
         ]
       },
       '34': {
-        overview: 'Budget simplification involves creating a straightforward, sustainable system for managing your money that reduces financial stress while helping you achieve your financial goals.',
+        overview: 'Creating a simple, sustainable budgeting system helps you track spending and save money without overwhelming complexity. Focus on broad categories and automation.',
         steps: [
-          'Track your income and expenses for one month',
-          'Create broad categories for spending (housing, food, transportation, etc.)',
-          'Set up automatic transfers for savings and bill payments',
-          'Use the 50/30/20 rule as a starting framework',
-          'Review and adjust your budget monthly'
+          'Track current spending for one month to establish baseline',
+          'Create 4-5 broad spending categories',
+          'Set realistic limits for each category',
+          'Automate savings transfers and bill payments',
+          'Review spending weekly and adjust as needed',
+          'Use simple tools like spreadsheets or basic apps'
         ],
         benefits: [
-          'Reduces financial stress and anxiety',
-          'Helps you achieve financial goals faster',
-          'Prevents overspending and debt accumulation',
-          'Creates awareness of spending patterns'
+          'Better awareness of spending patterns',
+          'Increased savings and financial security',
+          'Reduced financial stress and anxiety',
+          'Achievement of financial goals'
         ],
         tips: [
-          'Start with simple categories and refine over time',
-          'Use budgeting apps or tools that sync with your accounts',
-          'Focus on trends rather than perfect accuracy',
-          'Build in flexibility for unexpected expenses'
+          'Start with simple categories: housing, food, transportation, savings',
+          'Use the 50/30/20 rule as a starting point',
+          'Automate as much as possible to reduce decision fatigue',
+          'Review and adjust monthly rather than daily'
         ]
       },
       '35': {
-        overview: 'Subscription audit involves reviewing all recurring payments and memberships to cancel those you don\'t use regularly, reducing monthly expenses and simplifying your financial life.',
+        overview: 'Canceling unused subscriptions and memberships eliminates recurring charges for services you don\'t use, freeing up money for things you value.',
         steps: [
+          'List all current subscriptions and memberships',
           'Review bank and credit card statements for recurring charges',
-          'List all subscriptions and their monthly/annual costs',
-          'Evaluate each subscription based on actual usage and value',
+          'Assess actual usage of each service',
           'Cancel subscriptions you haven\'t used in the past month',
-          'Set calendar reminders to review subscriptions quarterly'
+          'Set calendar reminders for annual subscription renewals',
+          'Consider sharing family plans for services you do use'
         ],
         benefits: [
-          'Saves money on unused services',
-          'Simplifies monthly budgeting and expense tracking',
-          'Reduces digital clutter from unused accounts',
-          'Forces mindful evaluation of service value'
+          'Immediate monthly savings on unused services',
+          'Simplified financial management',
+          'More money available for priorities',
+          'Reduced digital clutter from unused services'
         ],
         tips: [
-          'Be honest about what you actually use vs. what you think you might use',
-          'Consider sharing family plans for services you do use',
-          'Cancel immediately rather than planning to cancel later',
-          'Use free alternatives when possible'
+          'Take screenshots of cancellation confirmations',
+          'Cancel immediately rather than waiting for renewal',
+          'Use free alternatives when possible',
+          'Review subscriptions quarterly to catch new unused services'
         ]
       },
       '36': {
-        overview: 'Mindful spending challenge involves implementing a waiting period before non-essential purchases to reduce impulse buying and ensure purchases align with your values and needs.',
+        overview: 'Practicing mindful spending by waiting before non-essential purchases helps break impulse buying habits and ensures purchases align with your values.',
         steps: [
           'Implement a 24-48 hour waiting period for non-essential purchases',
-          'Ask yourself key questions: Do I need this? Will it add value? Do I have space?',
-          'Keep a wishlist of items you want and review it monthly',
-          'Calculate the cost per use for potential purchases',
-          'Focus spending on experiences and quality items that last'
+          'Ask yourself: Do I need this? Will it add value to my life?',
+          'Consider the cost per use of potential purchases',
+          'Sleep on big purchases and revisit the decision',
+          'Keep a wish list and review it monthly',
+          'Focus spending on experiences over things'
         ],
         benefits: [
-          'Reduces impulse purchases and buyer\'s remorse',
-          'Saves money for more important goals',
-          'Helps you buy higher quality items you truly want',
-          'Reduces clutter from unnecessary purchases'
+          'Reduced impulse purchases and buyer\'s remorse',
+          'More money available for important goals',
+          'Greater satisfaction with purchases made',
+          'Alignment of spending with personal values'
         ],
         tips: [
           'Remove shopping apps from your phone',
           'Unsubscribe from promotional emails',
           'Shop with a list and stick to it',
-          'Consider the true cost including storage and maintenance'
+          'Consider borrowing or renting instead of buying'
         ]
       },
       '37': {
-        overview: 'Bank account simplification involves consolidating to essential accounts only, reducing complexity in your financial life while maintaining appropriate separation for different purposes.',
+        overview: 'Simplifying your banking by consolidating to essential accounts reduces complexity and makes financial management easier.',
         steps: [
-          'List all your current bank accounts and their purposes',
-          'Identify accounts with low balances or minimal activity',
-          'Consolidate similar accounts at the same institution',
-          'Keep 2-3 accounts maximum: checking, savings, and possibly one specialized account',
-          'Close unused accounts and update automatic payments'
+          'List all current bank accounts and their purposes',
+          'Identify accounts with low balances or high fees',
+          'Choose 2-3 accounts maximum: checking, savings, investment',
+          'Transfer funds and close unnecessary accounts',
+          'Set up automatic transfers between remaining accounts',
+          'Simplify by using one primary bank when possible'
         ],
         benefits: [
-          'Simplifies financial tracking and management',
-          'Reduces fees and minimum balance requirements',
-          'Makes tax preparation easier',
-          'Improves your ability to monitor financial health'
+          'Easier financial tracking and management',
+          'Reduced fees and minimum balance requirements',
+          'Simplified tax preparation',
+          'Better relationship with primary bank'
         ],
         tips: [
-          'Choose accounts with no or low fees',
-          'Ensure you maintain any required minimum balances',
-          'Update all automatic payments before closing accounts',
-          'Keep accounts at institutions with good customer service'
+          'Keep one checking and one savings account minimum',
+          'Choose banks with good customer service and low fees',
+          'Automate transfers to make saving effortless',
+          'Maintain emergency fund in easily accessible savings'
         ]
       },
       '38': {
-        overview: 'Investment portfolio review involves simplifying your investments by focusing on low-cost, diversified index funds that require minimal management while providing solid long-term returns.',
+        overview: 'Streamlining investments with simple, low-cost index funds reduces complexity while providing diversified market exposure for long-term growth.',
         steps: [
-          'Review all your current investment accounts and holdings',
-          'Calculate fees and expenses for each investment',
+          'Review current investment accounts and holdings',
           'Research low-cost index funds that match your risk tolerance',
-          'Consolidate accounts where possible to reduce complexity',
-          'Set up automatic contributions to maintain consistency'
+          'Consolidate investments with one or two providers',
+          'Set up automatic monthly contributions',
+          'Rebalance portfolio annually or when significantly off target',
+          'Avoid frequent trading and market timing'
         ],
         benefits: [
-          'Reduces investment fees and expenses',
-          'Simplifies portfolio management and tracking',
-          'Provides broad market diversification',
-          'Reduces emotional decision-making in investing'
+          'Lower investment fees and better long-term returns',
+          'Simplified portfolio management',
+          'Reduced stress from complex investment decisions',
+          'Better diversification with less effort'
         ],
         tips: [
           'Focus on total stock market and bond index funds',
-          'Keep expense ratios below 0.2% when possible',
-          'Rebalance annually rather than constantly adjusting',
-          'Stay consistent with contributions regardless of market conditions'
+          'Keep investment fees under 0.5% annually',
+          'Automate contributions to dollar-cost average',
+          'Ignore short-term market fluctuations'
         ]
       },
       '39': {
-        overview: 'Social circle evaluation involves focusing your time and energy on relationships that truly matter, while setting boundaries with relationships that drain your energy or don\'t align with your values.',
+        overview: 'Focusing energy on relationships that truly matter creates deeper connections and reduces social stress. Quality over quantity applies to friendships too.',
         steps: [
-          'List your current relationships and how they make you feel',
+          'List your current relationships and their impact on your life',
           'Identify relationships that energize vs. drain you',
-          'Prioritize time with people who support your growth and values',
-          'Set boundaries with negative or demanding relationships',
-          'Invest more deeply in your most meaningful connections'
+          'Invest more time in positive, supportive relationships',
+          'Set boundaries with negative or demanding people',
+          'Let superficial relationships naturally fade',
+          'Be intentional about social commitments'
         ],
         benefits: [
-          'Improves overall happiness and life satisfaction',
-          'Reduces social stress and obligation fatigue',
-          'Allows deeper connections with people who matter most',
-          'Frees time for personal growth and meaningful activities'
+          'Deeper, more meaningful relationships',
+          'Reduced social stress and obligation',
+          'More time for relationships that matter',
+          'Better emotional support and connection'
         ],
         tips: [
-          'Quality relationships are more valuable than quantity',
-          'It\'s okay to let some relationships naturally fade',
-          'Be intentional about how you spend your social time',
-          'Communicate your boundaries clearly and kindly'
+          'Quality time matters more than quantity of friends',
+          'Be honest about relationships that no longer serve you',
+          'Invest in relationships that are reciprocal',
+          'Don\'t feel guilty about letting some friendships fade'
         ]
       },
       '40': {
-        overview: 'Communication simplification involves streamlining how you interact with others by being more direct, honest, and intentional in your conversations and correspondence.',
+        overview: 'Streamlining communication by being direct and honest reduces misunderstandings and creates more authentic relationships.',
         steps: [
-          'Practice being more direct and clear in your communication',
-          'Reduce small talk and focus on meaningful conversations',
-          'Set specific times for checking and responding to messages',
-          'Use phone calls or face-to-face conversations for important topics',
-          'Be honest about your availability and boundaries'
+          'Practice saying what you mean clearly and kindly',
+          'Reduce small talk and focus on meaningful conversation',
+          'Listen actively without planning your response',
+          'Ask direct questions when you need information',
+          'Express appreciation and concerns honestly',
+          'Use fewer communication channels and check them less frequently'
         ],
         benefits: [
-          'Saves time and reduces miscommunication',
-          'Builds stronger, more authentic relationships',
-          'Reduces stress from unclear expectations',
-          'Improves your reputation for reliability and clarity'
+          'Clearer understanding and fewer misunderstandings',
+          'More authentic and meaningful relationships',
+          'Reduced time spent on superficial communication',
+          'Better conflict resolution and problem-solving'
         ],
         tips: [
-          'Listen actively and ask clarifying questions',
-          'Be concise but warm in your communication style',
-          'Address conflicts directly rather than avoiding them',
-          'Express appreciation and gratitude regularly'
+          'Practice active listening without interrupting',
+          'Be honest about your needs and boundaries',
+          'Choose phone calls over text for important conversations',
+          'Express gratitude and appreciation regularly'
         ]
       },
       '41': {
-        overview: 'Event commitment audit involves being selective about social events and commitments, saying yes only to those that align with your values and bring genuine joy or value to your life.',
+        overview: 'Being selective about events and commitments that align with your values protects your time and energy for what matters most.',
         steps: [
-          'Review your current commitments and how they make you feel',
-          'Identify events you attend out of obligation vs. genuine interest',
-          'Practice saying no gracefully to invitations that don\'t serve you',
-          'Prioritize events that align with your values and goals',
-          'Leave buffer time in your schedule for spontaneous activities'
+          'Review current commitments and their alignment with your values',
+          'Learn to say no gracefully to requests that don\'t fit',
+          'Choose events that energize rather than drain you',
+          'Consider the opportunity cost of each commitment',
+          'Protect time for rest and personal priorities',
+          'Be honest about your capacity and limits'
         ],
         benefits: [
-          'Reduces social fatigue and obligation stress',
-          'Allows you to be more present at events you do attend',
-          'Frees time for activities that truly matter to you',
-          'Helps you build a reputation for being selective and intentional'
+          'More time for priorities and relationships that matter',
+          'Reduced stress and overwhelm from overcommitment',
+          'Better energy for commitments you do make',
+          'Alignment of actions with personal values'
         ],
         tips: [
-          'It\'s better to attend fewer events and be fully present',
-          'Have a standard polite decline response ready',
-          'Consider your energy levels and other commitments',
-          'Remember that saying no to one thing means saying yes to something else'
+          'Practice saying "Let me check my calendar and get back to you"',
+          'Remember that saying no to one thing means saying yes to something else',
+          'Choose commitments that align with your current life season',
+          'Don\'t feel guilty about protecting your time and energy'
         ]
       },
       '42': {
-        overview: 'Gift-giving simplification involves focusing on meaningful, experiential, or highly useful gifts rather than accumulating more material possessions for yourself and others.',
+        overview: 'Focusing on meaningful gifts that create experiences rather than clutter shows thoughtfulness while supporting minimalist values.',
         steps: [
-          'Shift focus from material gifts to experiences and time together',
-          'Give consumable gifts like food, flowers, or spa treatments',
-          'Choose high-quality items that replace multiple lesser ones',
-          'Make gifts yourself when you have a special skill or talent',
-          'Discuss gift-giving expectations with family and friends'
+          'Consider experiences like concerts, classes, or trips',
+          'Give consumables like quality food, wine, or bath products',
+          'Offer services like house cleaning or meal delivery',
+          'Create handmade gifts that show personal effort',
+          'Give gifts that replace multiple lesser items',
+          'Focus on the recipient\'s actual needs and interests'
         ],
         benefits: [
-          'Reduces clutter for both giver and receiver',
-          'Creates more meaningful gift-giving experiences',
-          'Saves money by focusing on thoughtful rather than expensive gifts',
-          'Strengthens relationships through shared experiences'
+          'Gifts that create memories rather than clutter',
+          'More thoughtful and personal gift-giving',
+          'Support for recipients\' minimalist goals',
+          'Often more meaningful than material possessions'
         ],
         tips: [
-          'Pay attention to what people actually need or mention wanting',
-          'Experiences often create longer-lasting happiness than objects',
-          'Consider gifts that support someone\'s goals or interests',
-          'The thought and effort matter more than the price'
+          'Ask recipients about their current needs or interests',
+          'Consider gifts that support their hobbies or goals',
+          'Experience gifts often provide lasting memories',
+          'Quality over quantity applies to gift-giving too'
         ]
       },
       '43': {
-        overview: 'Workspace organization involves creating a clean, distraction-free environment that promotes focus, creativity, and productivity while supporting your work goals and habits.',
+        overview: 'Creating a clean, distraction-free workspace promotes focus and creativity while reducing stress and improving productivity.',
         steps: [
-          'Clear everything from your desk and workspace',
-          'Keep only essential items within arm\'s reach',
+          'Clear your desk of everything except current work',
           'Organize cables and eliminate visual clutter',
-          'Create designated spaces for different types of work',
-          'Establish a daily workspace reset routine'
+          'Keep only essential tools within arm\'s reach',
+          'Create designated storage for supplies and documents',
+          'Ensure good lighting and ergonomic setup',
+          'Establish daily habits for maintaining organization'
         ],
         benefits: [
-          'Improves focus and concentration',
-          'Increases productivity and efficiency',
-          'Reduces stress and mental fatigue',
-          'Creates a more professional appearance for video calls'
+          'Improved focus and concentration',
+          'Increased productivity and creativity',
+          'Reduced stress and mental clutter',
+          'Professional appearance for video calls'
         ],
         tips: [
-          'Keep your desk surface as clear as possible',
-          'Use drawer organizers for small items',
-          'Position your monitor at eye level to reduce neck strain',
-          'Add one personal item that brings you joy'
+          'Use cable management solutions for clean appearance',
+          'Keep personal items minimal and meaningful',
+          'Invest in good lighting and comfortable seating',
+          'Clear your desk at the end of each workday'
         ]
       },
       '44': {
-        overview: 'Task management system implementation involves choosing and consistently using a simple, effective method for organizing and prioritizing your work and personal tasks.',
+        overview: 'Implementing a simple, effective task management system helps you prioritize work and reduce mental clutter from trying to remember everything.',
         steps: [
-          'Choose one task management system and commit to it',
-          'Set up categories or projects that match your life areas',
-          'Establish a daily review routine to update and prioritize tasks',
-          'Use the two-minute rule: if it takes less than two minutes, do it now',
-          'Weekly review to plan ahead and adjust priorities'
+          'Choose one task management system and stick with it',
+          'Capture all tasks in your system, not in your head',
+          'Prioritize tasks using a simple method (urgent/important)',
+          'Review and update your task list daily',
+          'Focus on completing tasks rather than adding more',
+          'Use time-blocking for important work'
         ],
         benefits: [
-          'Reduces mental load from trying to remember everything',
-          'Improves productivity by focusing on important tasks',
-          'Provides a sense of accomplishment as you complete tasks',
-          'Helps you make progress on long-term goals'
+          'Reduced mental stress from trying to remember everything',
+          'Better prioritization of important work',
+          'Increased productivity and task completion',
+          'Clearer overview of workload and commitments'
         ],
         tips: [
-          'Keep the system simple and easy to maintain',
-          'Capture all tasks in one place rather than multiple lists',
-          'Focus on outcomes rather than just activities',
-          'Be realistic about what you can accomplish in a day'
+          'Keep your system simple enough to maintain consistently',
+          'Review tasks weekly to ensure alignment with goals',
+          'Use the two-minute rule: do it now if it takes less than two minutes',
+          'Focus on progress, not perfection'
         ]
       },
       '45': {
-        overview: 'Meeting minimization involves reducing unnecessary meetings while making the meetings you do attend more focused, efficient, and productive for everyone involved.',
+        overview: 'Reducing unnecessary meetings and making remaining ones more effective saves time and increases productivity for everyone involved.',
         steps: [
           'Question whether each meeting is truly necessary',
-          'Suggest alternatives like email updates or brief check-ins',
-          'Set clear agendas and time limits for meetings you do schedule',
-          'Invite only people who need to be there',
-          'End meetings early when objectives are met'
+          'Suggest alternatives like email or quick calls when appropriate',
+          'Set clear agendas and time limits for meetings you do attend',
+          'Come prepared and encourage others to do the same',
+          'End meetings early when objectives are met',
+          'Follow up with clear action items and deadlines'
         ],
         benefits: [
-          'Frees up time for focused, deep work',
-          'Reduces meeting fatigue and improves engagement',
-          'Increases overall team productivity',
-          'Improves the quality of meetings that do occur'
+          'More time for focused, productive work',
+          'Reduced meeting fatigue and stress',
+          'More effective communication and decision-making',
+          'Better respect for everyone\'s time'
         ],
         tips: [
-          'Start meetings with clear objectives',
-          'Use standing meetings to keep them brief',
-          'Send pre-meeting materials to make discussions more efficient',
-          'Follow up with clear action items and deadlines'
+          'Default to 25 or 45-minute meetings instead of 30 or 60',
+          'Stand during meetings to encourage brevity',
+          'Use shared documents for updates instead of status meetings',
+          'Practice saying "I don\'t think I can add value to this meeting"'
         ]
       },
       '46': {
-        overview: 'Email management system involves processing work emails efficiently with clear systems and boundaries to maintain productivity while staying responsive to important communications.',
+        overview: 'Processing work emails efficiently with clear systems and boundaries prevents email from overwhelming your workday and improves response times.',
         steps: [
           'Set specific times for checking and responding to email',
           'Use folders or labels to organize different types of emails',
           'Create templates for common responses',
-          'Unsubscribe from unnecessary mailing lists',
-          'Use clear, descriptive subject lines in your emails'
+          'Unsubscribe from unnecessary work-related emails',
+          'Use clear, concise subject lines in your emails',
+          'Set expectations for response times with colleagues'
         ],
         benefits: [
-          'Reduces interruptions and improves focus',
-          'Ensures important emails don\'t get lost',
-          'Improves response time and professionalism',
-          'Reduces stress from overwhelming inbox'
+          'Reduced interruptions and improved focus',
+          'Faster email processing and response times',
+          'Better organization of important communications',
+          'Reduced stress from email overload'
         ],
         tips: [
-          'Process emails in batches rather than constantly checking',
-          'Use the OHIO principle: Only Handle It Once',
-          'Set up automatic filters for routine emails',
-          'Keep emails concise and action-oriented'
+          'Turn off email notifications during focused work time',
+          'Use the BRIEF method: Brief, Relevant, Informative, Engaging, Friendly',
+          'Process emails in batches rather than throughout the day',
+          'Use auto-responses to set expectations when away'
         ]
       },
       '47': {
-        overview: 'Supplement simplification involves keeping only essential, evidence-based supplements that support your specific health needs while eliminating unnecessary or redundant products.',
+        overview: 'Keeping only essential, evidence-based supplements reduces clutter and expense while focusing on what actually benefits your health.',
         steps: [
-          'Consult with a healthcare provider about your supplement needs',
-          'Research the evidence behind each supplement you\'re taking',
-          'Focus on basic supplements like vitamin D, B12, or omega-3 if needed',
-          'Eliminate supplements with overlapping benefits',
-          'Check expiration dates and dispose of old supplements safely'
+          'Review all current supplements and their purposes',
+          'Research evidence for each supplement\'s effectiveness',
+          'Consult with healthcare provider about necessity',
+          'Keep only supplements with strong evidence and clear benefits',
+          'Check expiration dates and dispose of old supplements',
+          'Focus on getting nutrients from whole foods when possible'
         ],
         benefits: [
-          'Saves money on unnecessary supplements',
-          'Reduces the risk of interactions or overdoses',
-          'Simplifies your daily routine',
-          'Ensures you\'re taking supplements that actually benefit your health'
+          'Reduced expense on unnecessary supplements',
+          'Less bathroom clutter and organization',
+          'Focus on evidence-based health practices',
+          'Simplified daily routine'
         ],
         tips: [
-          'Get blood tests to identify actual deficiencies',
-          'Focus on getting nutrients from whole foods first',
+          'Vitamin D and B12 are commonly beneficial supplements',
+          'Get blood work to identify actual deficiencies',
           'Choose high-quality supplements from reputable brands',
-          'Keep a simple routine you can maintain consistently'
+          'Focus on diet and lifestyle before supplementation'
         ]
       },
       '48': {
-        overview: 'Exercise routine streamlining involves creating a simple, sustainable fitness routine that you can maintain long-term while achieving your health and fitness goals.',
+        overview: 'Creating a simple, sustainable exercise routine you can maintain long-term is more effective than complex programs you\'ll abandon.',
         steps: [
-          'Assess your current fitness level and realistic time availability',
-          'Choose 3-4 basic exercises that work multiple muscle groups',
-          'Start with 20-30 minute sessions 3 times per week',
+          'Choose activities you genuinely enjoy',
+          'Start with 20-30 minutes of movement daily',
           'Focus on consistency over intensity',
-          'Track your progress to stay motivated'
+          'Use bodyweight exercises that require no equipment',
+          'Schedule exercise like any other important appointment',
+          'Track progress to maintain motivation'
         ],
         benefits: [
-          'Improves overall health and energy levels',
-          'Reduces stress and improves mental health',
-          'Creates a sustainable habit you can maintain',
-          'Saves time by focusing on effective exercises'
+          'Improved physical and mental health',
+          'Increased energy and better sleep',
+          'Reduced stress and anxiety',
+          'Long-term sustainable fitness habits'
         ],
         tips: [
-          'Choose activities you actually enjoy',
-          'Start small and gradually increase intensity',
-          'Use bodyweight exercises that require no equipment',
-          'Schedule workouts like important appointments'
+          'Walking is one of the best exercises for most people',
+          'Combine strength, cardio, and flexibility training',
+          'Exercise outdoors when possible for additional benefits',
+          'Find an accountability partner or group'
         ]
       },
       '49': {
-        overview: 'Skincare routine minimization involves simplifying your skincare to essential, effective products that support healthy skin without overwhelming complexity or expense.',
+        overview: 'Simplifying skincare to essential, effective products reduces clutter and expense while often improving skin health through less irritation.',
         steps: [
-          'Identify your skin type and primary concerns',
-          'Focus on three basics: gentle cleanser, moisturizer, and sunscreen',
-          'Remove products that irritate your skin or provide no benefit',
-          'Introduce new products one at a time to test effectiveness',
-          'Maintain consistency with your simplified routine'
+          'Identify your skin type and main concerns',
+          'Keep only cleanser, moisturizer, and sunscreen as basics',
+          'Add one treatment product if needed (retinol, vitamin C)',
+          'Remove products that irritate or don\'t show results',
+          'Use products consistently for at least 4-6 weeks',
+          'Patch test new products before full use'
         ],
         benefits: [
-          'Reduces skin irritation from too many products',
-          'Saves money on unnecessary skincare items',
-          'Simplifies your daily routine',
-          'Makes it easier to identify what works for your skin'
+          'Simplified morning and evening routines',
+          'Reduced skin irritation from too many products',
+          'Cost savings on unnecessary products',
+          'Better understanding of what works for your skin'
         ],
         tips: [
-          'Less is often more when it comes to skincare',
-          'Patch test new products before full use',
-          'Focus on sun protection as the most important anti-aging step',
-          'Be patient - it takes time to see results from skincare changes'
+          'Less is often more with skincare',
+          'Sunscreen is the most important anti-aging product',
+          'Introduce new products one at a time',
+          'Focus on gentle, fragrance-free products'
         ]
       },
       '50': {
-        overview: 'Sleep environment optimization involves creating ideal conditions in your bedroom that promote deep, restorative sleep and support your overall health and well-being.',
+        overview: 'Optimizing your sleep environment for better rest improves every aspect of health and daily performance. Small changes can make big differences.',
         steps: [
-          'Keep your bedroom cool (65-68°F), dark, and quiet',
-          'Invest in blackout curtains or an eye mask',
-          'Remove electronic devices or use blue light filters',
-          'Choose comfortable, supportive bedding and pillows',
-          'Establish a consistent bedtime routine'
+          'Keep bedroom temperature between 65-68°F (18-20°C)',
+          'Use blackout curtains or eye mask for darkness',
+          'Remove electronic devices and screens from bedroom',
+          'Invest in comfortable, supportive mattress and pillows',
+          'Keep bedroom quiet or use white noise',
+          'Establish consistent bedtime and wake time'
         ],
         benefits: [
-          'Improves sleep quality and duration',
-          'Enhances daytime energy and focus',
-          'Supports immune system and overall health',
-          'Improves mood and emotional regulation'
+          'Improved sleep quality and duration',
+          'Better mood and mental clarity',
+          'Stronger immune system and physical health',
+          'Increased productivity and focus'
         ],
         tips: [
-          'Use your bedroom only for sleep and intimacy',
-          'Keep a consistent sleep schedule, even on weekends',
-          'Avoid caffeine and large meals close to bedtime',
-          'Consider white noise or earplugs if needed'
+          'Stop screen use 1 hour before bedtime',
+          'Use bedroom only for sleep and intimacy',
+          'Keep a notepad by bed for worries or ideas',
+          'Consider blue light blocking glasses in evening'
         ]
       },
       '51': {
-        overview: 'Art supply curation involves keeping only the creative materials you actively use and love, creating an organized, inspiring workspace that supports your artistic practice.',
+        overview: 'Keeping only art supplies you actively use and love creates an inspiring, organized creative space that encourages regular artistic practice.',
         steps: [
           'Gather all art supplies from various locations',
-          'Test supplies to see if they still work properly',
-          'Keep only supplies you\'ve used in the past 6 months',
-          'Organize remaining supplies by medium or frequency of use',
-          'Donate usable supplies you no longer need'
+          'Test supplies to ensure they still work properly',
+          'Keep only supplies for your current artistic interests',
+          'Donate supplies in good condition that you don\'t use',
+          'Organize remaining supplies by type and frequency of use',
+          'Create a designated creative workspace'
         ],
         benefits: [
-          'Creates a more organized, inspiring creative space',
-          'Saves money by using what you have before buying new',
-          'Reduces decision fatigue when starting creative projects',
-          'Ensures you\'re working with fresh, quality materials'
+          'More inspiring and organized creative space',
+          'Easier to find and use supplies when inspired',
+          'Reduced guilt about unused expensive supplies',
+          'Focus on mastering fewer mediums'
         ],
         tips: [
-          'Invest in fewer, higher-quality supplies',
-          'Store supplies where you can see and access them easily',
-          'Keep a small, portable kit for creative work on the go',
-          'Replace supplies only when they\'re used up or no longer functional'
+          'Quality supplies often work better than quantity',
+          'Keep supplies visible to encourage use',
+          'Focus on one or two artistic mediums',
+          'Replace dried or damaged supplies promptly'
         ]
       },
       '52': {
-        overview: 'Creative space setup involves designing a minimal, inspiring workspace dedicated to your creative pursuits that promotes flow, focus, and artistic expression.',
+        overview: 'Designing a minimal, inspiring creative workspace removes distractions and provides everything needed for focused artistic work.',
         steps: [
-          'Choose a dedicated space for creative work, even if small',
-          'Ensure excellent lighting, preferably natural light',
-          'Keep surfaces clear except for current project materials',
-          'Add inspiring elements like plants, art, or meaningful objects',
-          'Organize supplies for easy access and visibility'
+          'Choose a dedicated space for creative work',
+          'Ensure excellent lighting (natural light preferred)',
+          'Keep surfaces clear except for current project',
+          'Organize supplies in easily accessible storage',
+          'Include one inspiring element (plant, artwork, view)',
+          'Remove distractions like phones or unrelated items'
         ],
         benefits: [
-          'Enhances creativity and artistic flow',
-          'Makes it easier to start and maintain creative projects',
-          'Creates a dedicated space that signals creative time',
-          'Improves the quality of your creative work'
+          'Enhanced creativity and artistic flow',
+          'Reduced distractions during creative work',
+          'Professional-feeling workspace that inspires',
+          'Easier cleanup and organization'
         ],
         tips: [
-          'Good lighting is essential for creative work',
-          'Keep the space flexible for different types of projects',
-          'Include storage that keeps supplies organized but accessible',
-          'Make the space feel special and inspiring to you'
+          'Good lighting is essential for any creative work',
+          'Keep workspace clean and organized',
+          'Include storage for work in progress',
+          'Make the space inviting and personally inspiring'
         ]
       },
       '53': {
-        overview: 'Project focus challenge involves limiting yourself to 1-2 active creative projects at a time to improve quality, completion rates, and creative satisfaction.',
+        overview: 'Limiting yourself to 1-2 active creative projects allows for deeper focus and higher quality results rather than scattered attention.',
         steps: [
-          'List all your current creative projects',
-          'Choose 1-2 projects that excite you most right now',
-          'Put other projects on hold and store their materials',
-          'Focus all creative energy on your chosen projects',
-          'Complete projects before starting new ones'
+          'List all current creative projects and their status',
+          'Choose 1-2 projects that excite you most',
+          'Put other projects on hold or abandon them',
+          'Document ideas for future projects in a notebook',
+          'Focus deeply on chosen projects until completion',
+          'Resist starting new projects until current ones are finished'
         ],
         benefits: [
-          'Improves the quality of your creative work',
-          'Increases project completion rates',
-          'Reduces creative overwhelm and decision fatigue',
-          'Allows for deeper exploration of ideas'
+          'Higher quality creative output',
+          'Greater sense of accomplishment from completion',
+          'Reduced creative overwhelm and scattered energy',
+          'Better skill development through focused practice'
         ],
         tips: [
-          'Keep an idea journal for future projects',
+          'Finish projects before starting new ones',
+          'Keep an idea journal for future inspiration',
           'Set realistic timelines for project completion',
-          'Celebrate finishing projects before starting new ones',
-          'It\'s okay to abandon projects that no longer inspire you'
+          'Celebrate completed projects before moving to next'
         ]
       },
       '54': {
-        overview: 'Digital creative cleanup involves organizing digital creative files, deleting unused projects, and creating systems that make finding and managing creative work efficient.',
+        overview: 'Organizing digital creative files and removing unused projects creates a streamlined workflow and makes finding assets easier.',
         steps: [
-          'Create a clear folder structure for different types of creative work',
-          'Delete incomplete projects you\'re no longer interested in',
-          'Archive completed projects in organized folders',
+          'Create a logical folder structure for creative work',
+          'Move files from desktop and downloads into proper folders',
+          'Delete old project files and unused assets',
           'Use consistent naming conventions for files',
-          'Set up regular backup systems for important work'
+          'Archive completed projects separately from active ones',
+          'Set up automatic backup for creative work'
         ],
         benefits: [
-          'Makes finding creative files quick and easy',
-          'Frees up storage space on your devices',
-          'Reduces digital overwhelm and distraction',
-          'Protects your creative work through organized backup'
+          'Faster file retrieval and project workflow',
+          'Reduced digital clutter and confusion',
+          'Better protection of creative work through organization',
+          'Professional file management practices'
         ],
         tips: [
-          'Use descriptive file names that you\'ll understand later',
-          'Create separate folders for works in progress vs. completed projects',
-          'Regularly export or save work in multiple formats',
-          'Consider cloud storage for accessing work from multiple devices'
+          'Use descriptive file names with dates',
+          'Keep active projects easily accessible',
+          'Archive old projects but don\'t delete them',
+          'Back up creative work regularly'
         ]
       },
       '55': {
-        overview: 'Inspiration curation involves creating a focused collection of truly inspiring references, ideas, and examples that fuel your creativity without overwhelming you with too much input.',
+        overview: 'Curating a focused collection of truly inspiring references helps maintain creative motivation without overwhelming visual clutter.',
         steps: [
-          'Gather inspiration from various sources you currently follow',
-          'Evaluate each source for how much it actually inspires your work',
-          'Keep only sources that consistently provide valuable inspiration',
-          'Organize inspiration by project, medium, or theme',
-          'Review and refresh your inspiration collection regularly'
+          'Gather inspiration from various sources (books, websites, photos)',
+          'Choose only pieces that genuinely inspire your current work',
+          'Create a physical or digital inspiration board',
+          'Regularly refresh inspiration with new sources',
+          'Remove inspiration that no longer resonates',
+          'Organize inspiration by project or theme'
         ],
         benefits: [
-          'Provides focused, relevant inspiration for your work',
-          'Reduces information overload and creative paralysis',
-          'Helps you develop your unique creative voice',
-          'Makes it easier to find inspiration when you need it'
+          'Consistent creative inspiration and motivation',
+          'Focused aesthetic direction for projects',
+          'Reduced visual overwhelm from too much inspiration',
+          'Better understanding of personal creative style'
         ],
         tips: [
-          'Quality of inspiration matters more than quantity',
-          'Include diverse sources to expand your creative perspective',
-          'Regularly purge inspiration that no longer resonates',
-          'Balance consuming inspiration with creating original work'
+          'Quality over quantity for inspiration sources',
+          'Update inspiration regularly to stay fresh',
+          'Include diverse sources for broader perspective',
+          'Use inspiration as starting point, not copying'
         ]
       },
       '56': {
-        overview: 'Minimalist packing system involves mastering the art of packing light for any trip by choosing versatile clothing and essential items that serve multiple purposes.',
+        overview: 'Mastering the art of packing light for any trip reduces stress, saves money on baggage fees, and increases travel flexibility.',
         steps: [
-          'Choose a color scheme for your travel wardrobe',
-          'Pack versatile pieces that can be dressed up or down',
-          'Limit yourself to 2 pairs of shoes maximum',
-          'Use packing cubes to organize and compress items',
-          'Bring only essential toiletries in travel sizes'
+          'Choose a versatile color palette for all clothing',
+          'Pack only items that can be mixed and matched',
+          'Limit shoes to two pairs maximum',
+          'Use packing cubes for organization',
+          'Bring only essential toiletries in travel sizes',
+          'Leave space for souvenirs or purchases'
         ],
         benefits: [
-          'Makes travel easier with lighter, more manageable luggage',
-          'Reduces stress about packing and unpacking',
-          'Saves money on baggage fees',
-          'Forces you to focus on versatile, quality items'
+          'Easier mobility and transportation',
+          'Reduced baggage fees and restrictions',
+          'Less stress about lost luggage',
+          'More flexibility in travel plans'
         ],
         tips: [
           'Roll clothes instead of folding to save space',
-          'Wear your heaviest items on the plane',
-          'Choose fabrics that don\'t wrinkle easily',
-          'Remember you can buy forgotten items at your destination'
+          'Wear heaviest items on the plane',
+          'Choose wrinkle-resistant fabrics',
+          'Bring versatile layers for different weather'
         ]
       },
       '57': {
-        overview: 'Travel gear audit involves keeping only essential, multi-purpose travel items that enhance your travel experience without adding unnecessary weight or complexity.',
+        overview: 'Keeping only essential, multi-purpose travel items reduces luggage weight and ensures you have everything needed without excess.',
         steps: [
-          'Gather all travel-specific gear and accessories',
-          'Evaluate each item based on how often you actually use it',
-          'Keep only items that serve multiple purposes or are truly essential',
-          'Choose lightweight, durable versions of items you keep',
-          'Test gear before important trips to ensure it works properly'
+          'Audit all current travel gear and accessories',
+          'Keep only items that serve multiple purposes',
+          'Choose lightweight, durable materials',
+          'Test gear before trips to ensure functionality',
+          'Donate or sell travel items you never use',
+          'Invest in quality pieces that will last many trips'
         ],
         benefits: [
-          'Reduces luggage weight and packing complexity',
-          'Ensures you have reliable gear when you need it',
-          'Saves money by avoiding duplicate or unnecessary purchases',
-          'Makes packing faster and more efficient'
+          'Lighter luggage and easier travel',
+          'Reduced packing time and decisions',
+          'Better quality gear through focused investment',
+          'Less storage space needed at home'
         ],
         tips: [
-          'Prioritize items that solve multiple problems',
-          'Choose gear made from lightweight, durable materials',
-          'Consider borrowing or renting specialty items for rare trips',
-          'Keep a packing checklist for different types of trips'
+          'Choose gear that works for multiple types of trips',
+          'Prioritize lightweight and compact items',
+          'Read reviews before purchasing travel gear',
+          'Consider renting gear for specialized trips'
         ]
       },
       '58': {
-        overview: 'Digital nomad setup involves creating a minimal digital workspace that allows you to work effectively from anywhere while maintaining productivity and work-life balance.',
+        overview: 'Creating a minimal digital workspace for remote work ensures productivity and professionalism regardless of location.',
         steps: [
-          'Invest in reliable, portable technology that meets your work needs',
-          'Set up cloud-based systems for all your work files and tools',
-          'Create backup plans for internet connectivity',
-          'Establish routines that work regardless of location',
-          'Minimize physical possessions to what fits in a carry-on'
+          'Choose cloud-based tools for all work functions',
+          'Ensure reliable internet backup options',
+          'Minimize hardware to essentials only',
+          'Create organized digital file systems',
+          'Set up professional video call backgrounds',
+          'Test all systems before important work'
         ],
         benefits: [
-          'Enables location independence and travel flexibility',
-          'Forces focus on essential tools and systems',
-          'Improves digital organization and efficiency',
-          'Reduces dependence on physical office space'
+          'Location independence for work',
+          'Professional appearance and reliability',
+          'Reduced technology stress and complications',
+          'Better work-life balance through flexibility'
         ],
         tips: [
-          'Test your setup thoroughly before traveling',
-          'Have backup plans for technology failures',
-          'Consider time zones when planning work schedules',
-          'Maintain consistent routines to stay productive'
+          'Invest in good internet and backup options',
+          'Keep hardware minimal but high quality',
+          'Use cloud storage for all important files',
+          'Have backup plans for technology failures'
         ]
       },
       '59': {
-        overview: 'Souvenir mindfulness involves choosing meaningful mementos over quantity when traveling, focusing on experiences and memories rather than accumulating objects.',
+        overview: 'Choosing meaningful souvenirs over quantity creates lasting memories without accumulating clutter from every trip.',
         steps: [
-          'Set a limit on souvenirs before you travel (e.g., one per trip)',
-          'Focus on experiences and photos as primary mementos',
-          'Choose items that are truly unique to the location',
-          'Consider practical souvenirs you\'ll actually use',
-          'Buy local experiences or food rather than manufactured items'
+          'Set a limit of one meaningful item per trip',
+          'Choose items that represent the experience, not just the location',
+          'Consider practical items you\'ll actually use',
+          'Take photos instead of buying multiple small items',
+          'Choose experiences over objects when possible',
+          'Buy local products that support the community'
         ],
         benefits: [
-          'Reduces clutter from travel memorabilia',
-          'Forces you to choose truly meaningful mementos',
-          'Saves money and luggage space',
-          'Encourages focus on experiences over objects'
+          'More meaningful travel memories',
+          'Reduced clutter from travel purchases',
+          'Better appreciation for chosen souvenirs',
+          'Support for local artisans and businesses'
         ],
         tips: [
-          'Take photos of items you\'re tempted to buy instead',
-          'Choose consumable souvenirs like local food or tea',
-          'Buy one high-quality item rather than several cheap ones',
-          'Consider how the item will fit into your home before purchasing'
+          'Choose items that tell a story about your experience',
+          'Consider consumables like local food or tea',
+          'Buy practical items you need anyway',
+          'Focus on experiences and photos for memories'
         ]
       },
       '60': {
-        overview: 'Zero waste challenge involves reducing household waste to near zero through mindful consumption, reusing items creatively, and choosing sustainable alternatives.',
+        overview: 'Reducing household waste to near zero through mindful consumption and creative reuse benefits the environment and often saves money.',
         steps: [
-          'Audit your current waste production for one week',
-          'Refuse single-use items and unnecessary packaging',
-          'Reuse containers and items for new purposes',
+          'Audit current waste production for one week',
+          'Refuse single-use items when possible',
+          'Reduce consumption of packaged goods',
+          'Reuse containers and materials creatively',
           'Recycle properly according to local guidelines',
           'Compost organic waste if possible'
         ],
         benefits: [
-          'Significantly reduces environmental impact',
-          'Saves money through reduced consumption',
-          'Encourages creativity in reusing items',
-          'Creates awareness of consumption patterns'
+          'Significant environmental impact reduction',
+          'Cost savings from reduced consumption',
+          'Greater awareness of consumption habits',
+          'Sense of purpose and environmental responsibility'
         ],
         tips: [
-          'Start with the easiest swaps like reusable bags and water bottles',
-          'Buy in bulk to reduce packaging waste',
-          'Choose products with minimal or recyclable packaging',
-          'Focus on progress, not perfection'
+          'Start with the easiest changes first',
+          'Bring reusable bags and containers when shopping',
+          'Buy in bulk to reduce packaging',
+          'Compost food scraps if you have space'
         ]
       },
       '61': {
-        overview: 'Plastic reduction involves eliminating single-use plastics from your daily life by choosing reusable alternatives and supporting businesses with sustainable practices.',
+        overview: 'Eliminating single-use plastics from daily life reduces environmental impact and often leads to healthier, more sustainable choices.',
         steps: [
-          'Identify single-use plastics you use regularly',
-          'Replace them with reusable alternatives (bags, bottles, containers)',
-          'Choose products with minimal plastic packaging',
-          'Support businesses that use sustainable packaging',
-          'Properly recycle plastic items you can\'t eliminate'
+          'Identify single-use plastics in your daily routine',
+          'Replace with reusable alternatives (bags, bottles, containers)',
+          'Choose products with minimal or recyclable packaging',
+          'Bring your own containers for takeout and shopping',
+          'Use refillable products when available',
+          'Educate family members about alternatives'
         ],
         benefits: [
-          'Reduces environmental pollution and waste',
-          'Often saves money in the long run',
-          'Supports businesses with sustainable practices',
-          'Reduces exposure to potentially harmful chemicals'
+          'Reduced environmental impact and plastic pollution',
+          'Often healthier alternatives to plastic products',
+          'Cost savings from reusable products',
+          'Positive example for others'
         ],
         tips: [
-          'Keep reusable items in convenient locations',
-          'Start with the easiest swaps and build momentum',
-          'Look for plastic-free alternatives in health food stores',
-          'Consider making your own products like cleaning supplies'
+          'Keep reusable bags in your car and by the door',
+          'Choose glass or stainless steel over plastic',
+          'Support businesses that offer plastic-free options',
+          'Start with easy swaps and build momentum'
         ]
       },
       '62': {
-        overview: 'Energy consumption audit involves reducing home energy usage through conscious consumption habits, efficient appliances, and mindful daily practices.',
+        overview: 'Reducing home energy usage through conscious consumption habits lowers utility bills and environmental impact.',
         steps: [
-          'Track your energy usage for a month to establish baseline',
           'Replace incandescent bulbs with LED alternatives',
-          'Unplug devices when not in use or use smart power strips',
-          'Adjust thermostat settings for energy efficiency',
-          'Seal air leaks and improve insulation where possible'
+          'Unplug devices when not in use',
+          'Use smart power strips to eliminate phantom loads',
+          'Adjust thermostat settings for efficiency',
+          'Seal air leaks around windows and doors',
+          'Use natural light when possible'
         ],
         benefits: [
-          'Reduces utility bills and saves money',
-          'Decreases environmental impact',
-          'Often improves home comfort',
-          'Increases awareness of energy consumption patterns'
+          'Lower utility bills and energy costs',
+          'Reduced environmental impact',
+          'More comfortable home environment',
+          'Increased awareness of energy consumption'
         ],
         tips: [
-          'Focus on the biggest energy users first (heating, cooling, water heating)',
-          'Use natural light when possible',
-          'Run full loads in dishwashers and washing machines',
-          'Consider programmable thermostats for automatic efficiency'
+          'LED bulbs last longer and use 75% less energy',
+          'Small changes can add up to significant savings',
+          'Focus on heating and cooling for biggest impact',
+          'Use programmable thermostats for automatic efficiency'
         ]
       },
       '63': {
-        overview: 'Sustainable shopping involves choosing quality, sustainable products over cheap alternatives, supporting ethical businesses, and making purchases that align with your values.',
+        overview: 'Choosing quality, sustainable products over cheap alternatives reduces waste and often provides better value over time.',
         steps: [
-          'Research companies\' environmental and social practices',
-          'Choose quality items that will last longer',
+          'Research companies\' sustainability practices before purchasing',
+          'Choose products designed for durability and repairability',
           'Support local businesses when possible',
-          'Buy secondhand or refurbished items when appropriate',
-          'Consider the full lifecycle cost of purchases'
+          'Buy secondhand for items that don\'t need to be new',
+          'Consider the full lifecycle cost of products',
+          'Prioritize companies with ethical labor practices'
         ],
         benefits: [
-          'Supports businesses with ethical practices',
-          'Often results in higher quality, longer-lasting products',
-          'Reduces environmental impact of consumption',
-          'Aligns spending with personal values'
+          'Support for ethical and sustainable businesses',
+          'Better quality products that last longer',
+          'Reduced environmental impact from consumption',
+          'Alignment of purchases with personal values'
         ],
         tips: [
-          'Buy less overall, but choose better quality',
-          'Research before making significant purchases',
-          'Consider the true cost including environmental impact',
-          'Support companies that align with your values'
+          'Research before buying to make informed choices',
+          'Consider cost per use rather than upfront cost',
+          'Support B-Corp certified companies when possible',
+          'Choose local and seasonal products when available'
         ]
       },
       '64': {
-        overview: 'Local living challenge involves sourcing food and goods locally to reduce environmental impact, support your community, and often enjoy fresher, higher-quality products.',
+        overview: 'Sourcing food and goods locally reduces environmental impact while supporting your community and often providing fresher, higher quality products.',
         steps: [
-          'Find local farmers markets and farm stands in your area',
-          'Join a community-supported agriculture (CSA) program',
+          'Find local farmers markets and farm stands',
+          'Join a community supported agriculture (CSA) program',
           'Shop at locally-owned businesses when possible',
-          'Choose seasonal produce that grows in your region',
-          'Learn about local producers and artisans'
+          'Choose seasonal produce from local sources',
+          'Support local artisans and craftspeople',
+          'Reduce reliance on shipped and packaged goods'
         ],
         benefits: [
-          'Reduces transportation-related environmental impact',
-          'Supports local economy and community',
-          'Often provides fresher, more nutritious food',
-          'Connects you with your local community'
+          'Fresher, more nutritious food',
+          'Support for local economy and community',
+          'Reduced environmental impact from transportation',
+          'Connection to local food systems and seasons'
         ],
         tips: [
-          'Start with one category like produce and expand gradually',
-          'Learn what grows seasonally in your area',
-          'Build relationships with local vendors',
-          'Be flexible with meal planning based on seasonal availability'
+          'Start with one local source and expand gradually',
+          'Learn what\'s in season in your area',
+          'Build relationships with local producers',
+          'Consider the true cost including environmental impact'
         ]
       },
       '65': {
-        overview: 'Morning routine simplification involves creating a streamlined, energizing start to your day that sets a positive tone while being sustainable and realistic for your lifestyle.',
+        overview: 'Creating a streamlined, energizing morning routine sets a positive tone for the entire day and reduces decision fatigue.',
         steps: [
-          'Identify 3-5 key activities that energize you in the morning',
+          'Identify 3-5 key activities that energize you',
           'Prepare as much as possible the night before',
-          'Wake up at a consistent time, even on weekends',
-          'Avoid checking phone or email immediately upon waking',
-          'Include movement, hydration, and planning in your routine'
-        ],
-        benefits: [
-          'Provides a calm, intentional start to the day',
-          'Reduces morning stress and decision fatigue',
-          'Improves energy and mood throughout the day',
-          'Creates consistency and structure'
-        ],
-        tips: [
-          'Start with a simple routine and build gradually',
-          'Focus on how activities make you feel rather than what you think you should do',
-          'Be flexible and adjust the routine as needed',
-          'Prepare everything you need the night before'
-        ]
-      },
-      '66': {
-        overview: 'Evening wind-down involves establishing a calming routine that helps you transition from the day\'s activities to restful sleep, improving sleep quality and overall well-being.',
-        steps: [
-          'Set a consistent bedtime and work backward to plan your routine',
-          'Dim lights and avoid screens 1 hour before bed',
-          'Include relaxing activities like reading, gentle stretching, or meditation',
-          'Prepare for the next day to reduce morning stress',
+          'Wake up at a consistent time every day',
+          'Avoid checking phone or email immediately',
+          'Include movement, hydration, and planning',
           'Keep the routine simple and sustainable'
         ],
         benefits: [
-          'Improves sleep quality and duration',
-          'Reduces stress and anxiety',
-          'Creates a peaceful transition between day and night',
-          'Helps you wake up feeling more rested'
+          'More energy and focus throughout the day',
+          'Reduced morning stress and decision fatigue',
+          'Better mood and mental clarity',
+          'Sense of accomplishment before the day begins'
         ],
         tips: [
-          'Keep the routine consistent, even on weekends',
-          'Choose activities that genuinely relax you',
-          'Prepare your bedroom environment for optimal sleep',
-          'Be patient as your body adjusts to the new routine'
+          'Start small and build habits gradually',
+          'Consistency matters more than complexity',
+          'Prepare clothes and breakfast the night before',
+          'Include something you enjoy to make it sustainable'
+        ]
+      },
+      '66': {
+        overview: 'Establishing a calming evening routine signals to your body that it\'s time to rest and improves sleep quality.',
+        steps: [
+          'Set a consistent bedtime and stick to it',
+          'Dim lights 1-2 hours before sleep',
+          'Put away electronic devices',
+          'Do relaxing activities like reading or stretching',
+          'Prepare for the next day to reduce morning stress',
+          'Keep the routine simple and enjoyable'
+        ],
+        benefits: [
+          'Better sleep quality and easier falling asleep',
+          'Reduced stress and anxiety',
+          'More prepared and organized mornings',
+          'Better overall health and mood'
+        ],
+        tips: [
+          'Blue light from screens can interfere with sleep',
+          'Keep bedroom cool and dark for better sleep',
+          'Try meditation or gentle stretching',
+          'Prepare tomorrow\'s priorities to clear your mind'
         ]
       },
       '67': {
-        overview: 'Habit stacking involves linking new minimal habits to existing routines, making it easier to adopt and maintain positive changes in your daily life.',
+        overview: 'Linking new minimal habits to existing routines makes them easier to remember and maintain long-term.',
         steps: [
-          'Identify existing habits that are already well-established',
-          'Choose small, specific new habits you want to develop',
-          'Link new habits to existing ones using "after I... I will..." format',
+          'Identify existing strong habits in your routine',
+          'Choose small new habits to attach to existing ones',
+          'Use the formula: "After I [existing habit], I will [new habit]"',
           'Start with tiny habits that take less than 2 minutes',
-          'Be consistent for at least 21 days to establish the connection'
+          'Be consistent for at least 21 days',
+          'Gradually increase the habit once it\'s established'
         ],
         benefits: [
-          'Makes new habits easier to remember and maintain',
+          'Higher success rate for new habit formation',
+          'Reduced mental effort to remember new habits',
           'Builds on existing successful routines',
-          'Creates positive momentum for additional changes',
-          'Reduces willpower needed to maintain new habits'
+          'Creates positive momentum for change'
         ],
         tips: [
-          'Start with very small habits to ensure success',
-          'Choose habits that naturally fit with your existing routine',
-          'Be specific about when and where you\'ll do the new habit',
-          'Celebrate small wins to reinforce the habit loop'
+          'Start smaller than you think necessary',
+          'Attach new habits to very strong existing habits',
+          'Celebrate small wins to reinforce the habit',
+          'Be patient - habits take time to become automatic'
         ]
       },
       '68': {
-        overview: 'Decision fatigue reduction involves automating or eliminating daily micro-decisions to preserve mental energy for more important choices and improve overall productivity.',
+        overview: 'Automating or eliminating daily micro-decisions reduces mental fatigue and frees cognitive energy for important choices.',
         steps: [
-          'Identify recurring decisions you make daily',
+          'Identify recurring daily decisions that drain energy',
           'Create standard responses or choices for routine decisions',
-          'Automate decisions where possible (meal planning, outfit choices)',
-          'Batch similar decisions together',
-          'Simplify options to reduce choice complexity'
+          'Automate financial decisions like savings and bill payments',
+          'Develop uniform approaches to clothing, meals, and routines',
+          'Use checklists and templates for repeated tasks',
+          'Eliminate unnecessary choices when possible'
         ],
         benefits: [
-          'Preserves mental energy for important decisions',
-          'Reduces stress and overwhelm',
-          'Improves consistency in daily routines',
-          'Increases productivity and focus'
+          'Reduced mental fatigue and decision overwhelm',
+          'More mental energy for important decisions',
+          'Increased consistency in daily routines',
+          'Better performance on complex tasks'
         ],
         tips: [
-          'Start with decisions that happen most frequently',
-          'Create "uniforms" for different situations',
-          'Use meal planning to eliminate daily food decisions',
-          'Set up automatic systems for routine tasks'
+          'Focus on decisions you make multiple times daily',
+          'Create "good enough" standards rather than perfect choices',
+          'Use technology to automate routine decisions',
+          'Batch similar decisions together'
         ]
       },
       '69': {
-        overview: 'Mindfulness practice involves developing a simple daily routine that cultivates present-moment awareness, reduces stress, and improves overall mental clarity and well-being.',
+        overview: 'Developing a simple daily mindfulness practice improves mental clarity, reduces stress, and increases overall well-being.',
         steps: [
-          'Start with just 5 minutes of daily mindfulness practice',
-          'Choose a consistent time and place for practice',
+          'Start with just 5 minutes of daily practice',
+          'Choose a consistent time and place',
           'Focus on breath awareness or body sensations',
-          'Notice when your mind wanders and gently return attention to the present',
-          'Gradually increase practice time as it becomes habitual'
+          'Use guided meditations if helpful',
+          'Don\'t judge thoughts, simply notice them',
+          'Gradually increase duration as practice develops'
         ],
         benefits: [
-          'Reduces stress and anxiety',
-          'Improves focus and concentration',
-          'Enhances emotional regulation',
-          'Increases self-awareness and clarity'
+          'Reduced stress and anxiety',
+          'Improved focus and mental clarity',
+          'Better emotional regulation',
+          'Increased self-awareness and presence'
         ],
         tips: [
-          'Consistency matters more than duration',
-          'Use guided meditations if you\'re new to practice',
-          'Be patient and kind with yourself as you learn',
-          'Practice mindfulness during daily activities too'
+          'Consistency is more important than duration',
+          'Use apps or timers to track practice',
+          'Find a quiet space free from distractions',
+          'Be patient - benefits develop over time'
         ]
       },
       '70': {
-        overview: 'Single-tasking practice involves focusing on one task at a time rather than multitasking, improving productivity, quality of work, and reducing stress and mental fatigue.',
+        overview: 'Focusing on one task at a time improves productivity, reduces errors, and creates better quality work output.',
         steps: [
-          'Choose one task to focus on completely',
           'Close unnecessary browser tabs and applications',
           'Turn off notifications during focused work time',
           'Use time-blocking to dedicate specific periods to specific tasks',
-          'Take breaks between tasks to reset your attention'
+          'Keep a notepad for capturing distracting thoughts',
+          'Take regular breaks between focused work sessions',
+          'Practice returning attention to the current task when it wanders'
         ],
         benefits: [
-          'Improves quality and accuracy of work',
-          'Increases productivity and efficiency',
-          'Reduces stress and mental fatigue',
-          'Enhances creativity and problem-solving'
+          'Higher quality work output',
+          'Faster task completion',
+          'Reduced stress from scattered attention',
+          'Better learning and skill development'
         ],
         tips: [
-          'Start with shorter focused periods and build up',
-          'Use the Pomodoro Technique for structured focus time',
-          'Identify your peak energy times for important tasks',
-          'Practice returning attention to the task when your mind wanders'
+          'Start with 25-minute focused work sessions',
+          'Use the Pomodoro Technique for structure',
+          'Create a distraction-free work environment',
+          'Practice mindfulness to improve attention control'
         ]
       }
     };
 
-    return descriptions[taskId] || {
-      overview: 'This task will help you simplify and organize this area of your life, creating more space for what truly matters.',
-      steps: ['Assess your current situation', 'Identify what to keep vs. remove', 'Organize remaining items', 'Maintain your new system'],
-      benefits: ['Reduces clutter and stress', 'Saves time and energy', 'Creates a more peaceful environment', 'Improves focus on priorities'],
-      tips: ['Start small and build momentum', 'Be honest about what you actually use', 'Focus on progress, not perfection', 'Celebrate your achievements']
+    return details[taskId] || {
+      overview: 'This task is designed to help you simplify and organize this area of your life through minimalist principles.',
+      steps: ['Review the current situation', 'Identify what to keep vs. remove', 'Organize remaining items', 'Maintain the new system'],
+      benefits: ['Reduced clutter and stress', 'Improved organization', 'More time and energy for what matters'],
+      tips: ['Start small and build momentum', 'Focus on progress over perfection', 'Be patient with the process']
     };
   };
 
-  const details = getDetailedDescription(task.id);
+  const details = getTaskDetails(task.id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -1596,111 +1674,119 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, isOpen, onClose, onToggle }
       {/* Modal */}
       <div className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-2xl bg-white/20`}>
-                {getTypeIcon(task.type)}
-              </div>
-              <div>
-                <div className="flex items-center space-x-3 mb-2">
-                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium capitalize">
-                    {task.type.replace('-', ' ')}
-                  </span>
-                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                    {task.category}
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(task.difficulty)}`}>
-                    {task.difficulty}
-                  </span>
-                  <div className="flex items-center space-x-1 bg-white/20 px-3 py-1 rounded-full">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm font-medium">{task.timeEstimate}</span>
-                  </div>
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <div className="flex items-start justify-between pr-12">
+            <div>
+              <div className="flex items-center space-x-3 mb-3">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(task.category)} bg-white/20 text-white`}>
+                  {task.category}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getDifficultyColor(task.difficulty)} bg-white/20 text-white border-white/30`}>
+                  {task.difficulty} difficulty
+                </span>
+                <div className="flex items-center space-x-1 bg-white/20 px-3 py-1 rounded-full">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm font-medium">{task.timeEstimate}</span>
                 </div>
-                <h2 className="text-2xl font-bold leading-tight">
-                  {task.title}
-                </h2>
               </div>
+              <h2 className="text-3xl font-bold leading-tight mb-2">
+                {task.title}
+              </h2>
+              <p className="text-white/90 text-lg">
+                {task.description}
+              </p>
+            </div>
+          </div>
+          
+          {/* Points Display */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Award className="w-5 h-5 text-yellow-300" />
+              <span className="text-lg font-semibold">+{task.points} Points</span>
             </div>
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              onClick={() => onToggle(task.id)}
+              className={`px-6 py-2 rounded-full font-semibold transition-all ${
+                task.completed
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-white text-indigo-600 hover:bg-gray-100'
+              }`}
             >
-              <X className="w-6 h-6" />
+              {task.completed ? 'Completed ✓' : 'Mark Complete'}
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-          {/* Overview */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Overview</h3>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              {details.overview}
-            </p>
-          </div>
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)]">
+          <div className="space-y-8">
+            {/* Overview */}
+            <section>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <Target className="w-6 h-6 mr-2 text-indigo-600" />
+                Overview
+              </h3>
+              <p className="text-gray-700 leading-relaxed text-lg">
+                {details.overview}
+              </p>
+            </section>
 
-          {/* Steps */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
-              Step-by-Step Guide
-            </h3>
-            <div className="space-y-3">
-              {details.steps.map((step, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">{index + 1}</span>
+            {/* Step-by-Step Guide */}
+            <section>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <CheckCircle className="w-6 h-6 mr-2 text-green-600" />
+                Step-by-Step Guide
+              </h3>
+              <div className="space-y-3">
+                {details.steps.map((step, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-2xl">
+                    <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-sm font-bold">{index + 1}</span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{step}</p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">{step}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Benefits */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-500" />
-              Benefits
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {details.benefits.map((benefit, index) => (
-                <div key={index} className="flex items-start space-x-3 bg-green-50 p-3 rounded-xl">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-green-800 text-sm">{benefit}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tips */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Lightbulb className="w-5 h-5 mr-2 text-orange-500" />
-              Pro Tips
-            </h3>
-            <div className="space-y-2">
-              {details.tips.map((tip, index) => (
-                <div key={index} className="flex items-start space-x-3 bg-orange-50 p-3 rounded-xl">
-                  <Lightbulb className="w-4 h-4 text-orange-600 flex-shrink-0 mt-1" />
-                  <p className="text-orange-800 text-sm">{tip}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Points Reward */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white mb-6">
-            <div className="flex items-center justify-center space-x-3">
-              <Award className="w-8 h-8" />
-              <div className="text-center">
-                <div className="text-3xl font-bold">+{task.points} Points</div>
-                <div className="text-indigo-100">Complete this task to earn points</div>
+                ))}
               </div>
-            </div>
+            </section>
+
+            {/* Benefits */}
+            <section>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <Star className="w-6 h-6 mr-2 text-yellow-500" />
+                Benefits
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {details.benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-green-50 rounded-2xl border border-green-200">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-green-800 font-medium">{benefit}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Pro Tips */}
+            <section>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <Lightbulb className="w-6 h-6 mr-2 text-orange-500" />
+                Pro Tips
+              </h3>
+              <div className="space-y-3">
+                {details.tips.map((tip, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-orange-50 rounded-2xl border border-orange-200">
+                    <Zap className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-orange-800">{tip}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
 
@@ -1708,9 +1794,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, isOpen, onClose, onToggle }
         <div className="p-6 bg-gray-50 border-t border-gray-200">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Ready to start your minimalism journey with this task?
+              Complete this task to earn <span className="font-semibold text-indigo-600">+{task.points} points</span> and move closer to your minimalism goals.
             </div>
-            <div className="flex space-x-3">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={onClose}
                 className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors"
@@ -1718,17 +1804,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, isOpen, onClose, onToggle }
                 Close
               </button>
               <button
-                onClick={() => {
-                  onToggle(task.id);
-                  onClose();
-                }}
-                className={`px-6 py-2 rounded-xl font-semibold transition-all ${
+                onClick={() => onToggle(task.id)}
+                className={`px-6 py-3 rounded-2xl font-semibold transition-all ${
                   task.completed
                     ? 'bg-green-600 text-white hover:bg-green-700'
                     : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg'
                 }`}
               >
-                {task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
+                {task.completed ? 'Mark Incomplete' : 'Complete Task'}
               </button>
             </div>
           </div>
