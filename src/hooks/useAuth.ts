@@ -13,13 +13,31 @@ export const useAuth = (): AuthState & {
   useEffect(() => {
     // Get initial session
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ? {
-        id: session.user.id,
-        email: session.user.email!,
-        created_at: session.user.created_at
-      } : null);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // If there's a refresh token error, clear the session
+        if (error && (error.message?.includes('Invalid Refresh Token') || 
+                     error.message?.includes('Refresh Token Not Found') ||
+                     error.code === 'refresh_token_not_found')) {
+          await supabase.auth.signOut();
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        
+        setUser(session?.user ? {
+          id: session.user.id,
+          email: session.user.email!,
+          created_at: session.user.created_at
+        } : null);
+        setLoading(false);
+      } catch (error: any) {
+        // Handle any other errors during session retrieval
+        console.warn('Error getting session:', error);
+        setUser(null);
+        setLoading(false);
+      }
     };
 
     getSession();
@@ -62,11 +80,31 @@ export const useAuth = (): AuthState & {
     try {
       await supabase.auth.signOut();
     } catch (error: any) {
-      // Check if this is the specific "session not found" error from Supabase
-      if (error?.message?.includes('Session from session_id claim in JWT does not exist') || 
+      // Check if this is a refresh token related error
+      if (error?.message?.includes('Invalid Refresh Token') || 
+          error?.message?.includes('Refresh Token Not Found') ||
+          error?.code === 'refresh_token_not_found' ||
+          error?.message?.includes('Session from session_id claim in JWT does not exist') || 
           error?.code === 'session_not_found') {
-        // User is already effectively logged out, just log as warning
-        console.warn('Sign out attempted but session was already invalid - user is already logged out');
+        
+        // Clear local storage manually for token-related errors
+        try {
+          localStorage.removeItem('supabase.auth.token');
+          localStorage.removeItem('sb-' + supabase.supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
+          
+          // Clear any other potential Supabase auth keys
+          const keys = Object.keys(localStorage);
+          keys.forEach(key => {
+            if (key.includes('supabase') && key.includes('auth')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch (storageError) {
+          console.warn('Error clearing local storage:', storageError);
+        }
+        
+        // User is already effectively logged out
+        console.warn('Sign out attempted but session was already invalid - cleared local auth state');
         return;
       }
       
