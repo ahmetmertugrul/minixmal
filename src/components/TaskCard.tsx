@@ -6,10 +6,9 @@ interface TaskCardProps {
   task: Task;
   index: number;
   onToggle: (taskId: string) => void;
-  onOpenModal: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onOpenModal }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
   const getTaskImage = (taskId: string) => {
     // Unique, specific image for each task based on its title and content
     const imageMap: { [key: string]: string } = {
@@ -222,9 +221,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onOpenModal 
     // If the task is completed, clicking anywhere should toggle it
     if (task.completed) {
       onToggle(task.id);
-    } else {
-      // If not completed, clicking the card opens the modal
-      onOpenModal(task);
     }
   };
 
