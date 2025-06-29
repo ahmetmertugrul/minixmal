@@ -8,7 +8,7 @@ import {
   CheckCircle, 
   Lightbulb, 
   TrendingUp,
-  Users,
+  Group,
   Calendar,
   Zap,
   BookOpen,
@@ -442,7 +442,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             {/* Success Stories */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Users className="w-5 h-5 text-purple-500 mr-2" />
+                <Group className="w-5 h-5 text-purple-500 mr-2" />
                 Success Stories
               </h3>
               <div className="space-y-4">
@@ -565,7 +565,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               { id: 'overview', label: 'Overview', icon: Target },
               { id: 'guide', label: 'Step-by-Step', icon: Play },
               { id: 'benefits', label: 'Benefits', icon: TrendingUp },
-              { id: 'community', label: 'Community', icon: Users }
+              { id: 'community', label: 'Community', icon: Group }
             ].map((tab) => {
               const Icon = tab.icon;
               return (
