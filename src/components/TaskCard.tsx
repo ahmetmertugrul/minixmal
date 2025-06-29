@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       
       // Health tasks - each with distinct health imagery
       '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins and health supplements
-      '48': 'https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg', // Exercise - male athlete training with dumbbells (non-nude)
+      '48': 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', // Exercise - MALE athlete working out with weights (non-nude)
       '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - minimal skincare products
       '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - comfortable bedroom for better sleep
       
