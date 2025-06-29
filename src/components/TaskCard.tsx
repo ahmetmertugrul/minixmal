@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Target, Award, ChevronRight } from 'lucide-react';
+import { Star, Clock, Target, Award, ChevronRight, Check } from 'lucide-react';
 import { Task } from '../data/tasks';
 
 interface TaskCardProps {
@@ -108,16 +108,32 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger card click if clicking on the tick mark
+    if ((e.target as HTMLElement).closest('.tick-mark-button')) {
+      return;
+    }
+    // Card click behavior can be added here if needed
+  };
+
+  const handleTickClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggle(task.id);
+  };
+
   return (
     <div
       className={`
-        h-72 sm:h-80
-        bg-gradient-to-br ${getCardBackground(index)}
-        rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden
+        h-72 sm:h-80 relative
+        ${task.completed 
+          ? 'bg-gradient-to-br from-green-500 to-green-700' 
+          : `bg-gradient-to-br ${getCardBackground(index)}`
+        }
+        rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
         shadow-xl hover:shadow-2xl backdrop-blur-sm
       `}
-      onClick={() => onToggle(task.id)}
+      onClick={handleCardClick}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-3 sm:mb-4">
@@ -184,15 +200,28 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
         </div>
       </div>
 
-      {/* Completion Overlay */}
+      {/* Tick Mark Button - Bottom Right */}
+      <button
+        onClick={handleTickClick}
+        className={`
+          tick-mark-button absolute bottom-4 right-4 w-8 h-8 sm:w-10 sm:h-10 
+          rounded-full flex items-center justify-center transition-all duration-300
+          shadow-lg hover:shadow-xl z-10
+          ${task.completed 
+            ? 'bg-white text-green-600 hover:bg-gray-100' 
+            : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+          }
+        `}
+      >
+        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
+
+      {/* Completion Overlay - Only show text, not blocking the entire card */}
       {task.completed && (
-        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-2xl sm:rounded-3xl">
-          <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <Star className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
-            </div>
-            <p className="text-xl sm:text-2xl font-bold mb-2">Completed!</p>
-            <p className="text-base sm:text-lg text-green-100">+{task.points} points</p>
+        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2">
+          <div className="flex items-center space-x-2">
+            <Check className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-bold text-green-600">+{task.points} points</span>
           </div>
         </div>
       )}
