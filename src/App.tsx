@@ -28,7 +28,17 @@ type TabType = 'home' | 'ai-designer' | 'learn' | 'tasks' | 'score';
 const App: React.FC = () => {
   const { user, loading: authLoading, signUp, signIn, signOut } = useAuth();
   const { needsOnboarding, loading: onboardingLoading, completeOnboarding } = useOnboarding();
-  const { userStats, earnedBadges, newBadges, loading: scoringLoading, completeTask, readArticle, dismissNewBadges } = useScoring();
+  const { 
+    userStats, 
+    earnedBadges, 
+    newBadges, 
+    loading: scoringLoading, 
+    completeTask, 
+    uncompleteTask,
+    readArticle, 
+    unreadArticle,
+    dismissNewBadges 
+  } = useScoring();
 
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -102,10 +112,11 @@ const App: React.FC = () => {
     const newCompletedTasks = new Set(completedTasks);
     
     if (completedTasks.has(taskId)) {
-      // Task is being uncompleted - remove from completed set
+      // Task is being uncompleted - remove from completed set and deduct points/stats
       newCompletedTasks.delete(taskId);
-      // Note: Points are not deducted when uncompleting tasks
-      // This prevents gaming the system by repeatedly completing/uncompleting
+      if (userStats) {
+        await uncompleteTask(task);
+      }
     } else {
       // Task is being completed - add to completed set and award points
       newCompletedTasks.add(taskId);
@@ -131,10 +142,14 @@ const App: React.FC = () => {
     const newCompletedRecommendations = new Set(completedRecommendations);
     
     if (completedRecommendations.has(recommendationId)) {
+      // Article is being uncompleted - remove from completed set and deduct points/stats
       newCompletedRecommendations.delete(recommendationId);
+      if (userStats) {
+        await unreadArticle(recommendation);
+      }
     } else {
+      // Article is being completed - add to completed set and award points
       newCompletedRecommendations.add(recommendationId);
-      // Award points for reading article
       if (userStats) {
         await readArticle(recommendation);
       }

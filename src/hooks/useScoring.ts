@@ -148,6 +148,67 @@ export const useScoring = () => {
     }
   };
 
+  const deductPoints = async (
+    points: number,
+    type: PointsTransaction['type'],
+    sourceId?: string,
+    sourceType?: PointsTransaction['source_type'],
+    description?: string
+  ) => {
+    if (!user || !userStats) return;
+
+    try {
+      // Create negative points transaction
+      const transaction: Partial<PointsTransaction> = {
+        user_id: user.id,
+        points: -points, // Negative points for deduction
+        type,
+        source_id: sourceId,
+        source_type: sourceType,
+        description: description || `${type.replace('_', ' ')} points deducted`
+      };
+
+      const { error: transactionError } = await supabase
+        .from('points_transactions')
+        .insert(transaction);
+
+      if (transactionError) {
+        console.error('Error creating points transaction:', transactionError);
+      }
+
+      // Update user stats
+      const newTotalPoints = Math.max(0, userStats.total_points - points); // Don't go below 0
+      const newLevel = calculateLevel(newTotalPoints);
+      const pointsToNextLevel = calculatePointsToNextLevel(newTotalPoints);
+
+      const updatedStats: Partial<UserStats> = {
+        total_points: newTotalPoints,
+        level: newLevel,
+        experience_points: newTotalPoints,
+        points_to_next_level: pointsToNextLevel,
+        last_activity: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('user_stats')
+        .update(updatedStats)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating user stats:', error);
+      } else {
+        setUserStats(data);
+        
+        // Check for badge revocation
+        await checkForBadgeRevocation(data);
+      }
+    } catch (error) {
+      console.error('Error deducting points:', error);
+    }
+  };
+
   const completeTask = async (task: Task) => {
     if (!userStats) return;
 
@@ -174,6 +235,32 @@ export const useScoring = () => {
     }
   };
 
+  const uncompleteTask = async (task: Task) => {
+    if (!userStats) return;
+
+    const timeOfDay = getTimeOfDay();
+    const points = calculateTaskPoints(task, userStats.streak_days, timeOfDay);
+    
+    await deductPoints(points, 'task_completion', task.id, 'task', `Uncompleted: ${task.title}`);
+    
+    // Update task completion count
+    const updatedStats: Partial<UserStats> = {
+      tasks_completed: Math.max(0, userStats.tasks_completed - 1),
+      last_activity: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('user_stats')
+      .update(updatedStats)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (!error) {
+      setUserStats(data);
+    }
+  };
+
   const readArticle = async (article: Recommendation) => {
     if (!userStats) return;
 
@@ -184,6 +271,31 @@ export const useScoring = () => {
     // Update article read count
     const updatedStats: Partial<UserStats> = {
       articles_read: userStats.articles_read + 1,
+      last_activity: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('user_stats')
+      .update(updatedStats)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (!error) {
+      setUserStats(data);
+    }
+  };
+
+  const unreadArticle = async (article: Recommendation) => {
+    if (!userStats) return;
+
+    const points = calculateArticlePoints(article, userStats.streak_days);
+    
+    await deductPoints(points, 'article_read', article.id, 'article', `Unread: ${article.title}`);
+    
+    // Update article read count
+    const updatedStats: Partial<UserStats> = {
+      articles_read: Math.max(0, userStats.articles_read - 1),
       last_activity: new Date().toISOString()
     };
 
@@ -278,6 +390,78 @@ export const useScoring = () => {
     }
   };
 
+  const checkForBadgeRevocation = async (stats: UserStats) => {
+    const currentBadgeIds = stats.badges_earned || [];
+    const badgesToRevoke: string[] = [];
+    let totalPointsToDeduct = 0;
+
+    for (const badgeId of currentBadgeIds) {
+      const badge = badges.find(b => b.id === badgeId);
+      if (!badge) continue;
+
+      let stillEarned = true;
+
+      switch (badge.requirements.type) {
+        case 'tasks':
+          stillEarned = stats.tasks_completed >= badge.requirements.value;
+          break;
+        case 'articles':
+          stillEarned = stats.articles_read >= badge.requirements.value;
+          break;
+        case 'streak':
+          stillEarned = stats.streak_days >= badge.requirements.value;
+          break;
+        case 'points':
+          stillEarned = stats.total_points >= badge.requirements.value;
+          break;
+        case 'rooms':
+          stillEarned = stats.rooms_transformed >= badge.requirements.value;
+          break;
+      }
+
+      if (!stillEarned) {
+        badgesToRevoke.push(badgeId);
+        totalPointsToDeduct += badge.points_reward;
+      }
+    }
+
+    if (badgesToRevoke.length > 0) {
+      const remainingBadgeIds = currentBadgeIds.filter(id => !badgesToRevoke.includes(id));
+      
+      // Update user stats to remove revoked badges
+      const { error } = await supabase
+        .from('user_stats')
+        .update({ badges_earned: remainingBadgeIds })
+        .eq('user_id', user.id);
+
+      if (!error) {
+        // Update local state
+        setEarnedBadges(prev => prev.filter(badge => !badgesToRevoke.includes(badge.id)));
+        
+        // Deduct points for revoked badges
+        if (totalPointsToDeduct > 0) {
+          await deductPoints(totalPointsToDeduct, 'badge_earned', undefined, undefined, `Badge revocation: ${badgesToRevoke.length} badges`);
+        }
+
+        // Create negative transactions for each revoked badge
+        for (const badgeId of badgesToRevoke) {
+          const badge = badges.find(b => b.id === badgeId);
+          if (badge) {
+            const transaction: Partial<PointsTransaction> = {
+              user_id: user.id,
+              points: -badge.points_reward,
+              type: 'badge_earned',
+              source_id: badge.id,
+              description: `Badge revoked: ${badge.name}`
+            };
+
+            await supabase.from('points_transactions').insert(transaction);
+          }
+        }
+      }
+    }
+  };
+
   const dismissNewBadges = () => {
     setNewBadges([]);
   };
@@ -324,8 +508,11 @@ export const useScoring = () => {
     newBadges,
     loading,
     awardPoints,
+    deductPoints,
     completeTask,
+    uncompleteTask,
     readArticle,
+    unreadArticle,
     transformRoom,
     dismissNewBadges,
     loadUserStats
