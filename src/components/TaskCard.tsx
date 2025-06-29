@@ -9,78 +9,54 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
-  const getIllustration = (type: string) => {
-    const illustrations = {
-      wardrobe: (
-        <div className="relative">
-          <div className="w-12 h-16 sm:w-16 sm:h-20 bg-white/20 rounded-2xl flex items-center justify-center mb-2">
-            <div className="w-8 h-10 sm:w-10 sm:h-12 bg-gray-700 rounded-lg"></div>
-          </div>
-          <div className="w-10 h-12 sm:w-12 sm:h-16 bg-orange-400 rounded-xl absolute -right-2 -top-2"></div>
-        </div>
-      ),
-      kitchen: (
-        <div className="relative">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-400 rounded-full flex items-center justify-center">
-            <span className="text-2xl sm:text-3xl font-bold text-yellow-800">🍳</span>
-          </div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 bg-orange-400 rounded-2xl flex items-center justify-center">
-            <span className="text-sm sm:text-lg font-bold text-orange-800">3</span>
-          </div>
-        </div>
-      ),
-      'digital-detox': (
-        <div className="relative">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500 rounded-3xl flex items-center justify-center transform rotate-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-lg"></div>
-            </div>
-          </div>
-          <div className="absolute -top-3 -right-3 w-6 h-6 sm:w-8 sm:h-8 bg-red-500 rounded-full flex items-center justify-center">
-            <span className="text-xs sm:text-sm text-white font-bold">!</span>
-          </div>
-        </div>
-      ),
-      home: (
-        <div className="flex space-x-1 sm:space-x-2">
-          <div className="w-8 h-12 sm:w-10 sm:h-16 bg-green-500 rounded-xl transform -rotate-6"></div>
-          <div className="w-8 h-10 sm:w-10 sm:h-14 bg-blue-500 rounded-xl transform rotate-3 mt-1"></div>
-          <div className="w-8 h-8 sm:w-10 sm:h-12 bg-yellow-500 rounded-xl transform -rotate-12 mt-2"></div>
-        </div>
-      ),
-      workspace: (
-        <div className="relative">
-          <div className="w-14 h-10 sm:w-18 sm:h-12 bg-green-600 rounded-xl transform -rotate-6">
-            <div className="w-full h-2 sm:h-3 bg-green-400 rounded-t-xl mt-2"></div>
-          </div>
-          <div className="absolute top-2 right-0 w-8 h-6 sm:w-10 sm:h-8 bg-gray-300 rounded-lg transform rotate-12"></div>
-        </div>
-      ),
-      budget: (
-        <div className="relative">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-600 rounded-full flex items-center justify-center">
-            <span className="text-2xl sm:text-3xl font-bold text-green-200">💰</span>
-          </div>
-          <div className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 bg-green-800 rounded-full flex items-center justify-center">
-            <Target className="w-3 h-3 sm:w-4 sm:h-4 text-green-200" />
-          </div>
-        </div>
-      ),
-      relationships: (
-        <div className="flex space-x-1">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pink-400 rounded-full"></div>
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-400 rounded-full -ml-2 sm:-ml-3"></div>
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-400 rounded-full -ml-2 sm:-ml-3"></div>
-        </div>
-      ),
-      default: (
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center">
-          <Star className="w-8 h-8 sm:w-10 sm:h-10 text-white/80" />
-        </div>
-      )
+  const getTaskImage = (category: string, illustration: string) => {
+    // Map categories and illustrations to relevant images from Pexels
+    const imageMap: { [key: string]: string } = {
+      // Wardrobe images
+      'wardrobe': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
+      'Wardrobe': 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg',
+      
+      // Kitchen/Food images
+      'kitchen': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg',
+      'Food': 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg',
+      
+      // Technology/Digital images
+      'digital-detox': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg',
+      'Technology': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg',
+      
+      // Home images
+      'home': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
+      'Home': 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
+      
+      // Workspace/Work images
+      'workspace': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
+      'Work': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
+      
+      // Finance images
+      'budget': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg',
+      'Finance': 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg',
+      
+      // Relationships images
+      'relationships': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg',
+      'Relationships': 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg',
+      
+      // Health images
+      'Health': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg',
+      
+      // Creativity images
+      'Creativity': 'https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg',
+      
+      // Travel images
+      'Travel': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg',
+      
+      // Environment images
+      'Environment': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg',
+      
+      // Habits images
+      'Habits': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg'
     };
 
-    return illustrations[type as keyof typeof illustrations] || illustrations.default;
+    return imageMap[category] || imageMap[illustration] || 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg';
   };
 
   const getCardBackground = (index: number) => {
@@ -108,6 +84,84 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
     }
   };
 
+  const getOneLineDescription = (task: Task) => {
+    // Create concise one-line descriptions for each task
+    const descriptions: { [key: string]: string } = {
+      '1': 'Build a versatile wardrobe with 30 quality pieces that all work together.',
+      '2': 'Maintain balance by donating one item for every new purchase.',
+      '3': 'Store off-season clothes to keep your closet focused and organized.',
+      '4': 'Choose 3-4 colors that complement each other for a cohesive look.',
+      '5': 'Keep only comfortable shoes you actually wear regularly.',
+      '6': 'Curate a small collection of timeless, versatile accessories.',
+      '7': 'Simplify your laundry routine with fewer, better products.',
+      '8': 'Develop a signature style to eliminate daily decision fatigue.',
+      '9': 'Keep only the cooking tools you use every week.',
+      '10': 'Organize your pantry with clear containers and smart labeling.',
+      '11': 'Remove single-use gadgets that rarely leave the drawer.',
+      '12': 'Plan your meals weekly to reduce stress and food waste.',
+      '13': 'Keep just enough dishes for your household plus a few guests.',
+      '14': 'Maintain a curated spice collection with fresh, quality options.',
+      '15': 'Keep counters clear except for daily essentials.',
+      '16': 'Reduce screen time and digital overwhelm for better mental clarity.',
+      '17': 'Process emails efficiently to maintain a clean, organized inbox.',
+      '18': 'Remove unused apps and organize your phone for better focus.',
+      '19': 'Clean up your photo library by removing duplicates and organizing.',
+      '20': 'Curate your social media feeds to see only valuable content.',
+      '21': 'Secure and simplify your digital life with a password manager.',
+      '22': 'Create a logical file structure in your cloud storage.',
+      '23': 'Turn off distracting notifications to improve focus and productivity.',
+      '24': 'Go through each room systematically to remove unnecessary items.',
+      '25': 'Keep only furniture that serves a clear, essential purpose.',
+      '26': 'Display only meaningful decorations that bring you joy.',
+      '27': 'Create organized storage systems for everything you keep.',
+      '28': 'Digitize important documents and reduce paper clutter.',
+      '29': 'Use fewer, more effective cleaning products and tools.',
+      '30': 'Keep only necessary linens in good condition.',
+      '31': 'Create a functional, welcoming entrance to your home.',
+      '32': 'Keep only daily-use toiletries and essential products.',
+      '33': 'Transform your bedroom into a peaceful, clutter-free sanctuary.',
+      '34': 'Create a simple budgeting system you can actually maintain.',
+      '35': 'Cancel subscriptions and memberships you no longer use.',
+      '36': 'Practice mindful spending by waiting before non-essential purchases.',
+      '37': 'Simplify your banking by consolidating to essential accounts.',
+      '38': 'Streamline investments with simple, low-cost index funds.',
+      '39': 'Focus your energy on relationships that truly matter.',
+      '40': 'Communicate more effectively with clarity and intention.',
+      '41': 'Be selective about events and commitments that align with your values.',
+      '42': 'Give meaningful gifts that create experiences rather than clutter.',
+      '43': 'Design a workspace that promotes focus and creativity.',
+      '44': 'Implement a simple system to manage tasks and priorities.',
+      '45': 'Reduce unnecessary meetings and make remaining ones more effective.',
+      '46': 'Process work emails efficiently with clear systems and boundaries.',
+      '47': 'Keep only essential, evidence-based supplements for your health.',
+      '48': 'Create a sustainable exercise routine you can maintain long-term.',
+      '49': 'Simplify skincare to essential, effective products that work.',
+      '50': 'Optimize your sleep environment for better rest and recovery.',
+      '51': 'Keep only art supplies you actively use and love.',
+      '52': 'Design a minimal, inspiring workspace for creative work.',
+      '53': 'Focus on 1-2 active projects to improve quality and completion.',
+      '54': 'Organize digital creative files and remove unused projects.',
+      '55': 'Curate a focused collection of truly inspiring references.',
+      '56': 'Master packing light for any trip with versatile essentials.',
+      '57': 'Keep only essential, multi-purpose travel gear.',
+      '58': 'Create a minimal digital workspace for remote work.',
+      '59': 'Choose meaningful souvenirs over quantity when traveling.',
+      '60': 'Reduce household waste to near zero through mindful consumption.',
+      '61': 'Eliminate single-use plastics from your daily routine.',
+      '62': 'Reduce home energy usage through conscious consumption habits.',
+      '63': 'Choose quality, sustainable products over cheap alternatives.',
+      '64': 'Source food and goods locally to reduce environmental impact.',
+      '65': 'Create a streamlined morning routine that energizes your day.',
+      '66': 'Establish a calming evening routine for better sleep.',
+      '67': 'Link new minimal habits to existing routines for success.',
+      '68': 'Automate or eliminate daily micro-decisions to reduce fatigue.',
+      '69': 'Develop a simple daily mindfulness practice for clarity.',
+      '70': 'Focus on one task at a time for better productivity.'
+    };
+
+    return descriptions[task.id] || task.description;
+  };
+
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't trigger card click if clicking on the tick mark
     if ((e.target as HTMLElement).closest('.tick-mark-button')) {
@@ -127,96 +181,86 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
   return (
     <div
       className={`
-        h-72 sm:h-80 relative
+        h-80 sm:h-96 relative
         bg-gradient-to-br ${getCardBackground(index)}
-        rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white overflow-hidden
+        rounded-2xl sm:rounded-3xl overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
         shadow-xl hover:shadow-2xl backdrop-blur-sm
       `}
       onClick={handleCardClick}
     >
       {/* Header */}
-      <div className="flex justify-between items-start mb-3 sm:mb-4">
-        <div className="flex flex-wrap gap-1 sm:gap-2">
-          <span className="bg-black/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
+      <div className="flex justify-between items-start p-4 sm:p-6">
+        <div className="flex flex-wrap gap-2">
+          <span className="bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-white">
             {task.category}
           </span>
-          <span className={`${getDifficultyColor(task.difficulty)} px-2 sm:px-3 py-1 rounded-full text-xs font-medium`}>
+          <span className={`${getDifficultyColor(task.difficulty)} px-3 py-1 rounded-full text-xs font-medium text-white`}>
             {task.difficulty}
           </span>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
-            <Award className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-sm font-medium">{task.points}</span>
-          </div>
+        <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+          <Award className="w-4 h-4 text-white" />
+          <span className="text-sm font-medium text-white">{task.points}</span>
         </div>
       </div>
 
-      {/* Illustration */}
-      <div className="flex justify-center mb-3 sm:mb-4">
-        {getIllustration(task.illustration)}
+      {/* Image Area */}
+      <div className="px-4 sm:px-6 mb-4">
+        <div className="w-full h-32 sm:h-40 bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden">
+          <img 
+            src={getTaskImage(task.category, task.illustration)} 
+            alt={task.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
       {/* Content */}
-      <div className="space-y-2 sm:space-y-3 flex-1">
-        <h3 className="text-base sm:text-lg font-bold leading-tight line-clamp-2">
+      <div className="px-4 sm:px-6 space-y-2 sm:space-y-3">
+        <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight">
           {task.title}
         </h3>
-        <p className="text-white/90 text-xs sm:text-sm leading-relaxed line-clamp-2">
-          {task.description}
+        <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+          {getOneLineDescription(task)}
         </p>
-
-        {/* Progress Bar */}
-        {task.progress && (
-          <div className="mt-2 sm:mt-3">
-            <div className="bg-white/20 rounded-full h-2">
-              <div 
-                className="bg-white rounded-full h-2 transition-all duration-300"
-                style={{ width: `${task.progress}%` }}
-              ></div>
-            </div>
-            <span className="text-xs text-white/80 mt-1 block">{task.progress}% complete</span>
-          </div>
-        )}
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
-        <div className="flex items-center space-x-2">
-          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-            <Star className="w-2 h-2 sm:w-3 sm:h-3 text-yellow-700" />
+      <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-700" />
+            </div>
+            <span className="text-xs sm:text-sm font-medium text-white capitalize">
+              {task.type.replace('-', ' ')}
+            </span>
           </div>
-          <span className="text-xs font-medium capitalize">
-            {task.type.replace('-', ' ')}
-          </span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1 text-xs text-white/80">
-            <Clock className="w-3 h-3" />
-            <span className="truncate max-w-12 sm:max-w-16">{task.timeEstimate}</span>
+          <div className="flex items-center space-x-1 text-xs sm:text-sm text-white/80">
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{task.timeEstimate}</span>
           </div>
-          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
         </div>
+        
+        {/* Tick Mark Button */}
+        <button
+          onClick={handleTickClick}
+          className={`
+            tick-mark-button w-8 h-8 sm:w-10 sm:h-10 
+            rounded-full flex items-center justify-center transition-all duration-300
+            shadow-lg hover:shadow-xl
+            ${task.completed 
+              ? 'bg-white text-green-600 hover:bg-gray-100' 
+              : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+            }
+          `}
+        >
+          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
       </div>
 
-      {/* Tick Mark Button - Bottom Right */}
-      <button
-        onClick={handleTickClick}
-        className={`
-          tick-mark-button absolute bottom-4 right-4 w-8 h-8 sm:w-10 sm:h-10 
-          rounded-full flex items-center justify-center transition-all duration-300
-          shadow-lg hover:shadow-xl z-10
-          ${task.completed 
-            ? 'bg-white text-green-600 hover:bg-gray-100' 
-            : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-          }
-        `}
-      >
-        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-      </button>
-
-      {/* Completion Overlay - Full green overlay like in the image */}
+      {/* Completion Overlay */}
       {task.completed && (
         <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer">
           <div className="text-center">
