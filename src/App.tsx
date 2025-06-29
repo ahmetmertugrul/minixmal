@@ -432,7 +432,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
-      {/* Header - RESTORED TO ORIGINAL DESIGN */}
+      {/* Header */}
       <div className="p-4 sm:p-6">
         <div className="max-w-6xl mx-auto">
           {/* Main Header Container */}
@@ -515,17 +515,6 @@ const App: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Secondary Navigation for Leaderboard */}
-          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl p-3 shadow-lg border border-white/20">
-            <div className="flex items-center justify-center space-x-6 text-white/80">
-              <button className="hover:text-white transition-colors font-medium">All Users</button>
-              <button className="hover:text-white transition-colors font-medium">Friends</button>
-              <button className="hover:text-white transition-colors font-medium">This Week</button>
-              <button className="hover:text-white transition-colors font-medium">This Month</button>
-              <button className="hover:text-white transition-colors font-medium">All Time</button>
             </div>
           </div>
         </div>
