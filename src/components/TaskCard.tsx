@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       
       // Health tasks - each with distinct health imagery
       '47': 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', // Supplements - vitamins and health supplements
-      '48': 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', // Exercise - gym equipment and fitness gear (no woman)
+      '48': 'https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg', // Exercise - male athlete training with dumbbells (non-nude)
       '49': 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg', // Skincare - minimal skincare products
       '50': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Sleep - comfortable bedroom for better sleep
       
@@ -86,24 +86,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle }) => {
       '55': 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', // Inspiration - mood board and inspiration wall
       
       // Travel tasks - each with distinct travel imagery
-      '56': 'https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg', // Minimalist packing - organized suitcase with essentials
+      '56': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Minimalist packing - organized travel essentials and passport
       '57': 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg', // Travel gear - travel accessories and essentials
       '58': 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg', // Digital nomad - laptop and remote work setup
-      '59': 'https://images.pexels.com/photos/2422915/pexels-photo-2422915.jpeg', // Souvenir mindfulness - travel journal and meaningful items
+      '59': 'https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg', // Souvenir mindfulness - travel memories and postcards
       
       // Environment tasks - each with distinct eco imagery
-      '60': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Zero waste - recycling and waste reduction
-      '61': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Plastic reduction - reusable bags and eco alternatives
+      '60': 'https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg', // Zero waste - reusable containers and eco lifestyle
+      '61': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Plastic reduction - recycling and waste reduction
       '62': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Energy audit - LED light bulb and energy saving
       '63': 'https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg', // Sustainable shopping - eco-friendly products and natural materials
-      '64': 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg', // Local living - farmers market and local produce
+      '64': 'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg', // Local living - fresh vegetables and farmers market produce
       
       // Habits tasks - each with distinct lifestyle imagery
-      '65': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Morning routine - sunrise and morning rituals
+      '65': 'https://images.pexels.com/photos/1002638/pexels-photo-1002638.jpeg', // Morning routine - coffee and morning journal
       '66': 'https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg', // Evening routine - peaceful bedtime setup
       '67': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Habit stacking - routine and habit formation
       '68': 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg', // Decision fatigue - choices and decision making
-      '69': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', // Mindfulness - meditation and mindful practice
+      '69': 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg', // Mindfulness - meditation stones and zen practice
       '70': 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg', // Single-tasking - focused work and productivity
     };
 
