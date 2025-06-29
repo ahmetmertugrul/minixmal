@@ -31,10 +31,11 @@ export const useScoring = () => {
         .from('user_stats')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows gracefully
 
-      if (statsError && statsError.code !== 'PGRST116') {
+      if (statsError) {
         console.error('Error loading user stats:', statsError);
+        return;
       }
 
       if (stats) {
@@ -74,16 +75,41 @@ export const useScoring = () => {
       last_activity: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
-      .from('user_stats')
-      .insert(initialStats)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('user_stats')
+        .insert(initialStats)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating initial stats:', error);
-    } else {
-      setUserStats(data);
+      if (error) {
+        // Check if it's a duplicate key error (SQLSTATE 23505)
+        if (error.code === '23505') {
+          // Record already exists, fetch it instead
+          const { data: existingStats, error: fetchError } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+
+          if (fetchError) {
+            console.error('Error fetching existing stats:', fetchError);
+          } else {
+            setUserStats(existingStats);
+            
+            // Load earned badges for existing stats
+            const earnedBadgeIds = existingStats.badges_earned || [];
+            const earned = badges.filter(badge => earnedBadgeIds.includes(badge.id));
+            setEarnedBadges(earned);
+          }
+        } else {
+          console.error('Error creating initial stats:', error);
+        }
+      } else {
+        setUserStats(data);
+      }
+    } catch (error) {
+      console.error('Error in createInitialStats:', error);
     }
   };
 
