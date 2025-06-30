@@ -151,7 +151,7 @@ const AIRoomDesigner: React.FC = () => {
         progress: 75
       });
 
-      // Call the Supabase Edge Function
+      // Call the Supabase Edge Function with improved error handling
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-room-transform`,
         {
@@ -164,12 +164,47 @@ const AIRoomDesigner: React.FC = () => {
         }
       );
 
+      // Check if the response is ok
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze room');
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+            
+            // Provide specific guidance for common configuration issues
+            if (errorMessage.includes('Nebius API key not configured')) {
+              errorMessage = 'AI service not configured. Please contact support to enable AI room transformation features.';
+            } else if (errorMessage.includes('NEBIUS_API_KEY')) {
+              errorMessage = 'AI service configuration error. Please contact support for assistance.';
+            }
+          }
+          if (errorData.details) {
+            console.error('Edge Function Error Details:', errorData.details);
+          }
+        } catch (parseError) {
+          // If we can't parse the error response, use the status text
+          console.error('Failed to parse error response:', parseError);
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+      // Parse the successful response
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse success response:', parseError);
+        throw new Error('Invalid response from AI service. Please try again.');
+      }
+
+      // Validate the response structure
+      if (!result.transformedImageUrl || !result.checklist) {
+        console.error('Invalid response structure:', result);
+        throw new Error('Incomplete response from AI service. Please try again.');
+      }
 
       // Stage 5: Complete
       setProcessingStage({
@@ -193,7 +228,17 @@ const AIRoomDesigner: React.FC = () => {
 
     } catch (err) {
       console.error('AI Analysis Error:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      
+      // Provide user-friendly error messages
+      let userMessage = 'An unexpected error occurred while analyzing your room.';
+      
+      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+        userMessage = 'Unable to connect to AI service. Please check your internet connection and try again.';
+      } else if (err instanceof Error) {
+        userMessage = err.message;
+      }
+      
+      setError(userMessage);
     } finally {
       setIsAnalyzing(false);
     }
@@ -287,19 +332,32 @@ const AIRoomDesigner: React.FC = () => {
       {/* Error Display */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6">
-          <div className="flex items-center space-x-3">
-            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold text-red-900">Analysis Failed</h3>
-              <p className="text-red-700 text-sm sm:text-base">{error}</p>
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-base sm:text-lg font-semibold text-red-900 mb-1">Analysis Failed</h3>
+              <p className="text-red-700 text-sm sm:text-base mb-3">{error}</p>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  onClick={() => setError(null)}
+                  className="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-red-700 transition-colors text-sm sm:text-base"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={() => {
+                    setUploadedImage(null);
+                    setError(null);
+                    setAnalysisResult(null);
+                    setChecklist([]);
+                  }}
+                  className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-gray-700 transition-colors text-sm sm:text-base"
+                >
+                  Upload Different Image
+                </button>
+              </div>
             </div>
           </div>
-          <button
-            onClick={() => setError(null)}
-            className="mt-4 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-red-700 transition-colors text-sm sm:text-base"
-          >
-            Try Again
-          </button>
         </div>
       )}
 
