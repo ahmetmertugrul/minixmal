@@ -9,7 +9,10 @@ interface UserProfileProps {
 const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
   const { user } = useAuth();
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       console.log('UserProfile: Sign out button clicked');
       await onSignOut();

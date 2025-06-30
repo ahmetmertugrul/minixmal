@@ -84,7 +84,7 @@ export const useAuth = (): AuthState & {
 
   const signOut = async () => {
     try {
-      console.log('Starting sign out process...');
+      console.log('useAuth: Starting sign out process...');
       
       // Clear local state immediately for better UX
       setUser(null);
@@ -93,7 +93,7 @@ export const useAuth = (): AuthState & {
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('Supabase sign out error:', error);
+        console.error('useAuth: Supabase sign out error:', error);
         // Continue with cleanup even if Supabase signOut fails
       }
       
@@ -106,13 +106,13 @@ export const useAuth = (): AuthState & {
           }
         });
       } catch (storageError) {
-        console.warn('Error clearing local storage:', storageError);
+        console.warn('useAuth: Error clearing local storage:', storageError);
       }
       
-      console.log('Sign out completed successfully');
+      console.log('useAuth: Sign out completed successfully');
       
     } catch (error: any) {
-      console.error('Sign out error:', error);
+      console.error('useAuth: Sign out error:', error);
       // Even if there's an error, clear local state
       setUser(null);
     }
