@@ -309,11 +309,6 @@ const App: React.FC = () => {
       <div>
         <LoadingSpinner />
         
-        {/* ElevenLabs Convai Widget - Bottom Left */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
-        </div>
-
         {/* Custom Logo - Bottom Right */}
         <div className="fixed bottom-4 right-4 z-40">
           <a
@@ -422,11 +417,6 @@ const App: React.FC = () => {
           />
         </div>
 
-        {/* ElevenLabs Convai Widget - Bottom Left */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
-        </div>
-
         {/* Custom Logo - Bottom Right */}
         <div className="fixed bottom-4 right-4 z-40">
           <a
@@ -455,11 +445,6 @@ const App: React.FC = () => {
           loading={onboardingSubmitting}
         />
         
-        {/* ElevenLabs Convai Widget - Bottom Left */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
-        </div>
-
         {/* Custom Logo - Bottom Right */}
         <div className="fixed bottom-4 right-4 z-40">
           <a
@@ -1011,11 +996,6 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderTabContent()}
       </main>
-
-      {/* ElevenLabs Convai Widget - Bottom Left */}
-      <div className="fixed bottom-4 left-4 z-40">
-        <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
-      </div>
 
       {/* Custom Logo - Bottom Right - ENLARGED */}
       <div className="fixed bottom-4 right-4 z-40">
