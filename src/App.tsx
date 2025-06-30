@@ -943,11 +943,6 @@ const App: React.FC = () => {
         {renderTabContent()}
       </main>
 
-      {/* ElevenLabs Convai Widget - Bottom Left */}
-      <div className="fixed bottom-4 left-4 z-40">
-        <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
-      </div>
-
       {/* Custom Logo - Bottom Right - ENLARGED */}
       <div className="fixed bottom-4 right-4 z-40">
         <a
