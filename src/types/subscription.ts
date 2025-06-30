@@ -19,6 +19,8 @@ export interface UserSubscription {
   status: 'active' | 'canceled' | 'past_due' | 'trialing';
   current_period_start: string;
   current_period_end: string;
+  credits_remaining: number;
+  credits_used: number;
   created_at: string;
   updated_at: string;
 }

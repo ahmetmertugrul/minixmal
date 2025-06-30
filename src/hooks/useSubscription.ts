@@ -34,6 +34,8 @@ export const useSubscription = () => {
           status: 'active',
           current_period_start: new Date().toISOString(),
           current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+          credits_remaining: 999999, // Unlimited for admin
+          credits_used: 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
@@ -48,6 +50,8 @@ export const useSubscription = () => {
           status: 'active',
           current_period_start: new Date().toISOString(),
           current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          credits_remaining: 0, // Free plan has no credits
+          credits_used: 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
@@ -125,6 +129,63 @@ export const useSubscription = () => {
     return plan.id !== 'free';
   };
 
+  const getCreditsRemaining = (): number => {
+    // Admin override - unlimited credits
+    if (isAdmin && hasUnlimitedContent()) {
+      return 999999;
+    }
+
+    return subscription?.credits_remaining || 0;
+  };
+
+  const getCreditsUsed = (): number => {
+    return subscription?.credits_used || 0;
+  };
+
+  const canUseAIDesigner = (): boolean => {
+    // Admin override
+    if (isAdmin && hasProFeatures()) {
+      return true;
+    }
+
+    // Must have pro plan and credits remaining
+    return isPro() && getCreditsRemaining() > 0;
+  };
+
+  const useCredit = async (): Promise<boolean> => {
+    if (!subscription) return false;
+
+    // Admin override - always allow
+    if (isAdmin && hasUnlimitedContent()) {
+      return true;
+    }
+
+    if (subscription.credits_remaining <= 0) {
+      return false;
+    }
+
+    // Update local state immediately for better UX
+    const updatedSubscription = {
+      ...subscription,
+      credits_remaining: subscription.credits_remaining - 1,
+      credits_used: subscription.credits_used + 1,
+      updated_at: new Date().toISOString()
+    };
+
+    setSubscription(updatedSubscription);
+
+    // In a real app, this would update the database
+    // For now, we'll just simulate the API call
+    try {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return true;
+    } catch (error) {
+      // Revert on error
+      setSubscription(subscription);
+      return false;
+    }
+  };
+
   return {
     subscription,
     loading: loading || adminLoading,
@@ -134,6 +195,10 @@ export const useSubscription = () => {
     canAccessContent,
     isPro,
     loadSubscription,
-    isAdmin // Expose admin status
+    isAdmin, // Expose admin status
+    getCreditsRemaining,
+    getCreditsUsed,
+    canUseAIDesigner,
+    useCredit
   };
 };

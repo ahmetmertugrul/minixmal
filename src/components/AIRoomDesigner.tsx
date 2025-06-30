@@ -12,9 +12,12 @@ import {
   Image as ImageIcon,
   Trash2,
   AlertCircle,
-  Loader2
+  Loader2,
+  Zap,
+  Crown
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useSubscription } from '../hooks/useSubscription';
 
 interface AnalysisResult {
   beforeImage: string;
@@ -43,6 +46,7 @@ interface ProcessingStage {
 }
 
 const AIRoomDesigner: React.FC = () => {
+  const { getCreditsRemaining, canUseAIDesigner, useCredit, isAdmin } = useSubscription();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [processingStage, setProcessingStage] = useState<ProcessingStage>({
@@ -54,6 +58,9 @@ const AIRoomDesigner: React.FC = () => {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const creditsRemaining = getCreditsRemaining();
+  const canUseAI = canUseAIDesigner();
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -117,10 +124,24 @@ const AIRoomDesigner: React.FC = () => {
   const runAIAnalysis = async () => {
     if (!uploadedImage) return;
 
+    // Check if user can use AI Designer
+    if (!canUseAI) {
+      setError('You need a Pro subscription with available credits to use the AI Room Designer.');
+      return;
+    }
+
     setIsAnalyzing(true);
     setError(null);
     
     try {
+      // Use a credit before starting analysis
+      const creditUsed = await useCredit();
+      if (!creditUsed && !isAdmin) {
+        setError('Unable to use credit. Please check your subscription status.');
+        setIsAnalyzing(false);
+        return;
+      }
+
       // Stage 1: Upload image
       setProcessingStage({
         stage: 'analyzing',
@@ -286,17 +307,61 @@ const AIRoomDesigner: React.FC = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Header */}
+      {/* Header with Credits */}
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">AI Room Designer</h2>
-        <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto">
+        <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto mb-4">
           Upload a photo of your room and let our AI transform it into a minimalist sanctuary. 
           Get personalized recommendations and a step-by-step action plan.
         </p>
+        
+        {/* Credits Display */}
+        <div className="flex justify-center">
+          <div className={`inline-flex items-center space-x-3 px-4 py-2 rounded-2xl backdrop-blur-sm border ${
+            isAdmin 
+              ? 'bg-purple-600/20 border-purple-400 text-purple-100'
+              : canUseAI 
+              ? 'bg-green-600/20 border-green-400 text-green-100' 
+              : 'bg-red-600/20 border-red-400 text-red-100'
+          }`}>
+            {isAdmin ? (
+              <>
+                <Crown className="w-5 h-5" />
+                <span className="font-semibold">Unlimited Credits (Admin)</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-5 h-5" />
+                <span className="font-semibold">
+                  {creditsRemaining} Design Credits Remaining
+                </span>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* No Credits Warning */}
+      {!canUseAI && !isAdmin && (
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 text-center">
+          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Zap className="w-8 h-8 text-orange-600" />
+          </div>
+          <h3 className="text-xl font-bold text-orange-900 mb-2">No Design Credits Available</h3>
+          <p className="text-orange-700 mb-4">
+            You need a Pro subscription with available design credits to use the AI Room Designer.
+          </p>
+          <button
+            onClick={() => window.location.href = '#pricing'}
+            className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all"
+          >
+            Upgrade to Pro
+          </button>
+        </div>
+      )}
+
       {/* Upload Section */}
-      {!uploadedImage && (
+      {!uploadedImage && canUseAI && (
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
           <div
             className="border-2 border-dashed border-gray-300 rounded-2xl p-8 sm:p-12 text-center hover:border-indigo-400 transition-colors cursor-pointer"
@@ -316,7 +381,7 @@ const AIRoomDesigner: React.FC = () => {
               <span>Choose Photo</span>
             </button>
             <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-              Supports JPG, PNG, and WebP formats
+              Supports JPG, PNG, and WebP formats • Uses 1 design credit
             </p>
           </div>
           <input
@@ -362,7 +427,7 @@ const AIRoomDesigner: React.FC = () => {
       )}
 
       {/* Uploaded Image Preview */}
-      {uploadedImage && !analysisResult && !isAnalyzing && (
+      {uploadedImage && !analysisResult && !isAnalyzing && canUseAI && (
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Your Room Photo</h3>
@@ -393,7 +458,7 @@ const AIRoomDesigner: React.FC = () => {
               className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-3 text-sm sm:text-base"
             >
               <Wand2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Transform with AI</span>
+              <span>Transform with AI (1 Credit)</span>
             </button>
           </div>
         </div>

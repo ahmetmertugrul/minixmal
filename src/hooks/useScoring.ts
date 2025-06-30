@@ -31,9 +31,9 @@ export const useScoring = () => {
         .from('user_stats')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (statsError && statsError.code !== 'PGRST116') {
+      if (statsError) {
         console.error('Error loading user stats:', statsError);
       }
 
@@ -131,6 +131,33 @@ export const useScoring = () => {
     }
   };
 
+  const updateUserStats = async (updates: Partial<UserStats>) => {
+    if (!user || !userStats) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_stats')
+        .update({
+          ...updates,
+          last_activity: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating user stats:', error);
+        return null;
+      }
+
+      setUserStats(data);
+      return data;
+    } catch (error) {
+      console.error('Error updating user stats:', error);
+      return null;
+    }
+  };
+
   const awardPoints = async (
     points: number,
     type: PointsTransaction['type'],
@@ -164,28 +191,16 @@ export const useScoring = () => {
       const newLevel = calculateLevel(newTotalPoints);
       const pointsToNextLevel = calculatePointsToNextLevel(newTotalPoints);
 
-      const updatedStats: Partial<UserStats> = {
+      const updatedStats = await updateUserStats({
         total_points: newTotalPoints,
         level: newLevel,
         experience_points: newTotalPoints,
-        points_to_next_level: pointsToNextLevel,
-        last_activity: new Date().toISOString()
-      };
+        points_to_next_level: pointsToNextLevel
+      });
 
-      const { data, error } = await supabase
-        .from('user_stats')
-        .update(updatedStats)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating user stats:', error);
-      } else {
-        setUserStats(data);
-        
+      if (updatedStats) {
         // Check for new badges
-        await checkForNewBadges(data);
+        await checkForNewBadges(updatedStats);
       }
     } catch (error) {
       console.error('Error awarding points:', error);
@@ -225,28 +240,16 @@ export const useScoring = () => {
       const newLevel = calculateLevel(newTotalPoints);
       const pointsToNextLevel = calculatePointsToNextLevel(newTotalPoints);
 
-      const updatedStats: Partial<UserStats> = {
+      const updatedStats = await updateUserStats({
         total_points: newTotalPoints,
         level: newLevel,
         experience_points: newTotalPoints,
-        points_to_next_level: pointsToNextLevel,
-        last_activity: new Date().toISOString()
-      };
+        points_to_next_level: pointsToNextLevel
+      });
 
-      const { data, error } = await supabase
-        .from('user_stats')
-        .update(updatedStats)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating user stats:', error);
-      } else {
-        setUserStats(data);
-        
+      if (updatedStats) {
         // Check for badge revocation
-        await checkForBadgeRevocation(data);
+        await checkForBadgeRevocation(updatedStats);
       }
     } catch (error) {
       console.error('Error deducting points:', error);
@@ -262,21 +265,9 @@ export const useScoring = () => {
     await awardPoints(points, 'task_completion', task.id, 'task', `Completed: ${task.title}`);
     
     // Update task completion count
-    const updatedStats: Partial<UserStats> = {
-      tasks_completed: userStats.tasks_completed + 1,
-      last_activity: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update(updatedStats)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (!error) {
-      setUserStats(data);
-    }
+    await updateUserStats({
+      tasks_completed: userStats.tasks_completed + 1
+    });
   };
 
   const uncompleteTask = async (task: Task) => {
@@ -288,21 +279,9 @@ export const useScoring = () => {
     await deductPoints(points, 'task_completion', task.id, 'task', `Uncompleted: ${task.title}`);
     
     // Update task completion count
-    const updatedStats: Partial<UserStats> = {
-      tasks_completed: Math.max(0, userStats.tasks_completed - 1),
-      last_activity: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update(updatedStats)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (!error) {
-      setUserStats(data);
-    }
+    await updateUserStats({
+      tasks_completed: Math.max(0, userStats.tasks_completed - 1)
+    });
   };
 
   const readArticle = async (article: Recommendation) => {
@@ -313,21 +292,9 @@ export const useScoring = () => {
     await awardPoints(points, 'article_read', article.id, 'article', `Read: ${article.title}`);
     
     // Update article read count
-    const updatedStats: Partial<UserStats> = {
-      articles_read: userStats.articles_read + 1,
-      last_activity: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update(updatedStats)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (!error) {
-      setUserStats(data);
-    }
+    await updateUserStats({
+      articles_read: userStats.articles_read + 1
+    });
   };
 
   const unreadArticle = async (article: Recommendation) => {
@@ -338,21 +305,9 @@ export const useScoring = () => {
     await deductPoints(points, 'article_read', article.id, 'article', `Unread: ${article.title}`);
     
     // Update article read count
-    const updatedStats: Partial<UserStats> = {
-      articles_read: Math.max(0, userStats.articles_read - 1),
-      last_activity: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update(updatedStats)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (!error) {
-      setUserStats(data);
-    }
+    await updateUserStats({
+      articles_read: Math.max(0, userStats.articles_read - 1)
+    });
   };
 
   const transformRoom = async () => {
@@ -363,21 +318,9 @@ export const useScoring = () => {
     await awardPoints(points, 'room_transform', undefined, 'room', 'AI Room Transformation');
     
     // Update room transformation count
-    const updatedStats: Partial<UserStats> = {
-      rooms_transformed: userStats.rooms_transformed + 1,
-      last_activity: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update(updatedStats)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (!error) {
-      setUserStats(data);
-    }
+    await updateUserStats({
+      rooms_transformed: userStats.rooms_transformed + 1
+    });
   };
 
   const checkForNewBadges = async (stats: UserStats) => {
