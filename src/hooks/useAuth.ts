@@ -138,29 +138,13 @@ export const useAuth = (): AuthState & {
           const { error } = await supabase.auth.signOut();
           
           if (error) {
-            // Handle session-not-found errors gracefully - these are expected when the session is already invalid
-            if (error.message?.includes('Auth session missing!') || 
-                error.message?.includes('Session from session_id claim in JWT does not exist') ||
-                error.message?.includes('session_not_found') ||
-                error.code === 'session_not_found') {
-              console.warn('useAuth: Session already invalid during sign out:', error.message);
-            } else {
-              console.error('useAuth: Supabase sign out error:', error);
-            }
+            console.error('useAuth: Supabase sign out error:', error);
             // Continue with cleanup even if Supabase signOut fails
           } else {
             console.log('useAuth: Supabase sign out successful');
           }
         } catch (signOutError: any) {
-          // Handle any network or other errors during sign out
-          if (signOutError.message?.includes('Auth session missing!') || 
-              signOutError.message?.includes('Session from session_id claim in JWT does not exist') ||
-              signOutError.message?.includes('session_not_found') ||
-              signOutError.code === 'session_not_found') {
-            console.warn('useAuth: Session already invalid during sign out:', signOutError.message);
-          } else {
-            console.error('useAuth: Sign out network error:', signOutError);
-          }
+          console.error('useAuth: Sign out network error:', signOutError);
         }
       }
       
