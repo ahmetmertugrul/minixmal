@@ -2,12 +2,16 @@ import React from 'react';
 import { LogOut, User, Settings, Award } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-const UserProfile: React.FC = () => {
-  const { user, signOut } = useAuth();
+interface UserProfileProps {
+  onSignOut: () => Promise<void>;
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
+  const { user } = useAuth();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await onSignOut();
       // The auth state change will automatically redirect to login
     } catch (error) {
       console.error('Sign out error:', error);

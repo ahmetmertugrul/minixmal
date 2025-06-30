@@ -564,7 +564,7 @@ const App: React.FC = () => {
                 
                 {showUserProfile && (
                   <div className="absolute right-0 top-14 z-50">
-                    <UserProfile />
+                    <UserProfile onSignOut={signOut} />
                   </div>
                 )}
               </div>
@@ -634,7 +634,7 @@ const App: React.FC = () => {
         <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
       </div>
 
-      {/* Custom Logo - Bottom Right */}
+      {/* Custom Logo - Bottom Right - ENLARGED */}
       <div className="fixed bottom-4 right-4 z-40">
         <a
           href="https://bolt.new"
@@ -645,7 +645,7 @@ const App: React.FC = () => {
           <img
             src="/black_circle_360x360 copy.png"
             alt="Powered by Bolt"
-            className="w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
+            className="w-20 h-20 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
           />
         </a>
       </div>
