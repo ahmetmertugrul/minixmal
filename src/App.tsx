@@ -90,6 +90,13 @@ const App: React.FC = () => {
     localStorage.setItem('completedRecommendations', JSON.stringify([...completedRecommendations]));
   }, [completedRecommendations]);
 
+  // Close user profile when clicking outside or when user changes
+  useEffect(() => {
+    if (!user) {
+      setShowUserProfile(false);
+    }
+  }, [user]);
+
   const handleAuth = async (email: string, password: string) => {
     setAuthSubmitting(true);
     setAuthError(null);
@@ -192,10 +199,12 @@ const App: React.FC = () => {
     points: 25 // Base points for reading an article
   }));
 
+  // Show loading spinner while checking authentication
   if (authLoading || onboardingLoading || scoringLoading) {
     return <LoadingSpinner />;
   }
 
+  // Show login form if user is not authenticated
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 flex items-center justify-center p-4">
@@ -210,6 +219,7 @@ const App: React.FC = () => {
     );
   }
 
+  // Show onboarding if user needs it
   if (needsOnboarding) {
     return (
       <OnboardingQuiz

@@ -45,11 +45,17 @@ export const useAuth = (): AuthState & {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ? {
-          id: session.user.id,
-          email: session.user.email!,
-          created_at: session.user.created_at
-        } : null);
+        console.log('Auth state changed:', event, session?.user?.email);
+        
+        if (event === 'SIGNED_OUT' || !session) {
+          setUser(null);
+        } else if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            created_at: session.user.created_at
+          });
+        }
         setLoading(false);
       }
     );
@@ -78,38 +84,33 @@ export const useAuth = (): AuthState & {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-    } catch (error: any) {
-      // Check if this is a refresh token related error
-      if (error?.message?.includes('Invalid Refresh Token') || 
-          error?.message?.includes('Refresh Token Not Found') ||
-          error?.code === 'refresh_token_not_found' ||
-          error?.message?.includes('Session from session_id claim in JWT does not exist') || 
-          error?.code === 'session_not_found') {
-        
-        // Clear local storage manually for token-related errors
-        try {
-          localStorage.removeItem('supabase.auth.token');
-          localStorage.removeItem('sb-' + supabase.supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
-          
-          // Clear any other potential Supabase auth keys
-          const keys = Object.keys(localStorage);
-          keys.forEach(key => {
-            if (key.includes('supabase') && key.includes('auth')) {
-              localStorage.removeItem(key);
-            }
-          });
-        } catch (storageError) {
-          console.warn('Error clearing local storage:', storageError);
-        }
-        
-        // User is already effectively logged out
-        console.warn('Sign out attempted but session was already invalid - cleared local auth state');
-        return;
+      // Clear local state immediately for better UX
+      setUser(null);
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.warn('Sign out error:', error);
+        // Even if there's an error, we've already cleared local state
+        // This handles cases where the session is already invalid
       }
       
-      // For other errors, log as warning but don't throw
-      console.warn('Sign out error (session may already be invalid):', error);
+      // Clear any remaining local storage items
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.includes('supabase') && key.includes('auth')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (storageError) {
+        console.warn('Error clearing local storage:', storageError);
+      }
+      
+    } catch (error: any) {
+      console.warn('Sign out error:', error);
+      // User is effectively signed out even if there's an error
     }
   };
 
