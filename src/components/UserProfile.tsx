@@ -11,11 +11,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
 
   const handleSignOut = async () => {
     try {
+      console.log('UserProfile: Sign out button clicked');
       await onSignOut();
-      // The auth state change will automatically redirect to login
+      console.log('UserProfile: Sign out completed');
     } catch (error) {
-      console.error('Sign out error:', error);
-      // Even if there's an error, the user will be signed out
+      console.error('UserProfile: Sign out error:', error);
     }
   };
 

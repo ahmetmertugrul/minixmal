@@ -127,6 +127,22 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      console.log('App: Starting sign out process...');
+      
+      // Close user profile dropdown
+      setShowUserProfile(false);
+      
+      // Call the signOut function
+      await signOut();
+      
+      console.log('App: Sign out completed successfully');
+    } catch (error) {
+      console.error('App: Sign out error:', error);
+    }
+  };
+
   const handleTaskToggle = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
@@ -564,7 +580,7 @@ const App: React.FC = () => {
                 
                 {showUserProfile && (
                   <div className="absolute right-0 top-14 z-50">
-                    <UserProfile onSignOut={signOut} />
+                    <UserProfile onSignOut={handleSignOut} />
                   </div>
                 )}
               </div>
