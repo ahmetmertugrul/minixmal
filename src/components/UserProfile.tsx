@@ -1,5 +1,6 @@
 import React from 'react';
 import { LogOut, User, Settings, Award } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface UserProfileProps {
   onSignOut: () => Promise<void>;
