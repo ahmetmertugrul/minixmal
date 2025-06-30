@@ -492,47 +492,85 @@ const App: React.FC = () => {
               )}
             </div>
 
-            {/* Stats Overview - Only show if user is logged in */}
-            {user && userStats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">{userStats.tasks_completed}</div>
-                  <div className="text-sm text-gray-600">Tasks Completed</div>
+            {/* What is Minimalism Section */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">What is Minimalism?</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    Minimalism is about living intentionally with less. It's not about deprivation—it's about 
+                    making room for what truly matters by removing the excess that distracts us from our values, 
+                    relationships, and personal growth.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    By embracing minimalism, you'll discover more time, energy, and mental clarity to focus on 
+                    experiences, relationships, and pursuits that bring genuine fulfillment to your life.
+                  </p>
                 </div>
-
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">{userStats.articles_read}</div>
-                  <div className="text-sm text-gray-600">Articles Read</div>
-                </div>
-
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Trophy className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">{userStats.total_points}</div>
-                  <div className="text-sm text-gray-600">Total Points</div>
-                </div>
-
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">{userStats.streak_days}</div>
-                  <div className="text-sm text-gray-600">Day Streak</div>
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Benefits of Minimalism</h3>
+                  <ul className="space-y-2">
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">Reduced stress and anxiety</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">More time for what matters</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">Financial freedom</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">Improved focus and clarity</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">Environmental consciousness</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Level Progress - Only show if user is logged in */}
-            {user && userStats && (
-              <LevelProgress totalPoints={userStats.total_points} />
-            )}
+            {/* How Minixmal Works */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">How Minixmal Works</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Complete Tasks</h3>
+                  <p className="text-gray-600">
+                    Work through 70+ carefully designed minimalism tasks that guide you step-by-step 
+                    through decluttering and simplifying different areas of your life.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <BookOpen className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Learn & Grow</h3>
+                  <p className="text-gray-600">
+                    Discover minimalism principles, tips, and insights through our curated collection 
+                    of articles that deepen your understanding and motivation.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Trophy className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Track Progress</h3>
+                  <p className="text-gray-600">
+                    Earn points, unlock badges, and level up as you progress. Our gamified approach 
+                    makes minimalism engaging and rewarding.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -587,26 +625,6 @@ const App: React.FC = () => {
                 )}
               </button>
             </div>
-
-            {/* Recent Badges - Only show if user is logged in */}
-            {user && earnedBadges.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
-                  Recent Achievements
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {earnedBadges.slice(-6).map((badge) => (
-                    <BadgeDisplay
-                      key={badge.id}
-                      badge={badge}
-                      size="small"
-                      earned={true}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Call to Action for non-logged in users */}
             {!user && (
@@ -753,6 +771,41 @@ const App: React.FC = () => {
               <p className="text-white/80 text-lg max-w-2xl mx-auto">
                 Track your minimalism journey and celebrate achievements
               </p>
+            </div>
+
+            {/* Stats Overview - Moved from Home page */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{userStats.tasks_completed}</div>
+                <div className="text-sm text-gray-600">Tasks Completed</div>
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{userStats.articles_read}</div>
+                <div className="text-sm text-gray-600">Articles Read</div>
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{userStats.total_points}</div>
+                <div className="text-sm text-gray-600">Total Points</div>
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{userStats.streak_days}</div>
+                <div className="text-sm text-gray-600">Day Streak</div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
