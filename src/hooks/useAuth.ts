@@ -90,12 +90,8 @@ export const useAuth = (): AuthState & {
       // Clear local state immediately for better UX
       setUser(null);
       
-      // Check if we have a valid session before attempting to sign out
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log('useAuth: No active session found, skipping Supabase sign out');
-        // Clear any remaining local storage items
+      // Clear local storage items first to prevent any stale session data
+      const clearLocalStorage = () => {
         try {
           const keys = Object.keys(localStorage);
           keys.forEach(key => {
@@ -107,55 +103,88 @@ export const useAuth = (): AuthState & {
         } catch (storageError) {
           console.warn('useAuth: Error clearing local storage:', storageError);
         }
-        console.log('useAuth: Sign out completed successfully (no session)');
+      };
+      
+      // Check if we have a valid session before attempting to sign out
+      let hasValidSession = false;
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.log('useAuth: Session check failed:', error.message);
+          clearLocalStorage();
+          console.log('useAuth: Sign out completed successfully (session check failed)');
+          return;
+        }
+        
+        hasValidSession = !!session;
+        
+        if (!hasValidSession) {
+          console.log('useAuth: No active session found, skipping Supabase sign out');
+          clearLocalStorage();
+          console.log('useAuth: Sign out completed successfully (no session)');
+          return;
+        }
+      } catch (sessionError: any) {
+        console.warn('useAuth: Error checking session:', sessionError);
+        clearLocalStorage();
+        console.log('useAuth: Sign out completed successfully (session check error)');
         return;
       }
       
-      // Sign out from Supabase only if we have a valid session
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        // Handle session-not-found errors gracefully - these are expected when the session is already invalid
-        if (error.message?.includes('Auth session missing!') || 
-            error.message?.includes('Session from session_id claim in JWT does not exist') ||
-            error.message?.includes('session_not_found') ||
-            error.code === 'session_not_found') {
-          console.warn('useAuth: Session already invalid during sign out:', error.message);
-        } else {
-          console.error('useAuth: Supabase sign out error:', error);
+      // Only attempt Supabase sign out if we have a valid session
+      if (hasValidSession) {
+        try {
+          const { error } = await supabase.auth.signOut();
+          
+          if (error) {
+            // Handle session-not-found errors gracefully - these are expected when the session is already invalid
+            if (error.message?.includes('Auth session missing!') || 
+                error.message?.includes('Session from session_id claim in JWT does not exist') ||
+                error.message?.includes('session_not_found') ||
+                error.code === 'session_not_found') {
+              console.warn('useAuth: Session already invalid during sign out:', error.message);
+            } else {
+              console.error('useAuth: Supabase sign out error:', error);
+            }
+            // Continue with cleanup even if Supabase signOut fails
+          } else {
+            console.log('useAuth: Supabase sign out successful');
+          }
+        } catch (signOutError: any) {
+          // Handle any network or other errors during sign out
+          if (signOutError.message?.includes('Auth session missing!') || 
+              signOutError.message?.includes('Session from session_id claim in JWT does not exist') ||
+              signOutError.message?.includes('session_not_found') ||
+              signOutError.code === 'session_not_found') {
+            console.warn('useAuth: Session already invalid during sign out:', signOutError.message);
+          } else {
+            console.error('useAuth: Sign out network error:', signOutError);
+          }
         }
-        // Continue with cleanup even if Supabase signOut fails
-      } else {
-        console.log('useAuth: Supabase sign out successful');
       }
       
-      // Clear any remaining local storage items
+      // Clear local storage after attempting sign out
+      clearLocalStorage();
+      
+      console.log('useAuth: Sign out completed successfully');
+      
+    } catch (error: any) {
+      // Handle any unexpected errors at the top level
+      console.error('useAuth: Unexpected sign out error:', error);
+      
+      // Even if there's an error, clear local state and storage
+      setUser(null);
       try {
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
           if (key.includes('supabase') && key.includes('auth')) {
             localStorage.removeItem(key);
-            console.log('useAuth: Cleared localStorage key:', key);
           }
         });
       } catch (storageError) {
-        console.warn('useAuth: Error clearing local storage:', storageError);
+        console.warn('useAuth: Error clearing local storage in catch block:', storageError);
       }
-      
-      console.log('useAuth: Sign out completed successfully');
-      
-    } catch (error: any) {
-      // Handle session-not-found errors gracefully at the top level too
-      if (error.message?.includes('Auth session missing!') || 
-          error.message?.includes('Session from session_id claim in JWT does not exist') ||
-          error.message?.includes('session_not_found') ||
-          error.code === 'session_not_found') {
-        console.warn('useAuth: Session already invalid during sign out:', error.message);
-      } else {
-        console.error('useAuth: Sign out error:', error);
-      }
-      // Even if there's an error, clear local state
-      setUser(null);
     }
   };
 
