@@ -22,31 +22,34 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
 }) => {
   const sizeClasses = {
     small: {
-      container: 'w-20 h-24',
-      icon: 'w-5 h-5',
-      iconContainer: 'w-10 h-10',
-      title: 'text-xs',
-      points: 'text-xs',
-      rarity: 'text-xs',
-      rarityBadge: 'w-4 h-4 text-xs'
-    },
-    medium: {
       container: 'w-24 h-28',
       icon: 'w-6 h-6',
       iconContainer: 'w-12 h-12',
+      title: 'text-xs',
+      points: 'text-xs',
+      rarity: 'text-xs',
+      rarityBadge: 'w-5 h-5 text-xs',
+      padding: 'p-4'
+    },
+    medium: {
+      container: 'w-28 h-32',
+      icon: 'w-7 h-7',
+      iconContainer: 'w-14 h-14',
       title: 'text-sm',
       points: 'text-xs',
       rarity: 'text-xs',
-      rarityBadge: 'w-5 h-5 text-xs'
+      rarityBadge: 'w-6 h-6 text-xs',
+      padding: 'p-4'
     },
     large: {
-      container: 'w-32 h-36',
-      icon: 'w-8 h-8',
-      iconContainer: 'w-16 h-16',
+      container: 'w-36 h-40',
+      icon: 'w-10 h-10',
+      iconContainer: 'w-20 h-20',
       title: 'text-base',
       points: 'text-sm',
       rarity: 'text-sm',
-      rarityBadge: 'w-6 h-6 text-sm'
+      rarityBadge: 'w-7 h-7 text-sm',
+      padding: 'p-6'
     }
   };
 
@@ -67,7 +70,7 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
           ${classes.container} 
           ${earned ? 'bg-white' : 'bg-gray-100'} 
           ${earned ? getRarityGlow(badge.rarity) : 'shadow-sm'}
-          rounded-2xl border-2 flex flex-col items-center justify-center p-3 transition-all duration-300
+          rounded-2xl border-2 flex flex-col items-center justify-center ${classes.padding} transition-all duration-300
           ${earned ? 'hover:scale-105 border-transparent' : 'border-gray-300'}
           ${!earned ? 'opacity-60' : ''}
           relative overflow-hidden
@@ -80,7 +83,7 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
 
         {/* Rarity Badge - Top Right */}
         <div className={`
-          absolute top-1 right-1 ${classes.rarityBadge}
+          absolute top-2 right-2 ${classes.rarityBadge}
           ${earned ? getRarityColor(badge.rarity) : 'bg-gray-200 text-gray-500'}
           rounded-full flex items-center justify-center font-bold
           border-2 ${earned ? 'border-white' : 'border-gray-300'}
@@ -93,7 +96,7 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
         <div className={`
           ${classes.iconContainer} 
           ${earned ? `bg-gradient-to-br ${getRarityGradient(badge.rarity)}` : 'bg-gray-400'}
-          rounded-full flex items-center justify-center mb-2 relative z-10
+          rounded-full flex items-center justify-center mb-3 relative z-10
           ${earned ? 'shadow-lg' : 'shadow-sm'}
           transition-all duration-300 group-hover:scale-110
           flex-shrink-0
@@ -138,7 +141,7 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
 
       {/* Progress Bar for Unearned Badges */}
       {!earned && progress > 0 && (
-        <div className="absolute bottom-1 left-1 right-1">
+        <div className="absolute bottom-2 left-2 right-2">
           <div className="w-full bg-gray-200 rounded-full h-1.5">
             <div 
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all duration-500"

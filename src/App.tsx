@@ -722,50 +722,48 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Level Progress */}
-              <LevelProgress totalPoints={userStats.total_points} />
+            {/* Level Progress - Full Width */}
+            <LevelProgress totalPoints={userStats.total_points} />
 
-              {/* Badges Earned */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
-                  Badges Earned ({earnedBadges.length})
-                </h3>
-                {earnedBadges.length > 0 ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                    {earnedBadges.map((badge) => (
-                      <BadgeDisplay
-                        key={badge.id}
-                        badge={badge}
-                        size="small"
-                        earned={true}
-                      />
-                    ))}
+            {/* Badges Earned - Full Width */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
+                Badges Earned ({earnedBadges.length})
+              </h3>
+              {earnedBadges.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
+                  {earnedBadges.map((badge) => (
+                    <BadgeDisplay
+                      key={badge.id}
+                      badge={badge}
+                      size="small"
+                      earned={true}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Trophy className="w-10 h-10 text-gray-400" />
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Trophy className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-500">No badges earned yet</p>
-                    <p className="text-sm text-gray-400 mt-1">Complete tasks and read articles to earn your first badge!</p>
-                  </div>
-                )}
-              </div>
+                  <p className="text-gray-500 text-lg mb-2">No badges earned yet</p>
+                  <p className="text-sm text-gray-400">Complete tasks and read articles to earn your first badge!</p>
+                </div>
+              )}
             </div>
 
-            {/* All Badges */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">All Badges</h3>
+            {/* All Badges - Full Width */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+              <h3 className="text-xl font-bold text-gray-900 mb-8">All Badges</h3>
               
               {/* Points Milestones */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <div className="mb-10">
+                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                   <Target className="w-5 h-5 text-blue-600 mr-2" />
                   Points Milestones
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                   {badges.filter(badge => badge.category === 'milestone' && badge.requirements.type === 'points').map((badge) => {
                     const earned = earnedBadges.some(eb => eb.id === badge.id);
                     const progress = userStats.total_points;
@@ -784,12 +782,12 @@ const App: React.FC = () => {
               </div>
 
               {/* Task Achievements */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <div className="mb-10">
+                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                   <Target className="w-5 h-5 text-green-600 mr-2" />
                   Task Achievements
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                   {badges.filter(badge => badge.requirements.type === 'tasks').map((badge) => {
                     const earned = earnedBadges.some(eb => eb.id === badge.id);
                     const progress = userStats.tasks_completed;
@@ -808,12 +806,12 @@ const App: React.FC = () => {
               </div>
 
               {/* Learning Journey */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <div className="mb-10">
+                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                   <BookOpen className="w-5 h-5 text-purple-600 mr-2" />
                   Learning Journey
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                   {badges.filter(badge => badge.requirements.type === 'articles').map((badge) => {
                     const earned = earnedBadges.some(eb => eb.id === badge.id);
                     const progress = userStats.articles_read;
@@ -832,12 +830,12 @@ const App: React.FC = () => {
               </div>
 
               {/* Consistency Streaks */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <div className="mb-10">
+                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                   <Zap className="w-5 h-5 text-orange-600 mr-2" />
                   Consistency Streaks
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                   {badges.filter(badge => badge.requirements.type === 'streak').map((badge) => {
                     const earned = earnedBadges.some(eb => eb.id === badge.id);
                     const progress = userStats.streak_days;
@@ -857,11 +855,11 @@ const App: React.FC = () => {
 
               {/* Special Achievements */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                   <Trophy className="w-5 h-5 text-yellow-600 mr-2" />
                   Special Achievements
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                   {badges.filter(badge => badge.category === 'special' || badge.category === 'mastery').map((badge) => {
                     const earned = earnedBadges.some(eb => eb.id === badge.id);
                     return (
