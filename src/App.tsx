@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn, CreditCard } from 'lucide-react';
+import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn, CreditCard, Shield } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import { useScoring } from './hooks/useScoring';
 import { useSubscription } from './hooks/useSubscription';
+import { useAdmin } from './hooks/useAdmin';
 import AuthForm from './components/AuthForm';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -19,6 +20,7 @@ import AchievementNotification from './components/AchievementNotification';
 import UserProfile from './components/UserProfile';
 import PricingPage from './components/PricingPage';
 import UpgradePrompt from './components/UpgradePrompt';
+import AdminPanel from './components/AdminPanel';
 import { tasks, categories } from './data/tasks';
 import { recommendations } from './data/recommendations';
 import { products, categories as productCategories } from './data/products';
@@ -26,7 +28,7 @@ import { badges } from './data/badges';
 import { Task } from './data/tasks';
 import { Recommendation } from './data/recommendations';
 
-type TabType = 'home' | 'ai-designer' | 'learn' | 'tasks' | 'score' | 'pricing';
+type TabType = 'home' | 'ai-designer' | 'learn' | 'tasks' | 'score' | 'pricing' | 'admin';
 
 const App: React.FC = () => {
   const { user, loading: authLoading, signUp, signIn, signOut } = useAuth();
@@ -43,7 +45,8 @@ const App: React.FC = () => {
     dismissNewBadges,
     resetUserStats
   } = useScoring();
-  const { currentPlan, canAccessContent, hasFeature, loading: subscriptionLoading } = useSubscription();
+  const { currentPlan, canAccessContent, hasFeature, loading: subscriptionLoading, isAdmin } = useSubscription();
+  const { adminUser, loading: adminLoading } = useAdmin();
 
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -167,12 +170,40 @@ const App: React.FC = () => {
   };
 
   const handleUpgradePrompt = (feature: string, description: string) => {
+    // Don't show upgrade prompt for admins
+    if (isAdmin) return;
     setUpgradePrompt({ show: true, feature, description });
   };
 
   const handleUpgrade = () => {
     setUpgradePrompt({ show: false, feature: '', description: '' });
     setActiveTab('pricing');
+  };
+
+  const handleTabClick = (tab: TabType) => {
+    // Check subscription limits for certain tabs
+    if (!user) {
+      if (tab === 'ai-designer' || tab === 'tasks' || tab === 'learn' || tab === 'score' || tab === 'admin') {
+        handleSignInClick();
+        return;
+      }
+    } else {
+      // Check AI Designer access (skip for admins)
+      if (tab === 'ai-designer' && !hasFeature('aiDesigner') && !isAdmin) {
+        handleUpgradePrompt(
+          'AI Room Designer',
+          'Transform your space with AI-powered minimalist design recommendations and step-by-step action plans.'
+        );
+        return;
+      }
+      
+      // Check admin access
+      if (tab === 'admin' && !isAdmin) {
+        return; // Don't allow access to admin panel for non-admins
+      }
+    }
+    
+    setActiveTab(tab);
   };
 
   const handleTaskToggle = async (taskId: string) => {
@@ -228,35 +259,14 @@ const App: React.FC = () => {
     setCompletedRecommendations(newCompletedRecommendations);
   };
 
-  const handleTabClick = (tab: TabType) => {
-    // Check subscription limits for certain tabs
-    if (!user) {
-      if (tab === 'ai-designer' || tab === 'tasks' || tab === 'learn' || tab === 'score') {
-        handleSignInClick();
-        return;
-      }
-    } else {
-      // Check AI Designer access
-      if (tab === 'ai-designer' && !hasFeature('aiDesigner')) {
-        handleUpgradePrompt(
-          'AI Room Designer',
-          'Transform your space with AI-powered minimalist design recommendations and step-by-step action plans.'
-        );
-        return;
-      }
-    }
-    
-    setActiveTab(tab);
-  };
-
   // Filter content based on subscription
   const getFilteredTasks = () => {
     let filtered = selectedCategory === 'All' 
       ? tasks 
       : tasks.filter(task => task.category === selectedCategory);
     
-    // Apply subscription limits
-    if (user && !canAccessContent('tasks', filtered.length)) {
+    // Apply subscription limits (skip for admins)
+    if (user && !canAccessContent('tasks', filtered.length) && !isAdmin) {
       const limit = currentPlan.limits.tasks as number;
       filtered = filtered.slice(0, limit);
     }
@@ -267,8 +277,8 @@ const App: React.FC = () => {
   const getFilteredRecommendations = () => {
     let filtered = recommendations;
     
-    // Apply subscription limits
-    if (user && !canAccessContent('articles', filtered.length)) {
+    // Apply subscription limits (skip for admins)
+    if (user && !canAccessContent('articles', filtered.length) && !isAdmin) {
       const limit = currentPlan.limits.articles as number;
       filtered = filtered.slice(0, limit);
     }
@@ -294,7 +304,7 @@ const App: React.FC = () => {
   }));
 
   // Show loading spinner while checking authentication
-  if (authLoading || onboardingLoading || scoringLoading || subscriptionLoading) {
+  if (authLoading || onboardingLoading || scoringLoading || subscriptionLoading || adminLoading) {
     return <LoadingSpinner />;
   }
 
@@ -413,6 +423,13 @@ const App: React.FC = () => {
               <p className="text-xl text-white/90 max-w-3xl mx-auto">
                 Your journey to intentional living starts here. Discover the freedom that comes with less.
               </p>
+              {/* Admin Badge */}
+              {isAdmin && (
+                <div className="mt-4 inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-4 py-2 rounded-full shadow-lg">
+                  <Shield className="w-5 h-5" />
+                  <span className="font-semibold">Administrator</span>
+                </div>
+              )}
             </div>
 
             {/* Stats Overview - Only show if user is logged in */}
@@ -470,7 +487,8 @@ const App: React.FC = () => {
                 <p className="text-gray-600">Begin your minimalism journey with guided tasks</p>
                 {user && (
                   <p className="text-sm text-indigo-600 mt-2">
-                    {currentPlan.limits.tasks === 'unlimited' ? 'All tasks available' : `${currentPlan.limits.tasks} tasks available`}
+                    {isAdmin ? 'All tasks available (Admin)' : 
+                     currentPlan.limits.tasks === 'unlimited' ? 'All tasks available' : `${currentPlan.limits.tasks} tasks available`}
                   </p>
                 )}
               </button>
@@ -484,8 +502,11 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">AI Room Designer</h3>
                 <p className="text-gray-600">Transform your space with AI-powered design</p>
-                {user && !hasFeature('aiDesigner') && (
+                {user && !hasFeature('aiDesigner') && !isAdmin && (
                   <p className="text-sm text-orange-600 mt-2">Pro feature - Upgrade to unlock</p>
+                )}
+                {user && isAdmin && (
+                  <p className="text-sm text-green-600 mt-2">Available (Admin Access)</p>
                 )}
               </button>
 
@@ -500,7 +521,8 @@ const App: React.FC = () => {
                 <p className="text-gray-600">Discover minimalism principles and tips</p>
                 {user && (
                   <p className="text-sm text-indigo-600 mt-2">
-                    {currentPlan.limits.articles === 'unlimited' ? 'All articles available' : `${currentPlan.limits.articles} articles available`}
+                    {isAdmin ? 'All articles available (Admin)' :
+                     currentPlan.limits.articles === 'unlimited' ? 'All articles available' : `${currentPlan.limits.articles} articles available`}
                   </p>
                 )}
               </button>
@@ -553,7 +575,7 @@ const App: React.FC = () => {
               <p className="text-white/80 text-lg max-w-2xl mx-auto">
                 Discover principles, tips, and insights to guide your minimalism journey
               </p>
-              {user && currentPlan.limits.articles !== 'unlimited' && (
+              {user && currentPlan.limits.articles !== 'unlimited' && !isAdmin && (
                 <p className="text-white/70 text-sm mt-2">
                   Showing {Math.min(filteredRecommendations.length, currentPlan.limits.articles as number)} of {recommendations.length} articles
                   {currentPlan.limits.articles !== 'unlimited' && (
@@ -564,6 +586,11 @@ const App: React.FC = () => {
                       Upgrade for all articles
                     </button>
                   )}
+                </p>
+              )}
+              {user && isAdmin && (
+                <p className="text-green-300 text-sm mt-2">
+                  All {recommendations.length} articles available (Admin Access)
                 </p>
               )}
             </div>
@@ -590,7 +617,7 @@ const App: React.FC = () => {
               <p className="text-white/80 text-lg max-w-2xl mx-auto">
                 Complete tasks to earn points and build your minimalist lifestyle
               </p>
-              {currentPlan.limits.tasks !== 'unlimited' && (
+              {currentPlan.limits.tasks !== 'unlimited' && !isAdmin && (
                 <p className="text-white/70 text-sm mt-2">
                   Showing {Math.min(filteredTasks.length, currentPlan.limits.tasks as number)} of {tasks.length} tasks
                   <button
@@ -599,6 +626,11 @@ const App: React.FC = () => {
                   >
                     Upgrade for all tasks
                   </button>
+                </p>
+              )}
+              {isAdmin && (
+                <p className="text-green-300 text-sm mt-2">
+                  All {tasks.length} tasks available (Admin Access)
                 </p>
               )}
             </div>
@@ -701,6 +733,9 @@ const App: React.FC = () => {
       case 'pricing':
         return <PricingPage />;
 
+      case 'admin':
+        return user && isAdmin ? <AdminPanel /> : <div>Access denied. Admin privileges required.</div>;
+
       default:
         return null;
     }
@@ -784,6 +819,19 @@ const App: React.FC = () => {
                 >
                   Pricing
                 </button>
+                {/* Admin Button - Only show for admins */}
+                {isAdmin && (
+                  <button
+                    onClick={() => handleTabClick('admin')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'admin'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <Shield className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               {/* User Menu or Sign In Button */}
@@ -791,9 +839,11 @@ const App: React.FC = () => {
                 {user ? (
                   <button
                     onClick={() => setShowUserProfile(!showUserProfile)}
-                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg"
+                    className={`w-10 h-10 sm:w-12 sm:h-12 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg ${
+                      isAdmin ? 'bg-purple-600/40 ring-2 ring-purple-400' : 'bg-white/20'
+                    }`}
                   >
-                    <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                    {isAdmin ? <Shield className="w-5 h-5 sm:w-6 sm:h-6" /> : <User className="w-5 h-5 sm:w-6 sm:h-6" />}
                   </button>
                 ) : (
                   <button
@@ -873,6 +923,18 @@ const App: React.FC = () => {
             <CreditCard className="w-5 h-5" />
             <span className="text-xs mt-1">Pricing</span>
           </button>
+          {/* Admin Button for Mobile */}
+          {isAdmin && (
+            <button
+              onClick={() => handleTabClick('admin')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'admin' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-xs mt-1">Admin</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -922,8 +984,8 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Upgrade Prompt */}
-      {upgradePrompt.show && (
+      {/* Upgrade Prompt - Don't show for admins */}
+      {upgradePrompt.show && !isAdmin && (
         <UpgradePrompt
           feature={upgradePrompt.feature}
           description={upgradePrompt.description}
