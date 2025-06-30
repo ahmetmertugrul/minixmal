@@ -173,7 +173,11 @@ const PricingPage: React.FC = () => {
                       {feature.name}
                     </div>
                     {feature.value && (
-                      <div className="text-gray-600 text-xs">
+                      <div className={`text-xs ${
+                        feature.name === 'AI Room Designer' && feature.value.includes('300 DESIGN CREDITS')
+                          ? 'text-purple-600 font-bold'
+                          : 'text-gray-600'
+                      }`}>
                         {feature.value}
                       </div>
                     )}
@@ -220,6 +224,30 @@ const PricingPage: React.FC = () => {
         ))}
       </div>
 
+      {/* AI Credits Explanation */}
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
+        <div className="text-center">
+          <h3 className="text-xl font-bold mb-3">What are Design Credits?</h3>
+          <p className="text-purple-100 mb-4">
+            Each AI room transformation uses 1 design credit. With 300 credits per month, you can transform up to 300 rooms or re-design the same room multiple times to perfect your minimalist space.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-white/10 rounded-xl p-3">
+              <div className="font-semibold mb-1">1 Credit = 1 Transformation</div>
+              <div className="text-purple-200">Upload a room photo and get AI-powered minimalist redesign</div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3">
+              <div className="font-semibold mb-1">300 Credits/Month</div>
+              <div className="text-purple-200">More than enough for most users to transform their entire home</div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3">
+              <div className="font-semibold mb-1">Credits Reset Monthly</div>
+              <div className="text-purple-200">Fresh credits every billing cycle, unused credits don't roll over</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* FAQ Section */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Frequently Asked Questions</h3>
@@ -231,15 +259,15 @@ const PricingPage: React.FC = () => {
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">What's included in the free plan?</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">What happens if I use all my credits?</h4>
             <p className="text-gray-600 text-sm">
-              The free plan includes 10 minimalism tasks, 5 learning articles, and basic progress tracking to get you started.
+              Your credits reset every month. If you need more, you can upgrade or wait for the next billing cycle. 300 credits is typically more than enough for most users.
             </p>
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">How does the AI Room Designer work?</h4>
             <p className="text-gray-600 text-sm">
-              Upload a photo of your room and our AI will analyze it and provide a minimalist transformation with actionable steps.
+              Upload a photo of your room and our AI will analyze it and provide a minimalist transformation with actionable steps. Each transformation uses 1 design credit.
             </p>
           </div>
           <div>

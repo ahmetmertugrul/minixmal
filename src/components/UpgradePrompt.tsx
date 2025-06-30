@@ -67,7 +67,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
             </div>
             <div className="flex items-center space-x-3">
               <Star className="w-5 h-5 text-yellow-500" />
-              <span className="text-gray-700">Unlimited room transformations</span>
+              <span className="text-gray-700">300 design credits per month</span>
             </div>
             <div className="flex items-center space-x-3">
               <Star className="w-5 h-5 text-yellow-500" />
@@ -79,11 +79,11 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
           <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-4 mb-6">
             <div className="text-center">
               <div className="flex items-baseline justify-center space-x-1 mb-2">
-                <span className="text-3xl font-bold text-gray-900">$9.99</span>
+                <span className="text-3xl font-bold text-gray-900">$4.99</span>
                 <span className="text-gray-600">/month</span>
               </div>
               <p className="text-sm text-gray-600">
-                Or save with yearly: $99.99/year
+                Or save with yearly: $49.99/year
               </p>
             </div>
           </div>

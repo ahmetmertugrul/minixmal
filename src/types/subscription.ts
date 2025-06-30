@@ -60,7 +60,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       tasks: 'unlimited',
       articles: 'unlimited',
       aiDesigner: true,
-      roomTransforms: 'unlimited'
+      roomTransforms: 300
     }
   },
   {
@@ -82,7 +82,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       tasks: 'unlimited',
       articles: 'unlimited',
       aiDesigner: true,
-      roomTransforms: 'unlimited'
+      roomTransforms: 300
     }
   }
 ];
