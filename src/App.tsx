@@ -384,6 +384,27 @@ const App: React.FC = () => {
             error={authError}
           />
         </div>
+
+        {/* ElevenLabs Convai Widget - Bottom Left */}
+        <div className="fixed bottom-4 left-4 z-40">
+          <elevenlabs-convai agent-id="agent_01jyy2fqh9ffgs6vmwqyfhrn1c"></elevenlabs-convai>
+        </div>
+
+        {/* Custom Logo - Bottom Right - ENLARGED */}
+        <div className="fixed bottom-4 right-4 z-40">
+          <a
+            href="https://bolt.new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block hover:scale-105 transition-transform duration-200"
+          >
+            <img
+              src="/black_circle_360x360 copy.png"
+              alt="Powered by Bolt"
+              className="w-20 h-20 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
+            />
+          </a>
+        </div>
       </div>
     );
   }
