@@ -90,14 +90,36 @@ export const useAuth = (): AuthState & {
       // Clear local state immediately for better UX
       setUser(null);
       
-      // Sign out from Supabase
+      // Check if we have a valid session before attempting to sign out
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('useAuth: No active session found, skipping Supabase sign out');
+        // Clear any remaining local storage items
+        try {
+          const keys = Object.keys(localStorage);
+          keys.forEach(key => {
+            if (key.includes('supabase') && key.includes('auth')) {
+              localStorage.removeItem(key);
+              console.log('useAuth: Cleared localStorage key:', key);
+            }
+          });
+        } catch (storageError) {
+          console.warn('useAuth: Error clearing local storage:', storageError);
+        }
+        console.log('useAuth: Sign out completed successfully (no session)');
+        return;
+      }
+      
+      // Sign out from Supabase only if we have a valid session
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         // Handle session-not-found errors gracefully - these are expected when the session is already invalid
         if (error.message?.includes('Auth session missing!') || 
             error.message?.includes('Session from session_id claim in JWT does not exist') ||
-            error.message?.includes('session_not_found')) {
+            error.message?.includes('session_not_found') ||
+            error.code === 'session_not_found') {
           console.warn('useAuth: Session already invalid during sign out:', error.message);
         } else {
           console.error('useAuth: Supabase sign out error:', error);
@@ -126,7 +148,8 @@ export const useAuth = (): AuthState & {
       // Handle session-not-found errors gracefully at the top level too
       if (error.message?.includes('Auth session missing!') || 
           error.message?.includes('Session from session_id claim in JWT does not exist') ||
-          error.message?.includes('session_not_found')) {
+          error.message?.includes('session_not_found') ||
+          error.code === 'session_not_found') {
         console.warn('useAuth: Session already invalid during sign out:', error.message);
       } else {
         console.error('useAuth: Sign out error:', error);
