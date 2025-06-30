@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn } from 'lucide-react';
+import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn, CreditCard } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import { useScoring } from './hooks/useScoring';
+import { useSubscription } from './hooks/useSubscription';
 import AuthForm from './components/AuthForm';
 import OnboardingQuiz from './components/OnboardingQuiz';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -16,6 +17,8 @@ import LevelProgress from './components/LevelProgress';
 import BadgeDisplay from './components/BadgeDisplay';
 import AchievementNotification from './components/AchievementNotification';
 import UserProfile from './components/UserProfile';
+import PricingPage from './components/PricingPage';
+import UpgradePrompt from './components/UpgradePrompt';
 import { tasks, categories } from './data/tasks';
 import { recommendations } from './data/recommendations';
 import { products, categories as productCategories } from './data/products';
@@ -23,7 +26,7 @@ import { badges } from './data/badges';
 import { Task } from './data/tasks';
 import { Recommendation } from './data/recommendations';
 
-type TabType = 'home' | 'ai-designer' | 'learn' | 'tasks' | 'score';
+type TabType = 'home' | 'ai-designer' | 'learn' | 'tasks' | 'score' | 'pricing';
 
 const App: React.FC = () => {
   const { user, loading: authLoading, signUp, signIn, signOut } = useAuth();
@@ -40,6 +43,7 @@ const App: React.FC = () => {
     dismissNewBadges,
     resetUserStats
   } = useScoring();
+  const { currentPlan, canAccessContent, hasFeature, loading: subscriptionLoading } = useSubscription();
 
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -54,6 +58,11 @@ const App: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showAuthForm, setShowAuthForm] = useState(false);
+  const [upgradePrompt, setUpgradePrompt] = useState<{
+    show: boolean;
+    feature: string;
+    description: string;
+  }>({ show: false, feature: '', description: '' });
 
   // Initialize with empty sets and reset stats when user first loads
   useEffect(() => {
@@ -157,6 +166,15 @@ const App: React.FC = () => {
     setAuthMode('signin');
   };
 
+  const handleUpgradePrompt = (feature: string, description: string) => {
+    setUpgradePrompt({ show: true, feature, description });
+  };
+
+  const handleUpgrade = () => {
+    setUpgradePrompt({ show: false, feature: '', description: '' });
+    setActiveTab('pricing');
+  };
+
   const handleTaskToggle = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
@@ -210,10 +228,56 @@ const App: React.FC = () => {
     setCompletedRecommendations(newCompletedRecommendations);
   };
 
-  const filteredTasks = selectedCategory === 'All' 
-    ? tasks 
-    : tasks.filter(task => task.category === selectedCategory);
+  const handleTabClick = (tab: TabType) => {
+    // Check subscription limits for certain tabs
+    if (!user) {
+      if (tab === 'ai-designer' || tab === 'tasks' || tab === 'learn' || tab === 'score') {
+        handleSignInClick();
+        return;
+      }
+    } else {
+      // Check AI Designer access
+      if (tab === 'ai-designer' && !hasFeature('aiDesigner')) {
+        handleUpgradePrompt(
+          'AI Room Designer',
+          'Transform your space with AI-powered minimalist design recommendations and step-by-step action plans.'
+        );
+        return;
+      }
+    }
+    
+    setActiveTab(tab);
+  };
 
+  // Filter content based on subscription
+  const getFilteredTasks = () => {
+    let filtered = selectedCategory === 'All' 
+      ? tasks 
+      : tasks.filter(task => task.category === selectedCategory);
+    
+    // Apply subscription limits
+    if (user && !canAccessContent('tasks', filtered.length)) {
+      const limit = currentPlan.limits.tasks as number;
+      filtered = filtered.slice(0, limit);
+    }
+    
+    return filtered;
+  };
+
+  const getFilteredRecommendations = () => {
+    let filtered = recommendations;
+    
+    // Apply subscription limits
+    if (user && !canAccessContent('articles', filtered.length)) {
+      const limit = currentPlan.limits.articles as number;
+      filtered = filtered.slice(0, limit);
+    }
+    
+    return filtered;
+  };
+
+  const filteredTasks = getFilteredTasks();
+  const filteredRecommendations = getFilteredRecommendations();
   const filteredProducts = selectedProductCategory === 'All'
     ? products
     : products.filter(product => product.category === selectedProductCategory);
@@ -223,28 +287,105 @@ const App: React.FC = () => {
     completed: completedTasks.has(task.id)
   }));
 
-  const recommendationsWithCompletion = recommendations.map(rec => ({
+  const recommendationsWithCompletion = filteredRecommendations.map(rec => ({
     ...rec,
     completed: completedRecommendations.has(rec.id),
     points: 25 // Base points for reading an article
   }));
 
   // Show loading spinner while checking authentication
-  if (authLoading || onboardingLoading || scoringLoading) {
+  if (authLoading || onboardingLoading || scoringLoading || subscriptionLoading) {
     return <LoadingSpinner />;
   }
 
   // Show login form if user clicked sign in
   if (showAuthForm && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 flex items-center justify-center p-4">
-        <AuthForm
-          mode={authMode}
-          onSubmit={handleAuth}
-          onToggleMode={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
-          loading={authSubmitting}
-          error={authError}
-        />
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200">
+        {/* Header - Show even on login page */}
+        <div className="p-4 sm:p-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Main Header Container */}
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/20 p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                {/* Logo */}
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-white">Minixmal</h1>
+                </div>
+
+                {/* Navigation Pills */}
+                <div className="hidden md:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-2xl p-2">
+                  <button
+                    onClick={() => setActiveTab('home')}
+                    className="px-4 py-2 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    Home
+                  </button>
+                  <button
+                    onClick={() => handleSignInClick()}
+                    className="px-4 py-2 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    AI Designer
+                  </button>
+                  <button
+                    onClick={() => handleSignInClick()}
+                    className="px-4 py-2 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    Learn
+                  </button>
+                  <button
+                    onClick={() => handleSignInClick()}
+                    className="px-4 py-2 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    Tasks
+                  </button>
+                  <button
+                    onClick={() => handleSignInClick()}
+                    className="px-4 py-2 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    Score
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('pricing')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'pricing'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Pricing
+                  </button>
+                </div>
+
+                {/* Back to Home Button */}
+                <button
+                  onClick={() => {
+                    setShowAuthForm(false);
+                    setActiveTab('home');
+                  }}
+                  className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-2xl font-semibold hover:bg-white/30 transition-colors shadow-lg flex items-center space-x-2"
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Auth Form */}
+        <div className="flex items-center justify-center p-4">
+          <AuthForm
+            mode={authMode}
+            onSubmit={handleAuth}
+            onToggleMode={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
+            loading={authSubmitting}
+            error={authError}
+          />
+        </div>
       </div>
     );
   }
@@ -319,7 +460,7 @@ const App: React.FC = () => {
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <button
-                onClick={() => user ? setActiveTab('tasks') : handleSignInClick()}
+                onClick={() => handleTabClick('tasks')}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -327,10 +468,15 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Start Tasks</h3>
                 <p className="text-gray-600">Begin your minimalism journey with guided tasks</p>
+                {user && (
+                  <p className="text-sm text-indigo-600 mt-2">
+                    {currentPlan.limits.tasks === 'unlimited' ? 'All tasks available' : `${currentPlan.limits.tasks} tasks available`}
+                  </p>
+                )}
               </button>
 
               <button
-                onClick={() => user ? setActiveTab('ai-designer') : handleSignInClick()}
+                onClick={() => handleTabClick('ai-designer')}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -338,10 +484,13 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">AI Room Designer</h3>
                 <p className="text-gray-600">Transform your space with AI-powered design</p>
+                {user && !hasFeature('aiDesigner') && (
+                  <p className="text-sm text-orange-600 mt-2">Pro feature - Upgrade to unlock</p>
+                )}
               </button>
 
               <button
-                onClick={() => user ? setActiveTab('learn') : handleSignInClick()}
+                onClick={() => handleTabClick('learn')}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -349,6 +498,11 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Learn & Grow</h3>
                 <p className="text-gray-600">Discover minimalism principles and tips</p>
+                {user && (
+                  <p className="text-sm text-indigo-600 mt-2">
+                    {currentPlan.limits.articles === 'unlimited' ? 'All articles available' : `${currentPlan.limits.articles} articles available`}
+                  </p>
+                )}
               </button>
             </div>
 
@@ -399,6 +553,19 @@ const App: React.FC = () => {
               <p className="text-white/80 text-lg max-w-2xl mx-auto">
                 Discover principles, tips, and insights to guide your minimalism journey
               </p>
+              {user && currentPlan.limits.articles !== 'unlimited' && (
+                <p className="text-white/70 text-sm mt-2">
+                  Showing {Math.min(filteredRecommendations.length, currentPlan.limits.articles as number)} of {recommendations.length} articles
+                  {currentPlan.limits.articles !== 'unlimited' && (
+                    <button
+                      onClick={() => setActiveTab('pricing')}
+                      className="ml-2 text-yellow-300 hover:text-yellow-200 underline"
+                    >
+                      Upgrade for all articles
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -423,6 +590,17 @@ const App: React.FC = () => {
               <p className="text-white/80 text-lg max-w-2xl mx-auto">
                 Complete tasks to earn points and build your minimalist lifestyle
               </p>
+              {currentPlan.limits.tasks !== 'unlimited' && (
+                <p className="text-white/70 text-sm mt-2">
+                  Showing {Math.min(filteredTasks.length, currentPlan.limits.tasks as number)} of {tasks.length} tasks
+                  <button
+                    onClick={() => setActiveTab('pricing')}
+                    className="ml-2 text-yellow-300 hover:text-yellow-200 underline"
+                  >
+                    Upgrade for all tasks
+                  </button>
+                </p>
+              )}
             </div>
 
             {/* Category Filter */}
@@ -520,6 +698,9 @@ const App: React.FC = () => {
           </div>
         ) : <div>Please sign in to view your progress</div>;
 
+      case 'pricing':
+        return <PricingPage />;
+
       default:
         return null;
     }
@@ -554,7 +735,7 @@ const App: React.FC = () => {
                   Home
                 </button>
                 <button
-                  onClick={() => user ? setActiveTab('ai-designer') : handleSignInClick()}
+                  onClick={() => handleTabClick('ai-designer')}
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     activeTab === 'ai-designer'
                       ? 'bg-white text-blue-600 shadow-lg'
@@ -564,7 +745,7 @@ const App: React.FC = () => {
                   AI Designer
                 </button>
                 <button
-                  onClick={() => user ? setActiveTab('learn') : handleSignInClick()}
+                  onClick={() => handleTabClick('learn')}
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     activeTab === 'learn'
                       ? 'bg-white text-blue-600 shadow-lg'
@@ -574,7 +755,7 @@ const App: React.FC = () => {
                   Learn
                 </button>
                 <button
-                  onClick={() => user ? setActiveTab('tasks') : handleSignInClick()}
+                  onClick={() => handleTabClick('tasks')}
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     activeTab === 'tasks'
                       ? 'bg-white text-blue-600 shadow-lg'
@@ -584,7 +765,7 @@ const App: React.FC = () => {
                   Tasks
                 </button>
                 <button
-                  onClick={() => user ? setActiveTab('score') : handleSignInClick()}
+                  onClick={() => handleTabClick('score')}
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     activeTab === 'score'
                       ? 'bg-white text-blue-600 shadow-lg'
@@ -592,6 +773,16 @@ const App: React.FC = () => {
                   }`}
                 >
                   Score
+                </button>
+                <button
+                  onClick={() => setActiveTab('pricing')}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    activeTab === 'pricing'
+                      ? 'bg-white text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Pricing
                 </button>
               </div>
 
@@ -638,7 +829,7 @@ const App: React.FC = () => {
             <span className="text-xs mt-1">Home</span>
           </button>
           <button
-            onClick={() => user ? setActiveTab('ai-designer') : handleSignInClick()}
+            onClick={() => handleTabClick('ai-designer')}
             className={`flex flex-col items-center py-2 px-3 rounded-lg ${
               activeTab === 'ai-designer' ? 'text-white' : 'text-white/60'
             }`}
@@ -647,7 +838,7 @@ const App: React.FC = () => {
             <span className="text-xs mt-1">AI</span>
           </button>
           <button
-            onClick={() => user ? setActiveTab('learn') : handleSignInClick()}
+            onClick={() => handleTabClick('learn')}
             className={`flex flex-col items-center py-2 px-3 rounded-lg ${
               activeTab === 'learn' ? 'text-white' : 'text-white/60'
             }`}
@@ -656,7 +847,7 @@ const App: React.FC = () => {
             <span className="text-xs mt-1">Learn</span>
           </button>
           <button
-            onClick={() => user ? setActiveTab('tasks') : handleSignInClick()}
+            onClick={() => handleTabClick('tasks')}
             className={`flex flex-col items-center py-2 px-3 rounded-lg ${
               activeTab === 'tasks' ? 'text-white' : 'text-white/60'
             }`}
@@ -665,13 +856,22 @@ const App: React.FC = () => {
             <span className="text-xs mt-1">Tasks</span>
           </button>
           <button
-            onClick={() => user ? setActiveTab('score') : handleSignInClick()}
+            onClick={() => handleTabClick('score')}
             className={`flex flex-col items-center py-2 px-3 rounded-lg ${
               activeTab === 'score' ? 'text-white' : 'text-white/60'
             }`}
           >
             <Trophy className="w-5 h-5" />
             <span className="text-xs mt-1">Score</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('pricing')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              activeTab === 'pricing' ? 'text-white' : 'text-white/60'
+            }`}
+          >
+            <CreditCard className="w-5 h-5" />
+            <span className="text-xs mt-1">Pricing</span>
           </button>
         </div>
       </div>
@@ -719,6 +919,16 @@ const App: React.FC = () => {
           recommendation={selectedRecommendation}
           isOpen={!!selectedRecommendation}
           onClose={() => setSelectedRecommendation(null)}
+        />
+      )}
+
+      {/* Upgrade Prompt */}
+      {upgradePrompt.show && (
+        <UpgradePrompt
+          feature={upgradePrompt.feature}
+          description={upgradePrompt.description}
+          onUpgrade={handleUpgrade}
+          onClose={() => setUpgradePrompt({ show: false, feature: '', description: '' })}
         />
       )}
 
