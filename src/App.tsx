@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn, CreditCard, Shield } from 'lucide-react';
+import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn, LogOut, CreditCard, Shield } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import { useScoring } from './hooks/useScoring';
@@ -888,17 +888,37 @@ const App: React.FC = () => {
                 )}
               </div>
 
-              {/* User Menu or Sign In Button */}
-              <div className="relative">
+              {/* Auth Buttons */}
+              <div className="flex items-center space-x-3">
                 {user ? (
-                  <button
-                    onClick={() => setShowUserProfile(!showUserProfile)}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg ${
-                      isAdmin ? 'bg-purple-600/40 ring-2 ring-purple-400' : 'bg-white/20'
-                    }`}
-                  >
-                    {isAdmin ? <Shield className="w-5 h-5 sm:w-6 sm:h-6" /> : <User className="w-5 h-5 sm:w-6 sm:h-6" />}
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    {/* User Profile Button */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowUserProfile(!showUserProfile)}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg ${
+                          isAdmin ? 'bg-purple-600/40 ring-2 ring-purple-400' : 'bg-white/20'
+                        }`}
+                      >
+                        {isAdmin ? <Shield className="w-5 h-5 sm:w-6 sm:h-6" /> : <User className="w-5 h-5 sm:w-6 sm:h-6" />}
+                      </button>
+                      
+                      {showUserProfile && (
+                        <div className="absolute right-0 top-14 z-50">
+                          <UserProfile onSignOut={handleSignOut} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Sign Out Button */}
+                    <button
+                      onClick={handleSignOut}
+                      className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-2xl font-semibold hover:bg-white/30 transition-colors shadow-lg flex items-center space-x-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="hidden sm:inline">Sign Out</span>
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={handleSignInClick}
@@ -907,12 +927,6 @@ const App: React.FC = () => {
                     <LogIn className="w-4 h-4" />
                     <span>Sign In</span>
                   </button>
-                )}
-                
-                {showUserProfile && user && (
-                  <div className="absolute right-0 top-14 z-50">
-                    <UserProfile onSignOut={handleSignOut} />
-                  </div>
                 )}
               </div>
             </div>
@@ -987,6 +1001,24 @@ const App: React.FC = () => {
             >
               <Shield className="w-5 h-5" />
               <span className="text-xs mt-1">Admin</span>
+            </button>
+          )}
+          {/* Auth buttons for mobile */}
+          {user ? (
+            <button
+              onClick={handleSignOut}
+              className="flex flex-col items-center py-2 px-3 rounded-lg text-white/60"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="text-xs mt-1">Out</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleSignInClick}
+              className="flex flex-col items-center py-2 px-3 rounded-lg text-white/60"
+            >
+              <LogIn className="w-5 h-5" />
+              <span className="text-xs mt-1">In</span>
             </button>
           )}
         </div>
