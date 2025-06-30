@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap } from 'lucide-react';
+import { Sparkles, Target, BookOpen, Trophy, User, Home, Wand2, ShoppingBag, Zap, LogIn } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import { useScoring } from './hooks/useScoring';
@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showAuthForm, setShowAuthForm] = useState(false);
 
   // Initialize with empty sets and reset stats when user first loads
   useEffect(() => {
@@ -108,6 +109,10 @@ const App: React.FC = () => {
 
       if (error) {
         setAuthError(error.message);
+      } else {
+        // Successfully signed in, close auth form and go to home
+        setShowAuthForm(false);
+        setActiveTab('home');
       }
     } catch (err) {
       setAuthError('An unexpected error occurred');
@@ -137,10 +142,18 @@ const App: React.FC = () => {
       // Call the signOut function
       await signOut();
       
+      // Go to home page after sign out
+      setActiveTab('home');
+      
       console.log('App: Sign out completed successfully');
     } catch (error) {
       console.error('App: Sign out error:', error);
     }
+  };
+
+  const handleSignInClick = () => {
+    setShowAuthForm(true);
+    setAuthMode('signin');
   };
 
   const handleTaskToggle = async (taskId: string) => {
@@ -220,8 +233,8 @@ const App: React.FC = () => {
     return <LoadingSpinner />;
   }
 
-  // Show login form if user is not authenticated
-  if (!user) {
+  // Show login form if user clicked sign in
+  if (showAuthForm && !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-orange-200 flex items-center justify-center p-4">
         <AuthForm
@@ -236,7 +249,7 @@ const App: React.FC = () => {
   }
 
   // Show onboarding if user needs it
-  if (needsOnboarding) {
+  if (user && needsOnboarding) {
     return (
       <OnboardingQuiz
         onComplete={handleOnboardingComplete}
@@ -260,8 +273,8 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            {/* Stats Overview */}
-            {userStats && (
+            {/* Stats Overview - Only show if user is logged in */}
+            {user && userStats && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border border-white/20">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -297,15 +310,15 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Level Progress */}
-            {userStats && (
+            {/* Level Progress - Only show if user is logged in */}
+            {user && userStats && (
               <LevelProgress totalPoints={userStats.total_points} />
             )}
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <button
-                onClick={() => setActiveTab('tasks')}
+                onClick={() => user ? setActiveTab('tasks') : handleSignInClick()}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -316,7 +329,7 @@ const App: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setActiveTab('ai-designer')}
+                onClick={() => user ? setActiveTab('ai-designer') : handleSignInClick()}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -327,7 +340,7 @@ const App: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setActiveTab('learn')}
+                onClick={() => user ? setActiveTab('learn') : handleSignInClick()}
                 className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-105 text-left group"
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -338,8 +351,8 @@ const App: React.FC = () => {
               </button>
             </div>
 
-            {/* Recent Badges */}
-            {earnedBadges.length > 0 && (
+            {/* Recent Badges - Only show if user is logged in */}
+            {user && earnedBadges.length > 0 && (
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                   <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
@@ -357,11 +370,25 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Call to Action for non-logged in users */}
+            {!user && (
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Start Your Journey?</h3>
+                <p className="text-gray-600 mb-6">Join thousands of people who have simplified their lives with Minixmal</p>
+                <button
+                  onClick={handleSignInClick}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                >
+                  Get Started Today
+                </button>
+              </div>
+            )}
           </div>
         );
 
       case 'ai-designer':
-        return <AIRoomDesigner />;
+        return user ? <AIRoomDesigner /> : <div>Please sign in to access AI Room Designer</div>;
 
       case 'learn':
         return (
@@ -380,7 +407,7 @@ const App: React.FC = () => {
                   recommendation={recommendation}
                   index={index}
                   onClick={() => setSelectedRecommendation(recommendation)}
-                  onToggle={handleRecommendationToggle}
+                  onToggle={user ? handleRecommendationToggle : () => handleSignInClick()}
                 />
               ))}
             </div>
@@ -388,7 +415,7 @@ const App: React.FC = () => {
         );
 
       case 'tasks':
-        return (
+        return user ? (
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Minimalism Tasks</h2>
@@ -437,10 +464,10 @@ const App: React.FC = () => {
               ))}
             </div>
           </div>
-        );
+        ) : <div>Please sign in to access tasks</div>;
 
       case 'score':
-        return (
+        return user && userStats ? (
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Your Progress</h2>
@@ -449,30 +476,28 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            {userStats && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Level Progress */}
-                <LevelProgress totalPoints={userStats.total_points} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Level Progress */}
+              <LevelProgress totalPoints={userStats.total_points} />
 
-                {/* Badges */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                    <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
-                    Badges Earned ({earnedBadges.length})
-                  </h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                    {earnedBadges.map((badge) => (
-                      <BadgeDisplay
-                        key={badge.id}
-                        badge={badge}
-                        size="small"
-                        earned={true}
-                      />
-                    ))}
-                  </div>
+              {/* Badges */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
+                  Badges Earned ({earnedBadges.length})
+                </h3>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  {earnedBadges.map((badge) => (
+                    <BadgeDisplay
+                      key={badge.id}
+                      badge={badge}
+                      size="small"
+                      earned={true}
+                    />
+                  ))}
                 </div>
               </div>
-            )}
+            </div>
 
             {/* All Badges */}
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
@@ -492,7 +517,7 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-        );
+        ) : <div>Please sign in to view your progress</div>;
 
       default:
         return null;
@@ -515,70 +540,82 @@ const App: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-bold text-white">Minixmal</h1>
               </div>
 
-              {/* Navigation Pills */}
-              <div className="hidden md:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-2xl p-2">
-                <button
-                  onClick={() => setActiveTab('home')}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                    activeTab === 'home'
-                      ? 'bg-white text-blue-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => setActiveTab('ai-designer')}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                    activeTab === 'ai-designer'
-                      ? 'bg-white text-blue-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  AI Designer
-                </button>
-                <button
-                  onClick={() => setActiveTab('learn')}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                    activeTab === 'learn'
-                      ? 'bg-white text-blue-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Learn
-                </button>
-                <button
-                  onClick={() => setActiveTab('tasks')}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                    activeTab === 'tasks'
-                      ? 'bg-white text-blue-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Tasks
-                </button>
-                <button
-                  onClick={() => setActiveTab('score')}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                    activeTab === 'score'
-                      ? 'bg-white text-blue-600 shadow-lg'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Score
-                </button>
-              </div>
+              {/* Navigation Pills - Only show if user is logged in */}
+              {user && (
+                <div className="hidden md:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-2xl p-2">
+                  <button
+                    onClick={() => setActiveTab('home')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'home'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Home
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('ai-designer')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'ai-designer'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    AI Designer
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('learn')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'learn'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Learn
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('tasks')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'tasks'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Tasks
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('score')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                      activeTab === 'score'
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Score
+                  </button>
+                </div>
+              )}
 
-              {/* User Menu */}
+              {/* User Menu or Sign In Button */}
               <div className="relative">
-                <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                  className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg"
-                >
-                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
-                </button>
+                {user ? (
+                  <button
+                    onClick={() => setShowUserProfile(!showUserProfile)}
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-colors shadow-lg"
+                  >
+                    <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSignInClick}
+                    className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-2xl font-semibold hover:bg-white/30 transition-colors shadow-lg flex items-center space-x-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In</span>
+                  </button>
+                )}
                 
-                {showUserProfile && (
+                {showUserProfile && user && (
                   <div className="absolute right-0 top-14 z-50">
                     <UserProfile onSignOut={handleSignOut} />
                   </div>
@@ -589,56 +626,58 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden bg-white/10 backdrop-blur-sm border-t border-white/20 px-4 py-2">
-        <div className="flex items-center justify-around">
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === 'home' ? 'text-white' : 'text-white/60'
-            }`}
-          >
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Home</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('ai-designer')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === 'ai-designer' ? 'text-white' : 'text-white/60'
-            }`}
-          >
-            <Wand2 className="w-5 h-5" />
-            <span className="text-xs mt-1">AI</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('learn')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === 'learn' ? 'text-white' : 'text-white/60'
-            }`}
-          >
-            <BookOpen className="w-5 h-5" />
-            <span className="text-xs mt-1">Learn</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('tasks')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === 'tasks' ? 'text-white' : 'text-white/60'
-            }`}
-          >
-            <Target className="w-5 h-5" />
-            <span className="text-xs mt-1">Tasks</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('score')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === 'score' ? 'text-white' : 'text-white/60'
-            }`}
-          >
-            <Trophy className="w-5 h-5" />
-            <span className="text-xs mt-1">Score</span>
-          </button>
+      {/* Mobile Navigation - Only show if user is logged in */}
+      {user && (
+        <div className="md:hidden bg-white/10 backdrop-blur-sm border-t border-white/20 px-4 py-2">
+          <div className="flex items-center justify-around">
+            <button
+              onClick={() => setActiveTab('home')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'home' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-xs mt-1">Home</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('ai-designer')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'ai-designer' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <Wand2 className="w-5 h-5" />
+              <span className="text-xs mt-1">AI</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('learn')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'learn' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="text-xs mt-1">Learn</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'tasks' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <Target className="w-5 h-5" />
+              <span className="text-xs mt-1">Tasks</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('score')}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+                activeTab === 'score' ? 'text-white' : 'text-white/60'
+              }`}
+            >
+              <Trophy className="w-5 h-5" />
+              <span className="text-xs mt-1">Score</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
