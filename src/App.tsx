@@ -131,7 +131,7 @@ const App: React.FC = () => {
     try {
       console.log('App: Starting sign out process...');
       
-      // Close user profile dropdown
+      // Close user profile dropdown immediately
       setShowUserProfile(false);
       
       // Call the signOut function

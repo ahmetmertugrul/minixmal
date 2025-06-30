@@ -86,16 +86,16 @@ export const useAuth = (): AuthState & {
     try {
       console.log('Starting sign out process...');
       
-      // Sign out from Supabase first
+      // Clear local state immediately for better UX
+      setUser(null);
+      
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Supabase sign out error:', error);
-        // Continue with local cleanup even if Supabase signOut fails
+        // Continue with cleanup even if Supabase signOut fails
       }
-      
-      // Clear local state immediately
-      setUser(null);
       
       // Clear any remaining local storage items
       try {
