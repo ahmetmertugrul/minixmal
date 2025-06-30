@@ -55,8 +55,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
         
         <button 
           onClick={handleSignOut}
-          className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
-          type="button"
+          className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-sm font-medium">Sign Out</span>
