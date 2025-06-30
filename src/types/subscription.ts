@@ -45,16 +45,16 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'pro_monthly',
     name: 'Pro',
-    price: 9.99,
+    price: 4.99,
     interval: 'month',
     features: [
       'All 70+ minimalism tasks',
       'All 50+ learning articles',
       'AI Room Designer',
-      'Unlimited room transformations',
+      '300 design credits per month',
       'Advanced progress analytics',
       'Priority support',
-      'Exclusive content'
+      'Ad-free experience'
     ],
     limits: {
       tasks: 'unlimited',
@@ -66,17 +66,17 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'pro_yearly',
     name: 'Pro (Yearly)',
-    price: 99.99,
+    price: 49.99,
     interval: 'year',
     features: [
       'All 70+ minimalism tasks',
       'All 50+ learning articles',
       'AI Room Designer',
-      'Unlimited room transformations',
+      '300 design credits per month',
       'Advanced progress analytics',
       'Priority support',
-      'Exclusive content',
-      '2 months free!'
+      'Ad-free experience',
+      '$10 savings per year!'
     ],
     limits: {
       tasks: 'unlimited',

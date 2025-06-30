@@ -1,54 +1,95 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, Star, Crown, Zap, X } from 'lucide-react';
-import { SUBSCRIPTION_PLANS } from '../types/subscription';
 import { useSubscription } from '../hooks/useSubscription';
 
 const PricingPage: React.FC = () => {
   const { currentPlan, isPro } = useSubscription();
+  const [isYearly, setIsYearly] = useState(false);
 
   const handleUpgrade = (planId: string) => {
     // In a real app, this would integrate with Stripe or another payment processor
     alert(`Upgrade to ${planId} - Payment integration would go here`);
   };
 
-  const getPlanIcon = (planId: string) => {
-    switch (planId) {
-      case 'free': return <Star className="w-8 h-8 text-green-500" />;
-      case 'pro_monthly': return <Crown className="w-8 h-8 text-purple-500" />;
-      case 'pro_yearly': return <Zap className="w-8 h-8 text-yellow-500" />;
-      default: return <Star className="w-8 h-8 text-gray-500" />;
-    }
-  };
-
-  const getPlanGradient = (planId: string) => {
-    switch (planId) {
-      case 'free': return 'from-green-500 to-emerald-600';
-      case 'pro_monthly': return 'from-purple-500 to-indigo-600';
-      case 'pro_yearly': return 'from-yellow-500 to-orange-600';
-      default: return 'from-gray-500 to-gray-600';
-    }
-  };
-
   const isCurrentPlan = (planId: string) => {
     return currentPlan.id === planId;
   };
 
-  const getYearlySavings = () => {
-    const monthlyPrice = SUBSCRIPTION_PLANS.find(p => p.id === 'pro_monthly')?.price || 0;
-    const yearlyPrice = SUBSCRIPTION_PLANS.find(p => p.id === 'pro_yearly')?.price || 0;
-    const monthlyCost = monthlyPrice * 12;
-    const savings = monthlyCost - yearlyPrice;
-    return Math.round(savings);
-  };
+  // Calculate savings for yearly plan
+  const monthlyCost = 4.99 * 12; // $59.88
+  const yearlyCost = 49.99;
+  const savings = Math.round(monthlyCost - yearlyCost); // $10 savings
+
+  const plans = [
+    {
+      id: 'free',
+      name: 'Free',
+      price: 0,
+      interval: 'month',
+      features: [
+        { name: 'Tasks', value: '10 starter tasks', included: true },
+        { name: 'Learn Section', value: '5 articles', included: true },
+        { name: 'AI Room Designer', value: '', included: false },
+        { name: 'Advanced Progress Tracking', value: '', included: false },
+        { name: 'Special Badges & Achievements', value: 'Starter badges only', included: 'partial' },
+        { name: 'Experience', value: 'May contain ads', included: 'partial' }
+      ]
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: isYearly ? 49.99 : 4.99,
+      interval: isYearly ? 'year' : 'month',
+      features: [
+        { name: 'Tasks', value: 'All Tasks (70)', included: true },
+        { name: 'Learn Section', value: 'All Articles (50)', included: true },
+        { name: 'AI Room Designer', value: '300 DESIGN CREDITS / MONTH', included: true },
+        { name: 'Advanced Progress Tracking', value: 'Advanced stats & progress by category', included: true },
+        { name: 'Special Badges & Achievements', value: 'All task & achievement badges', included: true },
+        { name: 'Experience', value: '100% Ad-Free', included: true }
+      ]
+    }
+  ];
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Choose Your Plan</h2>
+        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Planınızı Seçin</h2>
         <p className="text-white/80 text-lg max-w-2xl mx-auto">
-          Start your minimalism journey for free, or unlock the full experience with Pro
+          Minimalizm yolculuğunuza ücretsiz başlayın veya Pro ile tam deneyimin kilidini açın
         </p>
+      </div>
+
+      {/* Monthly/Yearly Toggle */}
+      <div className="flex justify-center mb-8">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 flex items-center">
+          <button
+            onClick={() => setIsYearly(false)}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              !isYearly
+                ? 'bg-white text-indigo-600 shadow-lg'
+                : 'text-white hover:text-white/80'
+            }`}
+          >
+            Aylık
+          </button>
+          <button
+            onClick={() => setIsYearly(true)}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all relative ${
+              isYearly
+                ? 'bg-white text-indigo-600 shadow-lg'
+                : 'text-white hover:text-white/80'
+            }`}
+          >
+            Yıllık
+            {isYearly && (
+              <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                ${savings} tasarruf
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Current Plan Banner */}
@@ -56,33 +97,33 @@ const PricingPage: React.FC = () => {
         <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl p-6 text-center">
           <div className="flex items-center justify-center space-x-3 mb-2">
             <Crown className="w-6 h-6 text-yellow-400" />
-            <h3 className="text-xl font-bold text-white">You're on the {currentPlan.name} Plan</h3>
+            <h3 className="text-xl font-bold text-white">Şu anda {currentPlan.name} Planındasınız</h3>
             <Crown className="w-6 h-6 text-yellow-400" />
           </div>
           <p className="text-purple-100">
-            Enjoy unlimited access to all features and content!
+            Tüm özelliklere ve içeriğe sınırsız erişimin keyfini çıkarın!
           </p>
         </div>
       )}
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-        {SUBSCRIPTION_PLANS.map((plan, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+        {plans.map((plan, index) => (
           <div
             key={plan.id}
-            className={`relative bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border-2 transition-all duration-300 hover:scale-[1.02] ${
+            className={`relative bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border-2 transition-all duration-300 hover:scale-[1.02] ${
               isCurrentPlan(plan.id) 
                 ? 'border-indigo-500 ring-4 ring-indigo-500/20' 
                 : 'border-white/20 hover:border-indigo-300'
             } ${
-              plan.id === 'pro_yearly' ? 'md:scale-105' : ''
+              plan.id === 'pro' ? 'md:scale-105 relative' : ''
             }`}
           >
             {/* Popular Badge */}
-            {plan.id === 'pro_yearly' && (
+            {plan.id === 'pro' && (
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <div className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  Most Popular
+                  En Popüler
                 </div>
               </div>
             )}
@@ -91,7 +132,7 @@ const PricingPage: React.FC = () => {
             {isCurrentPlan(plan.id) && (
               <div className="absolute -top-4 right-4">
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  Current Plan
+                  Mevcut Plan
                 </div>
               </div>
             )}
@@ -99,7 +140,11 @@ const PricingPage: React.FC = () => {
             {/* Plan Header */}
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
-                {getPlanIcon(plan.id)}
+                {plan.id === 'free' ? (
+                  <Star className="w-8 h-8 text-green-500" />
+                ) : (
+                  <Crown className="w-8 h-8 text-purple-500" />
+                )}
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
               <div className="flex items-baseline justify-center space-x-1">
@@ -107,48 +152,50 @@ const PricingPage: React.FC = () => {
                   ${plan.price}
                 </span>
                 <span className="text-gray-600">
-                  /{plan.interval}
+                  /{plan.interval === 'year' ? 'yıl' : 'ay'}
                 </span>
               </div>
-              {plan.id === 'pro_yearly' && (
+              {plan.id === 'pro' && isYearly && (
                 <div className="mt-2">
                   <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    Save ${getYearlySavings()}/year
+                    Yılda ${savings} tasarruf edin
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Features */}
-            <div className="space-y-3 mb-8">
+            {/* Features Table */}
+            <div className="space-y-4 mb-8">
               {plan.features.map((feature, featureIndex) => (
-                <div key={featureIndex} className="flex items-start space-x-3">
-                  <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700 text-sm">{feature}</span>
+                <div key={featureIndex} className="flex items-start justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900 text-sm mb-1">
+                      {feature.name}
+                    </div>
+                    {feature.value && (
+                      <div className="text-gray-600 text-xs">
+                        {feature.value}
+                      </div>
+                    )}
+                  </div>
+                  <div className="ml-4 flex-shrink-0">
+                    {feature.included === true ? (
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                    ) : feature.included === false ? (
+                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                        <X className="w-4 h-4 text-white" />
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
-
-            {/* Limitations for Free Plan */}
-            {plan.id === 'free' && (
-              <div className="space-y-2 mb-6 p-4 bg-gray-50 rounded-xl">
-                <h4 className="font-semibold text-gray-800 text-sm">Limitations:</h4>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2 text-xs text-gray-600">
-                    <X className="w-3 h-3 text-red-500" />
-                    <span>No AI Room Designer</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-xs text-gray-600">
-                    <X className="w-3 h-3 text-red-500" />
-                    <span>Limited to 10 tasks</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-xs text-gray-600">
-                    <X className="w-3 h-3 text-red-500" />
-                    <span>Limited to 5 articles</span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Action Button */}
             <button
@@ -159,14 +206,14 @@ const PricingPage: React.FC = () => {
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : plan.id === 'free'
                   ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl'
-                  : `bg-gradient-to-r ${getPlanGradient(plan.id)} text-white hover:shadow-xl transform hover:scale-105`
+                  : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:shadow-xl transform hover:scale-105'
               }`}
             >
               {isCurrentPlan(plan.id) 
-                ? 'Current Plan' 
+                ? 'Mevcut Plan' 
                 : plan.id === 'free' 
-                ? 'Get Started Free' 
-                : 'Upgrade Now'
+                ? 'Ücretsiz Başla' 
+                : 'Şimdi Yükselt'
               }
             </button>
           </div>
@@ -175,30 +222,30 @@ const PricingPage: React.FC = () => {
 
       {/* FAQ Section */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-white/20">
-        <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Frequently Asked Questions</h3>
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Sıkça Sorulan Sorular</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Can I cancel anytime?</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">İstediğim zaman iptal edebilir miyim?</h4>
             <p className="text-gray-600 text-sm">
-              Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
+              Evet! Aboneliğinizi istediğiniz zaman iptal edebilirsiniz. Fatura döneminin sonuna kadar erişiminiz devam eder.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">What's included in the free plan?</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Ücretsiz planda neler var?</h4>
             <p className="text-gray-600 text-sm">
-              The free plan includes 10 minimalism tasks, 5 learning articles, and basic progress tracking to get you started.
+              Ücretsiz plan 10 minimalizm görevi, 5 öğrenme makalesi ve temel ilerleme takibi içerir.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">How does the AI Room Designer work?</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">AI Oda Tasarımcısı nasıl çalışır?</h4>
             <p className="text-gray-600 text-sm">
-              Upload a photo of your room and our AI will analyze it and provide a minimalist transformation with actionable steps.
+              Odanızın fotoğrafını yükleyin, AI'mız analiz edip minimalist dönüşüm ve uygulanabilir adımlar sağlar.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Is there a money-back guarantee?</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Para iade garantisi var mı?</h4>
             <p className="text-gray-600 text-sm">
-              Yes! We offer a 30-day money-back guarantee. If you're not satisfied, we'll refund your payment in full.
+              Evet! 30 günlük para iade garantisi sunuyoruz. Memnun kalmazsanız, ödemenizi tam olarak iade ederiz.
             </p>
           </div>
         </div>
@@ -207,10 +254,10 @@ const PricingPage: React.FC = () => {
       {/* Contact Support */}
       <div className="text-center">
         <p className="text-white/80 mb-4">
-          Have questions about our plans?
+          Planlarımız hakkında sorularınız mı var?
         </p>
         <button className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-semibold hover:bg-white/30 transition-colors">
-          Contact Support
+          Destek ile İletişime Geç
         </button>
       </div>
     </div>
