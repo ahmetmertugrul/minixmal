@@ -85,6 +85,7 @@ export const useAuth = (): AuthState & {
   const signOut = async () => {
     try {
       console.log('useAuth: Starting sign out process...');
+      console.log('useAuth: Current user before sign out:', user?.email);
       
       // Clear local state immediately for better UX
       setUser(null);
@@ -95,6 +96,8 @@ export const useAuth = (): AuthState & {
       if (error) {
         console.error('useAuth: Supabase sign out error:', error);
         // Continue with cleanup even if Supabase signOut fails
+      } else {
+        console.log('useAuth: Supabase sign out successful');
       }
       
       // Clear any remaining local storage items
@@ -103,6 +106,7 @@ export const useAuth = (): AuthState & {
         keys.forEach(key => {
           if (key.includes('supabase') && key.includes('auth')) {
             localStorage.removeItem(key);
+            console.log('useAuth: Cleared localStorage key:', key);
           }
         });
       } catch (storageError) {

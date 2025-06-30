@@ -135,11 +135,12 @@ const App: React.FC = () => {
   const handleSignOut = async () => {
     try {
       console.log('App: Starting sign out process...');
+      console.log('App: Current user before sign out:', user?.email);
       
       // Close user profile dropdown immediately
       setShowUserProfile(false);
       
-      // Call the signOut function
+      // Call the signOut function from useAuth
       await signOut();
       
       // Go to home page after sign out

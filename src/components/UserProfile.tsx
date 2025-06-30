@@ -15,7 +15,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
     
     try {
       console.log('UserProfile: Sign out button clicked');
+      console.log('UserProfile: Current user:', user?.email);
+      
+      // Call the parent sign out function
       await onSignOut();
+      
       console.log('UserProfile: Sign out completed');
     } catch (error) {
       console.error('UserProfile: Sign out error:', error);
@@ -52,6 +56,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSignOut }) => {
         <button 
           onClick={handleSignOut}
           className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+          type="button"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-sm font-medium">Sign Out</span>
