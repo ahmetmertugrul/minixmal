@@ -812,40 +812,155 @@ const App: React.FC = () => {
               {/* Level Progress */}
               <LevelProgress totalPoints={userStats.total_points} />
 
-              {/* Badges */}
+              {/* Badges Earned */}
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                   <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
                   Badges Earned ({earnedBadges.length})
                 </h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                  {earnedBadges.map((badge) => (
-                    <BadgeDisplay
-                      key={badge.id}
-                      badge={badge}
-                      size="small"
-                      earned={true}
-                    />
-                  ))}
-                </div>
+                {earnedBadges.length > 0 ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-h-64 overflow-y-auto">
+                    {earnedBadges.map((badge) => (
+                      <BadgeDisplay
+                        key={badge.id}
+                        badge={badge}
+                        size="small"
+                        earned={true}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">No badges earned yet</p>
+                    <p className="text-sm text-gray-400 mt-1">Complete tasks and earn points to unlock badges!</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* All Badges */}
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">All Badges</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-                {badges.map((badge) => {
-                  const earned = earnedBadges.some(eb => eb.id === badge.id);
-                  return (
-                    <BadgeDisplay
-                      key={badge.id}
-                      badge={badge}
-                      size="small"
-                      earned={earned}
-                    />
-                  );
-                })}
+              <h3 className="text-xl font-bold text-gray-900 mb-6">All Badges</h3>
+              
+              {/* Badge Categories */}
+              <div className="space-y-8">
+                {/* Points Milestone Badges */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Target className="w-5 h-5 text-indigo-600 mr-2" />
+                    Points Milestones
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    {badges.filter(badge => badge.requirements.type === 'points').map((badge) => {
+                      const earned = earnedBadges.some(eb => eb.id === badge.id);
+                      const progress = userStats ? userStats.total_points : 0;
+                      return (
+                        <BadgeDisplay
+                          key={badge.id}
+                          badge={badge}
+                          size="small"
+                          earned={earned}
+                          progress={progress}
+                          maxProgress={badge.requirements.value}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Task Completion Badges */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Target className="w-5 h-5 text-blue-600 mr-2" />
+                    Task Achievements
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    {badges.filter(badge => badge.requirements.type === 'tasks').map((badge) => {
+                      const earned = earnedBadges.some(eb => eb.id === badge.id);
+                      const progress = userStats ? userStats.tasks_completed : 0;
+                      return (
+                        <BadgeDisplay
+                          key={badge.id}
+                          badge={badge}
+                          size="small"
+                          earned={earned}
+                          progress={progress}
+                          maxProgress={badge.requirements.value}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Learning Badges */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <BookOpen className="w-5 h-5 text-green-600 mr-2" />
+                    Learning Journey
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    {badges.filter(badge => badge.requirements.type === 'articles').map((badge) => {
+                      const earned = earnedBadges.some(eb => eb.id === badge.id);
+                      const progress = userStats ? userStats.articles_read : 0;
+                      return (
+                        <BadgeDisplay
+                          key={badge.id}
+                          badge={badge}
+                          size="small"
+                          earned={earned}
+                          progress={progress}
+                          maxProgress={badge.requirements.value}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Streak Badges */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Zap className="w-5 h-5 text-orange-600 mr-2" />
+                    Consistency Streaks
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    {badges.filter(badge => badge.requirements.type === 'streak').map((badge) => {
+                      const earned = earnedBadges.some(eb => eb.id === badge.id);
+                      const progress = userStats ? userStats.streak_days : 0;
+                      return (
+                        <BadgeDisplay
+                          key={badge.id}
+                          badge={badge}
+                          size="small"
+                          earned={earned}
+                          progress={progress}
+                          maxProgress={badge.requirements.value}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Special Badges */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Sparkles className="w-5 h-5 text-purple-600 mr-2" />
+                    Special Achievements
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    {badges.filter(badge => badge.category === 'special' || badge.category === 'mastery').map((badge) => {
+                      const earned = earnedBadges.some(eb => eb.id === badge.id);
+                      return (
+                        <BadgeDisplay
+                          key={badge.id}
+                          badge={badge}
+                          size="small"
+                          earned={earned}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

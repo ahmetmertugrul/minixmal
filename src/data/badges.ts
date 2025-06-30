@@ -1,12 +1,118 @@
 import { Badge } from '../types/scoring';
 
 export const badges: Badge[] = [
-  // Milestone Badges
+  // Points Milestone Badges (Primary progression)
   {
     id: 'first_steps',
     name: 'First Steps',
-    description: 'Complete your first minimalism task',
+    description: 'Earn your first 50 points',
     icon: 'footprints',
+    category: 'milestone',
+    rarity: 'common',
+    requirements: {
+      type: 'points',
+      value: 50
+    },
+    points_reward: 25
+  },
+  {
+    id: 'getting_started',
+    name: 'Getting Started',
+    description: 'Reach 250 points',
+    icon: 'play-circle',
+    category: 'milestone',
+    rarity: 'common',
+    requirements: {
+      type: 'points',
+      value: 250
+    },
+    points_reward: 50
+  },
+  {
+    id: 'momentum_builder',
+    name: 'Momentum Builder',
+    description: 'Achieve 500 points',
+    icon: 'trending-up',
+    category: 'milestone',
+    rarity: 'common',
+    requirements: {
+      type: 'points',
+      value: 500
+    },
+    points_reward: 75
+  },
+  {
+    id: 'dedicated_minimalist',
+    name: 'Dedicated Minimalist',
+    description: 'Accumulate 1,000 points',
+    icon: 'target',
+    category: 'milestone',
+    rarity: 'rare',
+    requirements: {
+      type: 'points',
+      value: 1000
+    },
+    points_reward: 100
+  },
+  {
+    id: 'point_master',
+    name: 'Point Master',
+    description: 'Earn 2,500 points',
+    icon: 'award',
+    category: 'milestone',
+    rarity: 'rare',
+    requirements: {
+      type: 'points',
+      value: 2500
+    },
+    points_reward: 150
+  },
+  {
+    id: 'minimalism_expert',
+    name: 'Minimalism Expert',
+    description: 'Reach 5,000 points',
+    icon: 'star',
+    category: 'milestone',
+    rarity: 'epic',
+    requirements: {
+      type: 'points',
+      value: 5000
+    },
+    points_reward: 250
+  },
+  {
+    id: 'zen_master',
+    name: 'Zen Master',
+    description: 'Achieve 10,000 points',
+    icon: 'crown',
+    category: 'milestone',
+    rarity: 'legendary',
+    requirements: {
+      type: 'points',
+      value: 10000
+    },
+    points_reward: 500
+  },
+  {
+    id: 'minimalism_legend',
+    name: 'Minimalism Legend',
+    description: 'Reach the ultimate 25,000 points',
+    icon: 'gem',
+    category: 'milestone',
+    rarity: 'legendary',
+    requirements: {
+      type: 'points',
+      value: 25000
+    },
+    points_reward: 1000
+  },
+
+  // Task Completion Badges
+  {
+    id: 'task_starter',
+    name: 'Task Starter',
+    description: 'Complete your first task',
+    icon: 'check-circle',
     category: 'milestone',
     rarity: 'common',
     requirements: {
@@ -16,10 +122,10 @@ export const badges: Badge[] = [
     points_reward: 25
   },
   {
-    id: 'getting_started',
-    name: 'Getting Started',
+    id: 'task_explorer',
+    name: 'Task Explorer',
     description: 'Complete 5 tasks',
-    icon: 'play',
+    icon: 'compass',
     category: 'milestone',
     rarity: 'common',
     requirements: {
@@ -29,56 +135,97 @@ export const badges: Badge[] = [
     points_reward: 50
   },
   {
-    id: 'momentum_builder',
-    name: 'Momentum Builder',
-    description: 'Complete 10 tasks',
-    icon: 'trending-up',
-    category: 'milestone',
-    rarity: 'common',
-    requirements: {
-      type: 'tasks',
-      value: 10
-    },
-    points_reward: 100
-  },
-  {
-    id: 'dedicated_minimalist',
-    name: 'Dedicated Minimalist',
-    description: 'Complete 25 tasks',
-    icon: 'target',
+    id: 'task_achiever',
+    name: 'Task Achiever',
+    description: 'Complete 15 tasks',
+    icon: 'medal',
     category: 'milestone',
     rarity: 'rare',
     requirements: {
       type: 'tasks',
-      value: 25
+      value: 15
     },
-    points_reward: 250
+    points_reward: 100
   },
   {
-    id: 'minimalism_master',
-    name: 'Minimalism Master',
-    description: 'Complete 50 tasks',
-    icon: 'crown',
+    id: 'task_champion',
+    name: 'Task Champion',
+    description: 'Complete 30 tasks',
+    icon: 'trophy',
     category: 'milestone',
     rarity: 'epic',
     requirements: {
       type: 'tasks',
-      value: 50
+      value: 30
     },
-    points_reward: 500
+    points_reward: 200
   },
   {
-    id: 'zen_master',
-    name: 'Zen Master',
-    description: 'Complete 100 tasks',
-    icon: 'sparkles',
+    id: 'task_master',
+    name: 'Task Master',
+    description: 'Complete 50 tasks',
+    icon: 'crown',
     category: 'milestone',
     rarity: 'legendary',
     requirements: {
       type: 'tasks',
-      value: 100
+      value: 50
     },
-    points_reward: 1000
+    points_reward: 400
+  },
+
+  // Learning Badges
+  {
+    id: 'curious_learner',
+    name: 'Curious Learner',
+    description: 'Read your first article',
+    icon: 'book-open',
+    category: 'milestone',
+    rarity: 'common',
+    requirements: {
+      type: 'articles',
+      value: 1
+    },
+    points_reward: 25
+  },
+  {
+    id: 'knowledge_seeker',
+    name: 'Knowledge Seeker',
+    description: 'Read 5 articles',
+    icon: 'graduation-cap',
+    category: 'milestone',
+    rarity: 'common',
+    requirements: {
+      type: 'articles',
+      value: 5
+    },
+    points_reward: 50
+  },
+  {
+    id: 'wisdom_collector',
+    name: 'Wisdom Collector',
+    description: 'Read 15 articles',
+    icon: 'brain',
+    category: 'milestone',
+    rarity: 'rare',
+    requirements: {
+      type: 'articles',
+      value: 15
+    },
+    points_reward: 100
+  },
+  {
+    id: 'scholar',
+    name: 'Scholar',
+    description: 'Read 30 articles',
+    icon: 'scroll',
+    category: 'milestone',
+    rarity: 'epic',
+    requirements: {
+      type: 'articles',
+      value: 30
+    },
+    points_reward: 200
   },
 
   // Streak Badges
@@ -207,47 +354,6 @@ export const badges: Badge[] = [
     points_reward: 200
   },
 
-  // Knowledge Badges
-  {
-    id: 'curious_learner',
-    name: 'Curious Learner',
-    description: 'Read 5 minimalism articles',
-    icon: 'book-open',
-    category: 'milestone',
-    rarity: 'common',
-    requirements: {
-      type: 'articles',
-      value: 5
-    },
-    points_reward: 100
-  },
-  {
-    id: 'knowledge_seeker',
-    name: 'Knowledge Seeker',
-    description: 'Read 15 minimalism articles',
-    icon: 'graduation-cap',
-    category: 'milestone',
-    rarity: 'rare',
-    requirements: {
-      type: 'articles',
-      value: 15
-    },
-    points_reward: 250
-  },
-  {
-    id: 'wisdom_collector',
-    name: 'Wisdom Collector',
-    description: 'Read 30 minimalism articles',
-    icon: 'brain',
-    category: 'milestone',
-    rarity: 'epic',
-    requirements: {
-      type: 'articles',
-      value: 30
-    },
-    points_reward: 500
-  },
-
   // AI Room Designer Badges
   {
     id: 'room_transformer',
@@ -285,47 +391,6 @@ export const badges: Badge[] = [
     requirements: {
       type: 'rooms',
       value: 5
-    },
-    points_reward: 1000
-  },
-
-  // Points Milestone Badges
-  {
-    id: 'point_collector',
-    name: 'Point Collector',
-    description: 'Earn 1,000 total points',
-    icon: 'star',
-    category: 'milestone',
-    rarity: 'rare',
-    requirements: {
-      type: 'points',
-      value: 1000
-    },
-    points_reward: 100
-  },
-  {
-    id: 'point_master',
-    name: 'Point Master',
-    description: 'Earn 5,000 total points',
-    icon: 'award',
-    category: 'milestone',
-    rarity: 'epic',
-    requirements: {
-      type: 'points',
-      value: 5000
-    },
-    points_reward: 500
-  },
-  {
-    id: 'point_legend',
-    name: 'Point Legend',
-    description: 'Earn 10,000 total points',
-    icon: 'trophy',
-    category: 'milestone',
-    rarity: 'legendary',
-    requirements: {
-      type: 'points',
-      value: 10000
     },
     points_reward: 1000
   },
@@ -398,20 +463,30 @@ export const getBadgesByRarity = (rarity: string) => {
 
 export const getRarityColor = (rarity: string) => {
   switch (rarity) {
-    case 'common': return 'text-gray-600 bg-gray-100 border-gray-200';
-    case 'rare': return 'text-blue-600 bg-blue-100 border-blue-200';
-    case 'epic': return 'text-purple-600 bg-purple-100 border-purple-200';
-    case 'legendary': return 'text-yellow-600 bg-yellow-100 border-yellow-200';
-    default: return 'text-gray-600 bg-gray-100 border-gray-200';
+    case 'common': return 'text-gray-700 bg-gray-100 border-gray-300';
+    case 'rare': return 'text-blue-700 bg-blue-100 border-blue-300';
+    case 'epic': return 'text-purple-700 bg-purple-100 border-purple-300';
+    case 'legendary': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
+    default: return 'text-gray-700 bg-gray-100 border-gray-300';
   }
 };
 
 export const getRarityGlow = (rarity: string) => {
   switch (rarity) {
-    case 'common': return 'shadow-gray-200';
-    case 'rare': return 'shadow-blue-200 shadow-lg';
-    case 'epic': return 'shadow-purple-300 shadow-xl';
-    case 'legendary': return 'shadow-yellow-300 shadow-2xl animate-pulse';
-    default: return 'shadow-gray-200';
+    case 'common': return 'shadow-md';
+    case 'rare': return 'shadow-lg shadow-blue-200';
+    case 'epic': return 'shadow-xl shadow-purple-300';
+    case 'legendary': return 'shadow-2xl shadow-yellow-300 animate-pulse';
+    default: return 'shadow-md';
+  }
+};
+
+export const getRarityGradient = (rarity: string) => {
+  switch (rarity) {
+    case 'common': return 'from-gray-400 to-gray-600';
+    case 'rare': return 'from-blue-400 to-blue-600';
+    case 'epic': return 'from-purple-400 to-purple-600';
+    case 'legendary': return 'from-yellow-400 to-orange-500';
+    default: return 'from-gray-400 to-gray-600';
   }
 };
