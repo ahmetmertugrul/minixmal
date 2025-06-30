@@ -235,14 +235,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onCardClick 
     onToggle(task.id);
   };
 
+  const handleReadMoreClick = (e: React.MouseEvent) => {
+    // Only allow reading more if not completed
+    if (!task.completed) {
+      e.stopPropagation();
+      onCardClick(task);
+    }
+  };
+
   return (
     <div
       className={`
         h-80 sm:h-96 relative
-        bg-gradient-to-br ${getCardBackground(index)}
+        ${task.completed 
+          ? 'bg-gradient-to-br from-green-500 to-green-600' 
+          : `bg-gradient-to-br ${getCardBackground(index)}`
+        }
         rounded-2xl sm:rounded-3xl overflow-hidden
         hover:scale-[1.02] transition-all duration-300 cursor-pointer
         shadow-xl hover:shadow-2xl backdrop-blur-sm
+        ${task.completed ? 'ring-4 ring-green-400/50' : ''}
       `}
       onClick={handleCardClick}
     >
@@ -268,17 +280,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onCardClick 
           <img 
             src={getTaskImage(task.id)} 
             alt={task.title}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover transition-all duration-300 ${
+              task.completed ? 'opacity-80' : ''
+            }`}
           />
         </div>
       </div>
 
       {/* Content */}
       <div className="px-3 sm:px-4 space-y-1 sm:space-y-2">
-        <h3 className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2">
+        <h3 className={`text-lg sm:text-xl font-bold leading-tight line-clamp-2 ${
+          task.completed ? 'text-white' : 'text-white'
+        }`}>
           {task.title}
         </h3>
-        <p className="text-white/90 text-xs sm:text-sm leading-relaxed line-clamp-2">
+        <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${
+          task.completed ? 'text-white/90' : 'text-white/90'
+        }`}>
           {getOneLineDescription(task)}
         </p>
       </div>
@@ -308,20 +326,22 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index, onToggle, onCardClick 
             rounded-full flex items-center justify-center transition-all duration-300
             shadow-lg hover:shadow-xl flex-shrink-0
             ${task.completed 
-              ? 'bg-white text-green-600 hover:bg-gray-100' 
+              ? 'bg-white text-green-600 hover:bg-gray-100 scale-110' 
               : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
             }
           `}
         >
-          <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+          <Check className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300 ${
+            task.completed ? 'scale-110' : ''
+          }`} />
         </button>
       </div>
 
       {/* Completion Overlay */}
       {task.completed && (
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer hover:bg-green-600/90 transition-colors">
-          <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/95 to-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer hover:from-green-500/90 hover:to-green-600/90 transition-all duration-300">
+          <div className="text-center animate-in fade-in duration-500">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-bounce">
               <Check className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
             <p className="text-xl sm:text-2xl font-bold mb-2 text-white">Completed!</p>

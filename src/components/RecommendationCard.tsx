@@ -65,6 +65,10 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   };
 
   const getCardBackground = (index: number) => {
+    if (recommendation.completed) {
+      return 'bg-gradient-to-br from-green-500 to-green-600';
+    }
+    
     const backgrounds = [
       'bg-white/90',
       'bg-gradient-to-br from-blue-50 to-indigo-100',
@@ -105,7 +109,9 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
   return (
     <div 
-      className={`${getCardBackground(index)} backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative`}
+      className={`${getCardBackground(index)} backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:scale-[1.02] cursor-pointer relative ${
+        recommendation.completed ? 'ring-4 ring-green-400/50' : ''
+      }`}
       onClick={handleCardClick}
     >
       {/* Header */}
@@ -117,10 +123,18 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
               {getTypeIcon(recommendation.type)}
               <span className="capitalize">{recommendation.type}</span>
             </div>
-            <div className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">{recommendation.category}</div>
+            <div className={`text-xs sm:text-sm mt-2 font-medium ${
+              recommendation.completed ? 'text-white/90' : 'text-gray-600'
+            }`}>
+              {recommendation.category}
+            </div>
           </div>
         </div>
-        <div className="flex items-center space-x-1 text-xs sm:text-sm text-gray-500 bg-white/50 px-2 sm:px-3 py-1 rounded-full">
+        <div className={`flex items-center space-x-1 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full ${
+          recommendation.completed 
+            ? 'bg-white/20 text-white' 
+            : 'text-gray-500 bg-white/50'
+        }`}>
           <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>{recommendation.readTime}</span>
         </div>
@@ -128,17 +142,25 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
       {/* Content */}
       <div className="space-y-3 sm:space-y-4">
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">
+        <h3 className={`text-lg sm:text-xl font-bold leading-tight line-clamp-2 ${
+          recommendation.completed ? 'text-white' : 'text-gray-900'
+        }`}>
           {recommendation.title}
         </h3>
-        <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
+        <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${
+          recommendation.completed ? 'text-white/90' : 'text-gray-700'
+        }`}>
           {recommendation.description}
         </p>
-        <p className="text-gray-800 text-xs sm:text-sm leading-relaxed">
+        <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${
+          recommendation.completed ? 'text-white/90' : 'text-gray-800'
+        }`}>
           {recommendation.content}
         </p>
         {recommendation.author && (
-          <p className="text-xs sm:text-sm text-gray-600 italic font-medium">
+          <p className={`text-xs sm:text-sm italic font-medium ${
+            recommendation.completed ? 'text-white/80' : 'text-gray-600'
+          }`}>
             — {recommendation.author}
           </p>
         )}
@@ -150,7 +172,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
           onClick={handleReadMoreClick}
           className={`flex items-center space-x-2 text-xs sm:text-sm font-semibold transition-colors group ${
             recommendation.completed 
-              ? 'text-gray-400 cursor-not-allowed' 
+              ? 'text-white/70 cursor-not-allowed' 
               : 'text-indigo-600 hover:text-indigo-700'
           }`}
           disabled={recommendation.completed}
@@ -164,25 +186,31 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
         {/* Tick Mark Button */}
         <button
           onClick={handleTickClick}
-          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl ${
-            recommendation.completed
-              ? 'bg-green-500 text-white hover:bg-green-600'
+          className={`
+            w-8 h-8 sm:w-10 sm:h-10 
+            rounded-full flex items-center justify-center transition-all duration-300
+            shadow-lg hover:shadow-xl flex-shrink-0
+            ${recommendation.completed
+              ? 'bg-white text-green-600 hover:bg-gray-100 scale-110'
               : 'bg-white/80 text-gray-600 hover:bg-gray-100'
-          }`}
+            }
+          `}
         >
-          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          <Check className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${
+            recommendation.completed ? 'scale-110' : ''
+          }`} />
         </button>
       </div>
 
       {/* Completion Overlay */}
       {recommendation.completed && (
-        <div className="absolute inset-0 bg-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer hover:bg-green-600/90 transition-colors">
-          <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/95 to-green-600/95 backdrop-blur-sm flex items-center justify-center rounded-2xl sm:rounded-3xl cursor-pointer hover:from-green-500/90 hover:to-green-600/90 transition-all duration-300">
+          <div className="text-center animate-in fade-in duration-500">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-bounce">
               <Check className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
             <p className="text-xl sm:text-2xl font-bold mb-2 text-white">Completed!</p>
-            <p className="text-base sm:text-lg text-green-100">+{recommendation.points || 25} points</p>
+            <p className="text-base sm:text-lg text-white mb-2">+{recommendation.points || 25} points</p>
             <p className="text-xs sm:text-sm text-green-200 mt-2 opacity-80">Click to undo</p>
           </div>
         </div>
