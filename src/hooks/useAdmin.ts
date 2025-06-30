@@ -23,18 +23,18 @@ export const useAdmin = () => {
     if (!user) return;
 
     try {
-      // Check if user is admin
+      // Check if user is admin - use maybeSingle() to avoid PGRST116 error
       const { data: adminData, error } = await supabase
         .from('admin_users')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking admin status:', error);
-      }
-
-      if (adminData) {
+        setAdminUser(null);
+        setIsAdmin(false);
+      } else if (adminData) {
         setAdminUser(adminData);
         setIsAdmin(true);
       } else {
