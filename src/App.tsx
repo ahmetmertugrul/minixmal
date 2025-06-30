@@ -181,7 +181,13 @@ const App: React.FC = () => {
   };
 
   const handleTabClick = (tab: TabType) => {
-    // Check subscription limits for certain tabs
+    // Pricing page is always accessible to everyone
+    if (tab === 'pricing') {
+      setActiveTab(tab);
+      return;
+    }
+
+    // Check if user needs to sign in for other protected tabs
     if (!user) {
       if (tab === 'ai-designer' || tab === 'tasks' || tab === 'learn' || tab === 'score' || tab === 'admin') {
         handleSignInClick();
@@ -607,12 +613,20 @@ const App: React.FC = () => {
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Start Your Journey?</h3>
                 <p className="text-gray-600 mb-6">Join thousands of people who have simplified their lives with Minixmal</p>
-                <button
-                  onClick={handleSignInClick}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Get Started Today
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={handleSignInClick}
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Get Started Today
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('pricing')}
+                    className="bg-white/80 text-indigo-600 px-8 py-3 rounded-2xl font-semibold border-2 border-indigo-600 hover:bg-indigo-50 transition-all"
+                  >
+                    View Pricing
+                  </button>
+                </div>
               </div>
             )}
           </div>
